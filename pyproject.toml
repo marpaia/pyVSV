@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vsv"
+version = "0.1.0"
+description = "Computational genetics tools for Vesicular Stomatitis Virus (VSV) research."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "sbol-utilities>=1.0a17",
+    "sbol2>=1.4.1",
+    "sbol3>=1.2.0.post0",
+]
+
+[project.scripts]
+vsv = "vsv.cli:main"
+
+[dependency-groups]
+dev = ["mypy>=1.15,<2", "pytest>=8.3,<10", "ruff>=0.11,<1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vsv"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+    "/CONTRIBUTING.md",
+    "/Makefile",
+    "/pyproject.toml",
+    "/uv.lock",
+    "/.python-version",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "-ra"]
+filterwarnings = ["error"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["sbol2", "sbol2.*", "sbol3", "sbol3.*", "sbol_utilities", "sbol_utilities.*"]
+ignore_missing_imports = true

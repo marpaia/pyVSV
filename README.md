@@ -9,6 +9,41 @@ Vesicular Stomatitis Virus (VSV) is a negative-strand RNA virus that belongs to 
   <em>Liu G, Cao W, Salawudeen A, et al. Vesicular Stomatitis Virus: From Agricultural Pathogen to Vaccine Vector. Pathogens. 2021;10(9):1092. Published 2021 Aug 27. doi:<a href="https://doi.org/10.3390/pathogens10091092">10.3390/pathogens10091092</a></em>
 </p>
 
+## Usage
+
+VSV transcribes five genes, always in the order N, P, M, G, L. `vsv` finds them in a genome and gives typed access to each gene's coordinates and sequences. FASTA genomes are annotated from their sequence. GenBank and SBOL3 records keep their curated annotations, and their genes are named by position.
+
+### Python
+
+```python
+import vsv
+from vsv import Gene, Product
+
+genome = vsv.load("data/raw/NC_001560.fasta")  # FASTA, GenBank, or SBOL3
+
+for gene, annotation in genome.genes.items():  # N, P, M, G, L in genome order
+    print(gene, annotation.gene_span, annotation.cds_span, annotation.protein)
+
+n = genome.genes[Gene.N]
+n.gene_span  # (50, 1376): zero-based, half-open, so genome.bases[50:1376]
+n.cds_dna  # coding sequence with its stop codon
+n.sequence(Product.PROTEIN)  # the same as n.protein
+```
+
+`vsv.load_all(paths)` reads several files, and a genome whose five genes cannot all be identified raises a `vsv.GeneWarning`. Spans and sequences are `None` for anything a genome does not annotate.
+
+### Command line
+
+```bash
+vsv genes data/raw/NC_001560.fasta                        # table of the five genes
+vsv extract -g P --kind protein data/raw/NC_001560.gb     # FASTA; --kind is gene, cds, or protein
+vsv annotate data/raw/NC_001560.fasta --format gff3       # every feature, also SBOL3 formats
+vsv summary data/raw/*.fasta                              # length and base composition
+vsv compare data/raw/MF196237.fasta data/raw/NC_001560.fasta
+```
+
+`extract` writes all five genes unless `-g` is given, once per gene wanted. Genomes that lack a gene get a warning on standard error.
+
 ## Literature
 
 - [Vesicular stomatitis virus: re-inventing the bullet](https://pubmed.ncbi.nlm.nih.gov/15121047/) - May 2004
