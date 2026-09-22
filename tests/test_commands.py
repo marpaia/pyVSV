@@ -6,11 +6,11 @@ from pathlib import Path
 import pytest
 import sbol3
 
+import vsv.genome.sbol as sbol
 from tests.synthetic import SyntheticGenome, build_genome
-from vsv import sbol
 from vsv.cli import main
-from vsv.formats import OUTPUT_FORMATS
 from vsv.genes import Gene
+from vsv.genome.formats import OUTPUT_FORMATS
 
 
 @pytest.fixture

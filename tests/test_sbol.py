@@ -3,8 +3,9 @@
 import pytest
 import sbol3
 
-from vsv import sbol
-from vsv.sequence import InputError, reverse_complement
+import vsv.genome.sbol as sbol
+from vsv.errors import InputError
+from vsv.genome.sequence import reverse_complement
 
 
 @pytest.fixture

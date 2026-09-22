@@ -12,37 +12,52 @@ NAMESPACE = "https://vsv.bio"
 # import time, so the namespace is set before any vsv module is imported.
 sbol3.set_namespace(NAMESPACE)
 
-from vsv.api import GeneWarning, load, load_all  # noqa: E402
-from vsv.architecture import (  # noqa: E402
+from vsv.design import (  # noqa: E402
+    Antigen,
     Architecture,
-    Derivation,
+    ChassisCard,
+    Delete,
+    Design,
+    Host,
+    Implementation,
+    Insert,
+    Leader,
     LocusStatus,
     Module,
     ModuleKind,
+    Observation,
     ParentStatus,
+    Property,
+    Replace,
     Replication,
+    Reporter,
+    Stage,
+    Trailer,
+    Unmodeled,
+    Violation,
+    ViralGene,
     add_order_constraints,
     architecture_of,
     canonical_chassis,
+    check,
+    load_library,
+    parameters_for,
     project,
+    satisfies,
+    select,
     to_document,
 )
-from vsv.evidence import ChassisCard, Implementation, Observation, Stage, Unmodeled  # noqa: E402
+from vsv.errors import InputError  # noqa: E402
 from vsv.genes import Gene, Product  # noqa: E402
-from vsv.library import load_library  # noqa: E402
-from vsv.model import parameters_for  # noqa: E402
-from vsv.query import select  # noqa: E402
-from vsv.rules import Host, Property, Violation, check, satisfies  # noqa: E402
-from vsv.sbol import GeneAnnotation, Genome  # noqa: E402
-from vsv.sequence import InputError  # noqa: E402
-from vsv.transform import DeleteModule, InsertModule, ReplaceModule  # noqa: E402
+from vsv.genome import GeneAnnotation, GeneWarning, Genome, load, load_all  # noqa: E402
 
 __all__ = [
     "NAMESPACE",
+    "Antigen",
     "Architecture",
     "ChassisCard",
-    "DeleteModule",
-    "Derivation",
+    "Delete",
+    "Design",
     "Gene",
     "GeneAnnotation",
     "GeneWarning",
@@ -50,7 +65,8 @@ __all__ = [
     "Host",
     "Implementation",
     "InputError",
-    "InsertModule",
+    "Insert",
+    "Leader",
     "LocusStatus",
     "Module",
     "ModuleKind",
@@ -58,11 +74,14 @@ __all__ = [
     "ParentStatus",
     "Product",
     "Property",
-    "ReplaceModule",
+    "Replace",
     "Replication",
+    "Reporter",
     "Stage",
+    "Trailer",
     "Unmodeled",
     "Violation",
+    "ViralGene",
     "__version__",
     "add_order_constraints",
     "architecture_of",

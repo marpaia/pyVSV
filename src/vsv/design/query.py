@@ -3,57 +3,27 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
 
-from vsv.architecture import Architecture
-from vsv.evidence import (
-    ChassisCard,
-    EvidenceLevel,
-    Implementation,
-    Observation,
-    Phenotype,
-    Unmodeled,
-    chassis_card,
-)
-from vsv.rules import Host
-
-_LEVEL_RANK = {level: index for index, level in enumerate(EvidenceLevel)}
-
-
-@dataclass(frozen=True, slots=True)
-class DesignRecord:
-    """One curated design: its architecture, observations, and optional sequence accession."""
-
-    architecture: Architecture
-    observations: tuple[Observation, ...]
-    implementations: tuple[Implementation, ...] = ()
-    realization: str | None = None
-    model_source: str | None = None
-    unmodeled: tuple[Unmodeled, ...] = ()
-
-    @property
-    def card(self) -> ChassisCard:
-        return chassis_card(self.architecture, self.observations)
+from vsv.design.evidence import Design, EvidenceLevel, Host, Phenotype
 
 
 def select(
-    records: Sequence[DesignRecord],
+    records: Sequence[Design],
     *,
     antigen_class: str | None = None,
     phenotype: Phenotype | None = None,
     host: Host | None = None,
     min_evidence: EvidenceLevel | None = None,
-) -> list[DesignRecord]:
+) -> list[Design]:
     """Designs that meet every filter that is set.
 
-    A returned record keeps the observations that satisfied the phenotype and host filters.
+    A returned design keeps the observations that satisfied the phenotype and host filters.
     With neither of those filters set, it keeps every observation. Evidence is judged from the
     full card, before that filtering.
     """
-    found: list[DesignRecord] = []
-    threshold = None if min_evidence is None else _LEVEL_RANK[min_evidence]
+    found: list[Design] = []
     for record in records:
-        if threshold is not None and _LEVEL_RANK[record.card.evidence_level] < threshold:
+        if min_evidence is not None and record.card.evidence_level.rank < min_evidence.rank:
             continue
         if antigen_class is not None and antigen_class not in record.card.antigen_classes:
             continue
@@ -68,7 +38,7 @@ def select(
         if phenotype is None and host is None:
             observations = record.observations
         found.append(
-            DesignRecord(
+            Design(
                 record.architecture,
                 observations,
                 record.implementations,

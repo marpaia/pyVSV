@@ -3,9 +3,10 @@
 import pytest
 import sbol3
 
+import vsv.genome.sbol as sbol
 from tests.synthetic import SyntheticGenome, build_genome
-from vsv import sbol
-from vsv.annotation import (
+from vsv.genes import Gene
+from vsv.genome.annotation import (
     GENE_END_SIGNAL,
     TRANSCRIPT_END,
     annotate,
@@ -17,7 +18,6 @@ from vsv.annotation import (
     name_curated_genes,
     to_gff3,
 )
-from vsv.genes import Gene
 
 
 def make(synthetic: SyntheticGenome) -> sbol.Genome:

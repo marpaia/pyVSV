@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from itertools import combinations
 
 from vsv.genes import Gene
-from vsv.sbol import Genome
+from vsv.genome.sbol import Genome
 
 _MATCH = 2
 _MISMATCH = -1

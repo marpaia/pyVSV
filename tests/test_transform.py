@@ -1,35 +1,36 @@
 """Architecture transformations record a parent and leave the source alone."""
 
+from collections.abc import Callable
+
 import pytest
 
-from vsv.architecture import (
+from vsv.design import (
+    Antigen,
     Architecture,
-    Derivation,
-    Module,
+    Delete,
+    Insert,
+    Leader,
     ModuleKind,
+    Replace,
     Replication,
+    Reporter,
+    Trailer,
+    ViralGene,
     canonical_chassis,
 )
+from vsv.design.rules import Property, satisfies
+from vsv.errors import InputError
 from vsv.genes import Gene
-from vsv.rules import Property, satisfies
-from vsv.sequence import InputError
-from vsv.transform import DeleteModule, InsertModule, ReplaceModule
 
-_ANTIGEN = Module(
-    "antigen_1",
-    ModuleKind.ANTIGEN,
-    "filovirus glycoprotein",
-    locus=99,
-    antigen_class="filovirus-glycoprotein",
-)
-_REPORTER = Module("reporter_1", ModuleKind.REPORTER, "GFP", locus=99)
+_ANTIGEN = Antigen("antigen_1", "filovirus glycoprotein", "filovirus-glycoprotein", locus=99)
+_REPORTER = Reporter("reporter_1", "GFP", locus=99)
 
 
 def test_replace_insert_and_delete_preserve_canonical_order() -> None:
     source = canonical_chassis()
-    replaced = ReplaceModule(Gene.GLYCOPROTEIN, _ANTIGEN, "replaced").apply(source)
-    inserted = InsertModule(Gene.NUCLEOPROTEIN, _REPORTER, "inserted").apply(source)
-    deleted = DeleteModule(Gene.LARGE_POLYMERASE, "deleted").apply(source)
+    replaced = source.replace(Gene.GLYCOPROTEIN, _ANTIGEN, "replaced")
+    inserted = source.insert(Gene.NUCLEOPROTEIN, _REPORTER, "inserted")
+    deleted = source.delete(Gene.LARGE_POLYMERASE, "deleted")
     for design in (replaced, inserted, deleted):
         assert design.parent_id == source.id
         assert satisfies(design, (), Property.CANONICAL_ORDER)
@@ -46,24 +47,22 @@ def test_replace_insert_and_delete_preserve_canonical_order() -> None:
 
 def test_replace_records_the_edit_and_ignores_the_supplied_locus() -> None:
     source = canonical_chassis()
-    result = ReplaceModule(
+    result = source.replace(
         Gene.GLYCOPROTEIN, _ANTIGEN, "rvsv_dg", replication=Replication.SINGLE_CYCLE
-    ).apply(source)
+    )
     antigen = next(module for module in result.modules if module.id == "antigen_1")
     assert antigen.locus == 3
     assert antigen.kind is ModuleKind.ANTIGEN
     assert antigen.feature_identity is None
     assert Gene.GLYCOPROTEIN not in {module.id for module in result.modules}
     assert result.replication is Replication.SINGLE_CYCLE
-    assert result.derivation == Derivation(
-        "replace-module", "Glycoprotein", "antigen_1", Replication.SINGLE_CYCLE
-    )
+    assert result.edit == Replace("Glycoprotein", "antigen_1", Replication.SINGLE_CYCLE)
     assert source.replication is Replication.COMPETENT
-    assert source.derivation is None
+    assert source.edit is None
 
 
 def test_insert_renumbers_later_loci() -> None:
-    result = InsertModule(Gene.NUCLEOPROTEIN, _REPORTER, "with_reporter").apply(canonical_chassis())
+    result = canonical_chassis().insert(Gene.NUCLEOPROTEIN, _REPORTER, "with_reporter")
     assert [(module.id, module.locus) for module in result.modules] == [
         ("leader", None),
         ("Nucleoprotein", 0),
@@ -74,12 +73,12 @@ def test_insert_renumbers_later_loci() -> None:
         ("LargePolymerase", 5),
         ("trailer", None),
     ]
-    assert result.derivation == Derivation("insert-module", "Nucleoprotein", "reporter_1")
+    assert result.edit == Insert("Nucleoprotein", "reporter_1")
 
 
 def test_delete_renumbers_and_can_record_replication() -> None:
-    result = DeleteModule(Gene.GLYCOPROTEIN, "delta_g", replication=Replication.SINGLE_CYCLE).apply(
-        canonical_chassis()
+    result = canonical_chassis().delete(
+        Gene.GLYCOPROTEIN, "delta_g", replication=Replication.SINGLE_CYCLE
     )
     assert [module.id for module in result.modules] == [
         "leader",
@@ -90,34 +89,30 @@ def test_delete_renumbers_and_can_record_replication() -> None:
         "trailer",
     ]
     assert [module.locus for module in result.modules if module.locus is not None] == [0, 1, 2, 3]
-    assert result.derivation == Derivation(
-        "delete-module", "Glycoprotein", replication=Replication.SINGLE_CYCLE
-    )
+    assert result.edit == Delete("Glycoprotein", Replication.SINGLE_CYCLE)
 
 
 @pytest.mark.parametrize(
-    ("edit", "message"),
+    ("message", "apply"),
     [
-        (ReplaceModule("X", _ANTIGEN, "child"), "no module"),
-        (ReplaceModule("leader", _ANTIGEN, "child"), "cannot be replaced"),
+        ("no module", lambda source: source.replace("X", _ANTIGEN, "child")),
+        ("cannot be replaced", lambda source: source.replace("leader", _ANTIGEN, "child")),
         (
-            InsertModule(
-                "Phosphoprotein",
-                Module("Nucleoprotein", ModuleKind.VIRAL_GENE, "Nucleoprotein", locus=0),
-                "child",
-            ),
             "already exists",
+            lambda source: source.insert(
+                "Phosphoprotein", ViralGene("Nucleoprotein", "Nucleoprotein", locus=0), "child"
+            ),
         ),
-        (InsertModule("trailer", _REPORTER, "child"), "insertions"),
-        (DeleteModule("leader", "child"), "cannot be deleted"),
-        (DeleteModule("LargePolymerase", "vsv_indiana"), "own id"),
+        ("insertions", lambda source: source.insert("trailer", _REPORTER, "child")),
+        ("cannot be deleted", lambda source: source.delete("leader", "child")),
+        ("own id", lambda source: source.delete("LargePolymerase", "vsv_indiana")),
     ],
 )
 def test_edits_that_are_rejected(
-    edit: ReplaceModule | InsertModule | DeleteModule, message: str
+    message: str, apply: Callable[[Architecture], Architecture]
 ) -> None:
     with pytest.raises(InputError, match=message):
-        edit.apply(canonical_chassis())
+        apply(canonical_chassis())
 
 
 def test_the_last_transcribed_module_cannot_be_deleted() -> None:
@@ -127,10 +122,10 @@ def test_the_last_transcribed_module_cannot_be_deleted() -> None:
         "VSV",
         Replication.COMPETENT,
         (
-            Module("leader", ModuleKind.LEADER, "leader"),
-            Module("Nucleoprotein", ModuleKind.VIRAL_GENE, "Nucleoprotein", locus=0),
-            Module("trailer", ModuleKind.TRAILER, "trailer"),
+            Leader(),
+            ViralGene("Nucleoprotein", "Nucleoprotein", locus=0),
+            Trailer(),
         ),
     )
     with pytest.raises(InputError, match="last transcribed"):
-        DeleteModule("Nucleoprotein", "empty").apply(solo)
+        solo.delete("Nucleoprotein", "empty")

@@ -8,10 +8,10 @@ from pathlib import Path
 
 import pytest
 
-from vsv import sbol
-from vsv.annotation import annotate
-from vsv.formats import read_genomes
+import vsv.genome.sbol as sbol
 from vsv.genes import Gene
+from vsv.genome.annotation import annotate
+from vsv.genome.formats import read_genomes
 
 RAW = Path(__file__).resolve().parents[1] / "data" / "raw"
 ACCESSIONS = ["MF196237", "MF196238", "NC_001560"]

@@ -7,19 +7,32 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from vsv import __version__
-from vsv.annotation import kind, label, to_gff3
-from vsv.api import prepare
-from vsv.architecture import Architecture, Derivation, LocusStatus, Module, ParentStatus
-from vsv.compare import GenomeComparison, compare_all
-from vsv.evidence import EvidenceLevel, Observation, Phenotype
-from vsv.formats import OUTPUT_FORMATS, read_genomes, write_document
+from vsv.design import (
+    KNOWLEDGE_GAPS,
+    LIBRARY_ROOT,
+    Architecture,
+    Design,
+    EvidenceLevel,
+    Host,
+    LocusStatus,
+    Module,
+    Observation,
+    Phenotype,
+    check,
+    load_design,
+    load_library,
+    select,
+)
+from vsv.design.edits import Delete, Edit, Insert, Replace
+from vsv.errors import InputError
 from vsv.genes import Gene, Product
+from vsv.genome import prepare
+from vsv.genome.annotation import kind, label, to_gff3
+from vsv.genome.compare import GenomeComparison, compare_all
+from vsv.genome.formats import OUTPUT_FORMATS, read_genomes, write_document
+from vsv.genome.sbol import Genome
+from vsv.genome.sequence import composition, wrap_fasta
 from vsv.ingest import DEFAULT_QUERY, INGEST_ROOT, ingest
-from vsv.library import LIBRARY_ROOT, load_design, load_library
-from vsv.query import DesignRecord, select
-from vsv.rules import KNOWLEDGE_GAPS, Host, check
-from vsv.sbol import Genome
-from vsv.sequence import InputError, composition, wrap_fasta
 
 _EVIDENCE = {
     "none": EvidenceLevel.NONE,
@@ -312,7 +325,7 @@ def _evidence(value: object) -> EvidenceLevel | None:
         raise InputError(f"unknown evidence {value!r}.") from error
 
 
-def _design_rows(records: Sequence[DesignRecord]) -> str:
+def _design_rows(records: Sequence[Design]) -> str:
     rows = []
     for record in records:
         card = record.card
@@ -331,7 +344,7 @@ def _design_rows(records: Sequence[DesignRecord]) -> str:
     return _table(["id", "replication", "antigens", "evidence", "hosts", "gaps"], rows)
 
 
-def _gap_text(record: DesignRecord) -> str:
+def _gap_text(record: Design) -> str:
     names = [
         item.rule
         for item in check(record.architecture, record.observations)
@@ -341,26 +354,24 @@ def _gap_text(record: DesignRecord) -> str:
 
 
 def _parent_text(architecture: Architecture) -> str:
-    if architecture.parent_status is ParentStatus.KNOWN and architecture.parent_id:
+    if architecture.parent_id is not None:
         return architecture.parent_id
-    return architecture.parent_status.value
+    return str(architecture.parent)
 
 
-def _derivation_text(derivation: Derivation) -> str:
-    target = _cli_name(derivation.target)
-    module = None if derivation.module_id is None else _cli_name(derivation.module_id)
-    if derivation.activity == "delete-module":
-        text = f"delete {target}"
-    elif derivation.activity == "insert-module":
-        text = f"insert after {target}"
-        if module:
-            text += f" with {module}"
-    else:
-        text = f"replace {target}"
-        if module and module != target:
-            text += f" with {module}"
-    if derivation.replication is not None:
-        text += f", {derivation.replication.value}"
+def _derivation_text(edit: Edit) -> str:
+    match edit:
+        case Delete(target=target, replication=replication):
+            text = f"delete {_cli_name(target)}"
+        case Insert(after=after, module=module, replication=replication):
+            text = f"insert after {_cli_name(after)} with {_cli_name(module)}"
+        case Replace(target=target, module=module, replication=replication):
+            text = f"replace {_cli_name(target)}"
+            shown = _cli_name(module)
+            if shown != _cli_name(target):
+                text += f" with {shown}"
+    if replication is not None:
+        text += f", {replication.value}"
     return text
 
 
@@ -404,15 +415,15 @@ def _observation_lines(observations: Sequence[Observation], citation: str) -> li
     return lines[:-1]
 
 
-def _show(record: DesignRecord) -> str:
+def _show(record: Design) -> str:
     architecture = record.architecture
     facts = [
         ("backbone", architecture.backbone),
         ("replication", architecture.replication.value),
         ("parent", _parent_text(architecture)),
     ]
-    if architecture.derivation is not None:
-        facts.append(("derivation", _derivation_text(architecture.derivation)))
+    if architecture.edit is not None:
+        facts.append(("derivation", _derivation_text(architecture.edit)))
     if record.realization:
         facts.append(("realization", record.realization))
     if record.model_source:
@@ -469,7 +480,7 @@ def _show(record: DesignRecord) -> str:
     return "\n".join(lines)
 
 
-def _resolve_show(identifier: str) -> DesignRecord:
+def _resolve_show(identifier: str) -> Design:
     path = Path(identifier)
     if path.is_dir():
         return load_design(path)

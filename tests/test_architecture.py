@@ -6,13 +6,14 @@ from pathlib import Path
 import pytest
 import sbol3
 
+import vsv.genome.sbol as sbol
 from tests.synthetic import SyntheticGenome
-from vsv import NAMESPACE, Architecture, sbol
-from vsv.annotation import annotate
-from vsv.architecture import (
-    Derivation,
-    Module,
+from vsv import NAMESPACE
+from vsv.design import (
+    Antigen,
+    Architecture,
     ModuleKind,
+    Replace,
     Replication,
     add_order_constraints,
     architecture_of,
@@ -20,9 +21,11 @@ from vsv.architecture import (
     project,
     to_document,
 )
-from vsv.formats import read_genomes
-from vsv.sbol import display_id
-from vsv.sequence import InputError
+from vsv.design.modules import at_locus
+from vsv.errors import InputError
+from vsv.genome.annotation import annotate
+from vsv.genome.formats import read_genomes
+from vsv.genome.sbol import display_id
 
 RAW = Path(__file__).resolve().parents[1] / "data" / "raw"
 _DOI = "https://doi.org/10.1371/journal.pcbi.1011912"
@@ -43,7 +46,7 @@ def _logical(architecture: Architecture) -> tuple[object, ...]:
         architecture.replication,
         architecture.parent_id,
         architecture.citations,
-        architecture.derivation,
+        architecture.edit,
         tuple(
             (module.id, module.kind, module.name, module.locus, module.antigen_class)
             for module in architecture.modules
@@ -70,20 +73,14 @@ def test_ids_are_sbol_display_ids() -> None:
     with pytest.raises(InputError, match="architecture id"):
         replace(canonical_chassis(), id="vsv-indiana")
     with pytest.raises(InputError, match="module id"):
-        Module("antigen-1", ModuleKind.ANTIGEN, "antigen", antigen_class="filovirus-glycoprotein")
+        Antigen("antigen-1", "antigen", "filovirus-glycoprotein")
 
 
 def test_an_antigen_needs_a_class_slug() -> None:
     with pytest.raises(InputError, match="antigen class"):
-        Module("antigen_1", ModuleKind.ANTIGEN, "antigen")
-    with pytest.raises(InputError, match="not an antigen"):
-        Module(
-            "Nucleoprotein",
-            ModuleKind.VIRAL_GENE,
-            "Nucleoprotein",
-            locus=0,
-            antigen_class="filovirus-glycoprotein",
-        )
+        Antigen("antigen_1", "antigen", "Filovirus Glycoprotein")
+    with pytest.raises(InputError, match="antigen class"):
+        Antigen("antigen_1", "antigen", "")
 
 
 def test_module_ids_are_unique() -> None:
@@ -145,13 +142,7 @@ def test_order_constraints_follow_the_canonical_features(synthetic: SyntheticGen
 
 
 def test_architecture_round_trip_keeps_order_lineage_and_citations() -> None:
-    antigen = Module(
-        "antigen_1",
-        ModuleKind.ANTIGEN,
-        "filovirus glycoprotein",
-        locus=3,
-        antigen_class="filovirus-glycoprotein",
-    )
+    antigen = Antigen("antigen_1", "filovirus glycoprotein", "filovirus-glycoprotein", locus=3)
     modules = tuple(
         module if module.id != "Glycoprotein" else antigen for module in canonical_chassis().modules
     )
@@ -161,11 +152,9 @@ def test_architecture_round_trip_keeps_order_lineage_and_citations() -> None:
         "VSV-Indiana",
         Replication.SINGLE_CYCLE,
         modules,
-        parent_id="vsv_indiana",
+        parent="vsv_indiana",
         citations=(_DOI, "https://pubmed.ncbi.nlm.nih.gov/36508878"),
-        derivation=Derivation(
-            "replace-module", "Glycoprotein", "antigen_1", Replication.SINGLE_CYCLE
-        ),
+        edit=Replace("Glycoprotein", "antigen_1", Replication.SINGLE_CYCLE),
     )
     document = to_document(architecture)
     assert not document.validate()
@@ -184,10 +173,7 @@ def test_a_genome_is_not_an_architecture(synthetic: SyntheticGenome) -> None:
 
 def test_unknown_locus_and_replication_are_not_serialized() -> None:
     architecture = canonical_chassis()
-    unknown = replace(
-        next(module for module in architecture.modules if module.id == "LargePolymerase"),
-        locus=None,
-    )
+    unknown = at_locus(architecture.module("LargePolymerase"), None)
     modules = tuple(
         unknown if module.id == "LargePolymerase" else module for module in architecture.modules
     )
@@ -200,7 +186,7 @@ def test_unknown_locus_and_replication_are_not_serialized() -> None:
 def test_serialization_requires_locus_order() -> None:
     architecture = canonical_chassis()
     gap = [
-        replace(module, locus=5) if module.id == "LargePolymerase" else module
+        at_locus(module, 5) if module.id == "LargePolymerase" else module
         for module in architecture.modules
     ]
     with pytest.raises(InputError, match="locus order"):

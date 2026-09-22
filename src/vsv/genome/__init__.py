@@ -1,4 +1,4 @@
-"""Load genomes with their genes identified."""
+"""VSV genomes, their annotations, and the files they are read from."""
 
 from __future__ import annotations
 
@@ -9,11 +9,21 @@ from pathlib import Path
 
 import sbol3
 
-from vsv.annotation import annotate, is_annotated, name_curated_genes
-from vsv.formats import read_genomes
+from vsv.errors import InputError
 from vsv.genes import Gene
-from vsv.sbol import Genome
-from vsv.sequence import InputError
+from vsv.genome.annotation import annotate, is_annotated, name_curated_genes
+from vsv.genome.formats import read_genomes
+from vsv.genome.sbol import GeneAnnotation, Genome
+
+__all__ = [
+    "GeneAnnotation",
+    "GeneWarning",
+    "Genome",
+    "gene_problems",
+    "load",
+    "load_all",
+    "prepare",
+]
 
 
 class GeneWarning(UserWarning):
@@ -61,7 +71,7 @@ def load_all(paths: Sequence[str | PathLike[str]]) -> tuple[sbol3.Document, list
 def load(path: str | PathLike[str]) -> Genome:
     """Read the single genome in a FASTA, GenBank, or SBOL3 file, with genes identified.
 
-    Raises :class:`~vsv.sequence.InputError` if the file holds more than one record.
+    Raises :class:`~vsv.errors.InputError` if the file holds more than one record.
     """
     _, genomes = load_all([path])
     if len(genomes) != 1:

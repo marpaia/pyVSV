@@ -6,10 +6,10 @@ from pathlib import Path
 import pytest
 
 import vsv
+import vsv.genome.sbol as sbol
 from tests.synthetic import SyntheticGenome
-from vsv import sbol
-from vsv.api import gene_problems
 from vsv.genes import Gene, Product
+from vsv.genome import gene_problems
 
 
 def test_gene_is_a_string_enum_in_genome_order() -> None:

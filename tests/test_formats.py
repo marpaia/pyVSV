@@ -5,12 +5,12 @@ from pathlib import Path
 import pytest
 import sbol3
 
+import vsv.genome.sbol as sbol
 from tests.synthetic import SyntheticGenome, genbank_text
-from vsv import sbol
-from vsv.annotation import annotate
-from vsv.formats import OUTPUT_FORMATS, SBOL_SUFFIXES, read_genomes, write_document
+from vsv.errors import InputError
 from vsv.genes import Gene
-from vsv.sequence import InputError
+from vsv.genome.annotation import annotate
+from vsv.genome.formats import OUTPUT_FORMATS, SBOL_SUFFIXES, read_genomes, write_document
 
 
 def test_fasta_becomes_an_sbol_genome(synthetic_fasta: Path, synthetic: SyntheticGenome) -> None:

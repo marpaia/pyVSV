@@ -9,7 +9,10 @@ from __future__ import annotations
 
 import sbol3
 
-from vsv.architecture import Architecture, ModuleKind
+from vsv import NAMESPACE
+from vsv.design.architecture import Architecture
+
+sbol3.set_namespace(NAMESPACE)
 
 INTRACELLULAR_MODEL_SOURCE = "https://doi.org/10.1371/journal.pcbi.1011373"
 INTRACELLULAR_MODEL_LANGUAGE = "https://vsv.bio/language/stochastic-simulation"
@@ -18,11 +21,7 @@ INTRACELLULAR_MODEL_FRAMEWORK = "https://identifiers.org/SBO:0000063"
 
 def parameters_for(architecture: Architecture) -> dict[str, object]:
     """Gene count, ordered locus names, and replication class for ``architecture``."""
-    transcribed = [
-        module
-        for module in architecture.modules
-        if module.kind not in {ModuleKind.LEADER, ModuleKind.TRAILER}
-    ]
+    transcribed = architecture.transcribed
     return {
         "replication": architecture.replication.value,
         "gene_count": len(transcribed),

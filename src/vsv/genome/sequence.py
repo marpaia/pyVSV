@@ -8,6 +8,8 @@ from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
+from vsv.errors import InputError
+
 IUPAC_NUCLEOTIDES = frozenset("ACGTRYSWKMBDHVN")
 _UNAMBIGUOUS = "ACGT"
 _COMPLEMENT = str.maketrans(
@@ -25,10 +27,6 @@ CODON_TABLE: dict[str, str] = {
 }
 
 STOP_CODONS = frozenset(codon for codon, aa in CODON_TABLE.items() if aa == "*")
-
-
-class InputError(ValueError):
-    """Raised when an input file cannot be read as genome data."""
 
 
 class FastaError(InputError):

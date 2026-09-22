@@ -5,22 +5,25 @@ from pathlib import Path
 
 import pytest
 
-from vsv.architecture import (
+from vsv.design import (
+    Antigen,
+    EvidenceLevel,
+    Host,
     LocusStatus,
-    Module,
-    ModuleKind,
     ParentStatus,
+    Phenotype,
+    Stage,
     canonical_chassis,
+    check,
+    load_design,
+    load_library,
+    parameters_for,
+    select,
     to_document,
 )
-from vsv.evidence import EvidenceLevel, Phenotype, Stage
+from vsv.design.model import attach_model
+from vsv.errors import InputError
 from vsv.genes import Gene
-from vsv.library import load_design, load_library
-from vsv.model import attach_model, parameters_for
-from vsv.query import select
-from vsv.rules import Host, check
-from vsv.sequence import InputError
-from vsv.transform import ReplaceModule
 
 
 def test_seed_designs_match_their_recorded_transformations() -> None:
@@ -36,37 +39,32 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
     indiana = records["vsv_indiana"]
     assert indiana.realization == "NC_001560"
     assert indiana.model_source == "https://doi.org/10.1371/journal.pcbi.1011373"
-    assert indiana.architecture.parent_status is ParentStatus.ROOT
+    assert indiana.architecture.parent is ParentStatus.ROOT
     assert indiana.implementations == ()
     assert check(indiana.architecture, indiana.observations) == []
     assert indiana.card.evidence_level is EvidenceLevel.NONE
 
     filo = records["rvsv_dg_filovirus_gp"].architecture
-    applied = ReplaceModule(
+    applied = indiana.architecture.replace(
         Gene.GLYCOPROTEIN,
-        Module(
-            Gene.GLYCOPROTEIN,
-            ModuleKind.ANTIGEN,
-            "filovirus glycoprotein",
-            antigen_class="filovirus-glycoprotein",
-        ),
+        Antigen(Gene.GLYCOPROTEIN, "filovirus glycoprotein", "filovirus-glycoprotein"),
         filo.id,
         name=filo.name,
-    ).apply(indiana.architecture)
+    )
     assert filo.modules == applied.modules
-    assert filo.derivation == applied.derivation
+    assert filo.edit == applied.edit
     assert filo.replication == applied.replication
     assert records["rvsv_dg_filovirus_gp"].card.evidence_level is EvidenceLevel.RODENT
 
     nipah = records["rvsv_niv_g"].architecture
     added = next(module for module in nipah.modules if module.id == "niv_g")
     assert nipah.parent_id == filo.id
-    assert nipah.derivation is None
+    assert nipah.edit is None
     assert added.locus is None
     assert added.locus_status is LocusStatus.UNKNOWN
     assert next(module.locus for module in nipah.modules if module.id == "LargePolymerase") == 4
     fusion = records["rvsv_niv_f"].architecture
-    assert fusion.derivation is None
+    assert fusion.edit is None
     assert next(module for module in fusion.modules if module.id == "niv_f").locus is None
     assert records["rvsv_niv_f"].card.evidence_level is EvidenceLevel.NONHUMAN_PRIMATE
 
@@ -174,7 +172,17 @@ def test_unknown_fields_are_kept(tmp_path: Path) -> None:
     assert kept["species"].source == "The abstract names no species."
     assert kept["route"].value == "not stated"
     assert record.architecture.replication.value == "unknown"
-    assert record.architecture.parent_status is ParentStatus.UNKNOWN
+    assert record.architecture.parent is ParentStatus.UNKNOWN
+
+
+def test_a_non_string_id_is_rejected(tmp_path: Path) -> None:
+    design = tmp_path / "bad"
+    design.mkdir()
+    body = _partial_design({})
+    body["id"] = 12
+    (design / "design.json").write_text(json.dumps(body))
+    with pytest.raises(InputError, match="id must be a string"):
+        load_design(design)
 
 
 def test_a_sequence_field_is_rejected(tmp_path: Path) -> None:

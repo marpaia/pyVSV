@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from vsv.sequence import InputError
+from vsv.errors import InputError
 
 INGEST_ROOT = Path(__file__).resolve().parents[2] / "data" / "ingest"
 DEFAULT_QUERY = (

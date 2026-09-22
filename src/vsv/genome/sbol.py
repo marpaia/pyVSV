@@ -27,8 +27,11 @@ from dataclasses import dataclass
 import sbol3
 
 from vsv import NAMESPACE
+from vsv.errors import InputError
 from vsv.genes import Gene, Product
-from vsv.sequence import InputError, reverse_complement, translate
+from vsv.genome.sequence import reverse_complement, translate
+
+sbol3.set_namespace(NAMESPACE)
 
 _ROLE_NAMESPACE = f"{NAMESPACE}/role"
 

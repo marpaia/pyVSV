@@ -9,7 +9,7 @@ Sequences are expected in antigenome (positive) sense.
 Each transcription unit is a gene part named with that protein. Its coding sequence is a separate
 part, ``Nucleoprotein_cds``, named ``Nucleoprotein CDS`` when the product is not already known.
 The gene contains its start signal and its coding sequence. Annotations are SBOL3 features on a
-:class:`vsv.sbol.Genome`.
+:class:`vsv.genome.sbol.Genome`.
 """
 
 from __future__ import annotations
@@ -19,10 +19,10 @@ from dataclasses import dataclass
 
 import sbol3
 
-from vsv import sbol
+import vsv.genome.sbol as sbol
 from vsv.genes import Gene
-from vsv.sbol import Genome
-from vsv.sequence import STOP_CODONS
+from vsv.genome.sbol import Genome
+from vsv.genome.sequence import STOP_CODONS
 
 TRANSCRIPT_END = "TATG"
 GENE_END_SIGNAL = TRANSCRIPT_END + "A" * 7

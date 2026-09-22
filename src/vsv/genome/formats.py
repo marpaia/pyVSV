@@ -10,10 +10,12 @@ import sbol3
 from sbol2 import SBOLError
 from sbol_utilities.conversion import convert_from_genbank
 
-from vsv import NAMESPACE, sbol
-from vsv.annotation import name_curated_genes
-from vsv.sbol import Genome
-from vsv.sequence import InputError, read_fasta
+import vsv.genome.sbol as sbol
+from vsv import NAMESPACE
+from vsv.errors import InputError
+from vsv.genome.annotation import name_curated_genes
+from vsv.genome.sbol import Genome
+from vsv.genome.sequence import read_fasta
 
 FASTA_SUFFIXES = frozenset({".fasta", ".fa", ".fna", ".fas"})
 GENBANK_SUFFIXES = frozenset({".gb", ".gbk", ".gbff", ".genbank"})
