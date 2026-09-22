@@ -10,7 +10,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "click>=8.5.0",
-    "fastapi>=0.124.2",
     "sbol-utilities>=1.0a17",
     "sbol2>=1.4.1",
     "sbol3>=1.2.0.post0",
@@ -21,15 +20,26 @@ vsv = "vsv.cli:main"
 
 [dependency-groups]
 dev = [
-    "httpx2>=2.13",
     "mypy>=1.15,<2",
     "pytest>=8.3,<10",
     "ruff>=0.11,<1",
+]
+server = [
+    "fastapi>=0.124.2",
+    "httpx2>=2.13",
     "uvicorn>=0.38.0",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vsv"]
+exclude = ["/src/vsv/server"]
+
+# Editable installs keep the checkout on the path. The wheel omits vsv.server.
+[tool.hatch.build]
+dev-mode-dirs = ["src"]
+
+[tool.vercel.scripts]
+install = "uv sync --locked --no-dev --group server"
 
 [tool.hatch.build.targets.sdist]
 include = [

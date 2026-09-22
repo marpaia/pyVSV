@@ -1183,7 +1183,6 @@ version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
-    { name = "fastapi" },
     { name = "sbol-utilities" },
     { name = "sbol2" },
     { name = "sbol3" },
@@ -1191,17 +1190,19 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "httpx2" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "ruff" },
+]
+server = [
+    { name = "fastapi" },
+    { name = "httpx2" },
     { name = "uvicorn" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.5.0" },
-    { name = "fastapi", specifier = ">=0.124.2" },
     { name = "sbol-utilities", specifier = ">=1.0a17" },
     { name = "sbol2", specifier = ">=1.4.1" },
     { name = "sbol3", specifier = ">=1.2.0.post0" },
@@ -1209,10 +1210,13 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "httpx2", specifier = ">=2.13" },
     { name = "mypy", specifier = ">=1.15,<2" },
     { name = "pytest", specifier = ">=8.3,<10" },
     { name = "ruff", specifier = ">=0.11,<1" },
+]
+server = [
+    { name = "fastapi", specifier = ">=0.124.2" },
+    { name = "httpx2", specifier = ">=2.13" },
     { name = "uvicorn", specifier = ">=0.38.0" },
 ]
 
