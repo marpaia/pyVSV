@@ -1,0 +1,22 @@
+[
+  {
+    "id": "jimmunol-2017-mouse-protection",
+    "implementation_id": "jimmunol-2017",
+    "phenotype": "protection",
+    "host": "mouse",
+    "assay": "lethal-challenge",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.4049/jimmunol.1602180",
+    "note": "Female mice vaccinated with a matrix-mutant rVSV expressing Zika envelope conferred protection to their challenged newborn mice."
+  },
+  {
+    "id": "natcommun-2018-mouse-protection",
+    "implementation_id": "natcommun-2018",
+    "phenotype": "protection",
+    "host": "mouse",
+    "assay": "lethal-challenge",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1038/s41467-018-05276-4",
+    "note": "A single dose of attenuated rVSV expressing Zika prM-E-NS1 protected mice against Zika virus challenge."
+  }
+]

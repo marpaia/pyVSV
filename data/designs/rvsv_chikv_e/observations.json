@@ -1,0 +1,22 @@
+[
+  {
+    "id": "jvi-2013-mouse-neutralization",
+    "implementation_id": "jvi-2013",
+    "phenotype": "immunogenicity",
+    "host": "mouse",
+    "assay": "neutralization",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1128/jvi.01860-12",
+    "note": "A single dose generated neutralizing antibody responses to chikungunya virus in mice."
+  },
+  {
+    "id": "jvi-2013-mouse-protection",
+    "implementation_id": "jvi-2013",
+    "phenotype": "protection",
+    "host": "mouse",
+    "assay": "lethal-challenge",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1128/jvi.01860-12",
+    "note": "A single dose protected mice against chikungunya virus infection."
+  }
+]

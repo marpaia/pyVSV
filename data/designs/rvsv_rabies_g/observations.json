@@ -1,0 +1,22 @@
+[
+  {
+    "id": "ymthe-2025-mouse-protection",
+    "implementation_id": "ymthe-2025",
+    "phenotype": "protection",
+    "host": "mouse",
+    "assay": "lethal-challenge",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1016/j.ymthe.2025.02.038",
+    "note": "Oral rVSVΔG-ERA-G protected 100% of mice challenged intracranially with 100 LD50 of rabies virus CVS-24."
+  },
+  {
+    "id": "ymthe-2025-dog-neutralization",
+    "implementation_id": "ymthe-2025",
+    "phenotype": "immunogenicity",
+    "host": "other",
+    "assay": "neutralization",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1016/j.ymthe.2025.02.038",
+    "note": "Dogs developed rabies virus-neutralizing antibody by one month after vaccination, and the response was still present at one year."
+  }
+]

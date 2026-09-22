@@ -1,0 +1,72 @@
+{
+  "id": "rvsv_luc",
+  "name": "rVSV luciferase",
+  "backbone": "VSV-Indiana",
+  "replication": "replication-competent",
+  "modules": [
+    {
+      "id": "leader",
+      "kind": "leader",
+      "name": "leader"
+    },
+    {
+      "id": "luciferase",
+      "kind": "reporter",
+      "name": "firefly luciferase",
+      "locus": 0
+    },
+    {
+      "id": "Nucleoprotein",
+      "kind": "viral-gene",
+      "name": "Nucleoprotein",
+      "locus": 1
+    },
+    {
+      "id": "Phosphoprotein",
+      "kind": "viral-gene",
+      "name": "Phosphoprotein",
+      "locus": 2
+    },
+    {
+      "id": "MatrixProtein",
+      "kind": "viral-gene",
+      "name": "MatrixProtein",
+      "locus": 3
+    },
+    {
+      "id": "Glycoprotein",
+      "kind": "viral-gene",
+      "name": "Glycoprotein",
+      "locus": 4
+    },
+    {
+      "id": "LargePolymerase",
+      "kind": "viral-gene",
+      "name": "LargePolymerase",
+      "locus": 5
+    },
+    {
+      "id": "trailer",
+      "kind": "trailer",
+      "name": "trailer"
+    }
+  ],
+  "parent_id": "vsv_indiana",
+  "citations": [
+    "https://doi.org/10.1128/jvi.00019-14"
+  ],
+  "derivation": {
+    "activity": "insert-module",
+    "target": "leader",
+    "module": "luciferase"
+  },
+  "parent_status": "known",
+  "implementations": [
+    {
+      "id": "jvi-2014",
+      "stage": "preclinical",
+      "citation": "https://doi.org/10.1128/jvi.00019-14",
+      "note": "rVSV-Luc carries firefly luciferase at the gene junction between the leader and the nucleoprotein gene. VSV G remains."
+    }
+  ]
+}

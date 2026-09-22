@@ -1,0 +1,5 @@
+# rVSV hantavirus glycoprotein
+
+The VSV glycoprotein part is an antigen of class `hantavirus-glycoprotein`. A 2011 Journal of Virology paper (https://doi.org/10.1128/jvi.00794-11) inserted the Andes virus glycoprotein precursor into the fourth coding position of pVSVXN2ΔG, replacing VSV G. One dose of VSVΔG/ANDVGPC fully protected Syrian hamsters from a lethal Andes virus challenge and induced neutralizing antibodies. A 2014 Viruses paper (https://doi.org/10.3390/v6020516) is the same Andes virus replacement and reports protection at six months. A 2024 npj Vaccines paper (https://doi.org/10.1038/s41541-024-00814-2) replaces the VSV G open reading frame with Hantaan virus glycoprotein and adds GFP between that glycoprotein and L. Neutralizing antibody was measured in mice. The GFP transcription unit is not drawn on this architecture. A pseudotyped VSV that displays Hantaan glycoproteins supplied in trans is not this record. No glycoprotein sequence is stored.
+
+Retrieved 22 September 2026.

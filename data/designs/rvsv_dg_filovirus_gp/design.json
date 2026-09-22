@@ -48,7 +48,9 @@
   ],
   "parent_id": "vsv_indiana",
   "citations": [
-    "https://doi.org/10.1128/jvi.78.10.5458-5465.2004"
+    "https://doi.org/10.1128/jvi.78.10.5458-5465.2004",
+    "https://doi.org/10.1038/nm1258",
+    "https://doi.org/10.1056/nejmoa1414216"
   ],
   "derivation": {
     "activity": "replace-module",
@@ -62,6 +64,18 @@
       "stage": "preclinical",
       "citation": "https://doi.org/10.1128/jvi.78.10.5458-5465.2004",
       "note": "Filovirus transmembrane glycoprotein inserted between the matrix and polymerase genes of a glycoprotein-deleted, replication-competent rVSV."
+    },
+    {
+      "id": "nm-2005",
+      "stage": "preclinical",
+      "citation": "https://doi.org/10.1038/nm1258",
+      "note": "Replication-competent rVSV vectors expressing the Ebola virus glycoprotein protected nonhuman primates."
+    },
+    {
+      "id": "nejm-2017",
+      "stage": "clinical",
+      "citation": "https://doi.org/10.1056/nejmoa1414216",
+      "note": "Two phase 1 trials of an attenuated, replication-competent rVSV vaccine expressing the glycoprotein of a Zaire strain of Ebola virus."
     }
   ]
 }

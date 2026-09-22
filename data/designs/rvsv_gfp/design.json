@@ -1,0 +1,65 @@
+{
+  "id": "rvsv_gfp",
+  "name": "rVSV GFP",
+  "backbone": "VSV-Indiana",
+  "replication": "replication-competent",
+  "modules": [
+    {
+      "id": "leader",
+      "kind": "leader",
+      "name": "leader"
+    },
+    {
+      "id": "Nucleoprotein",
+      "kind": "viral-gene",
+      "name": "Nucleoprotein",
+      "locus": 0
+    },
+    {
+      "id": "Phosphoprotein",
+      "kind": "viral-gene",
+      "name": "Phosphoprotein",
+      "locus": 1
+    },
+    {
+      "id": "MatrixProtein",
+      "kind": "viral-gene",
+      "name": "MatrixProtein",
+      "locus": 2
+    },
+    {
+      "id": "Glycoprotein",
+      "kind": "viral-gene",
+      "name": "Glycoprotein",
+      "locus": 3
+    },
+    {
+      "id": "gfp",
+      "kind": "reporter",
+      "name": "GFP",
+      "locus": 4
+    },
+    {
+      "id": "LargePolymerase",
+      "kind": "viral-gene",
+      "name": "LargePolymerase",
+      "locus": 5
+    },
+    {
+      "id": "trailer",
+      "kind": "trailer",
+      "name": "trailer"
+    }
+  ],
+  "parent_id": "vsv_indiana",
+  "citations": [
+    "https://doi.org/10.1038/srep24722"
+  ],
+  "derivation": {
+    "activity": "insert-module",
+    "target": "Glycoprotein",
+    "module": "gfp"
+  },
+  "parent_status": "known",
+  "implementations": []
+}

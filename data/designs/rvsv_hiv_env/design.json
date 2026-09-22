@@ -1,0 +1,69 @@
+{
+  "id": "rvsv_hiv_env",
+  "name": "rVSV HIV envelope",
+  "backbone": "VSV-Indiana",
+  "replication": "replication-competent",
+  "modules": [
+    {
+      "id": "leader",
+      "kind": "leader",
+      "name": "leader"
+    },
+    {
+      "id": "Nucleoprotein",
+      "kind": "viral-gene",
+      "name": "Nucleoprotein",
+      "locus": 0
+    },
+    {
+      "id": "Phosphoprotein",
+      "kind": "viral-gene",
+      "name": "Phosphoprotein",
+      "locus": 1
+    },
+    {
+      "id": "MatrixProtein",
+      "kind": "viral-gene",
+      "name": "MatrixProtein",
+      "locus": 2
+    },
+    {
+      "id": "Glycoprotein",
+      "kind": "viral-gene",
+      "name": "Glycoprotein",
+      "locus": 3
+    },
+    {
+      "id": "LargePolymerase",
+      "kind": "viral-gene",
+      "name": "LargePolymerase",
+      "locus": 4
+    },
+    {
+      "id": "hiv_env",
+      "kind": "antigen",
+      "name": "HIV envelope",
+      "antigen_class": "hiv-envelope",
+      "locus_status": "unknown"
+    },
+    {
+      "id": "trailer",
+      "kind": "trailer",
+      "name": "trailer"
+    }
+  ],
+  "parent_id": "vsv_indiana",
+  "citations": [
+    "https://doi.org/10.1128/jvi.71.7.5060-5068.1997"
+  ],
+  "derivation": null,
+  "parent_status": "known",
+  "implementations": [
+    {
+      "id": "jvi-1997",
+      "stage": "preclinical",
+      "citation": "https://doi.org/10.1128/jvi.71.7.5060-5068.1997",
+      "note": "Replication-competent rVSV expressing HIV-1 envelope from an extra transcription unit. The abstract does not state the genomic position of the added gene."
+    }
+  ]
+}

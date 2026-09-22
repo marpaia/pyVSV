@@ -1,0 +1,80 @@
+{
+  "id": "rvsv_influenza_ha",
+  "name": "rVSV influenza hemagglutinin",
+  "backbone": "VSV-Indiana",
+  "replication": "replication-competent",
+  "modules": [
+    {
+      "id": "leader",
+      "kind": "leader",
+      "name": "leader"
+    },
+    {
+      "id": "Nucleoprotein",
+      "kind": "viral-gene",
+      "name": "Nucleoprotein",
+      "locus": 0
+    },
+    {
+      "id": "Phosphoprotein",
+      "kind": "viral-gene",
+      "name": "Phosphoprotein",
+      "locus": 1
+    },
+    {
+      "id": "MatrixProtein",
+      "kind": "viral-gene",
+      "name": "MatrixProtein",
+      "locus": 2
+    },
+    {
+      "id": "Glycoprotein",
+      "kind": "viral-gene",
+      "name": "Glycoprotein",
+      "locus": 3
+    },
+    {
+      "id": "influenza_ha",
+      "kind": "antigen",
+      "name": "influenza hemagglutinin",
+      "locus": 4,
+      "antigen_class": "influenza-hemagglutinin"
+    },
+    {
+      "id": "LargePolymerase",
+      "kind": "viral-gene",
+      "name": "LargePolymerase",
+      "locus": 5
+    },
+    {
+      "id": "trailer",
+      "kind": "trailer",
+      "name": "trailer"
+    }
+  ],
+  "parent_id": "vsv_indiana",
+  "citations": [
+    "https://doi.org/10.1128/jvi.71.8.5982-5989.1997",
+    "https://doi.org/10.1128/jvi.72.6.4704-4711.1998"
+  ],
+  "derivation": {
+    "activity": "insert-module",
+    "target": "Glycoprotein",
+    "module": "influenza_ha"
+  },
+  "parent_status": "known",
+  "implementations": [
+    {
+      "id": "jvi-1997",
+      "stage": "preclinical",
+      "citation": "https://doi.org/10.1128/jvi.71.8.5982-5989.1997",
+      "note": "Influenza hemagglutinin expressed from an extra gene downstream of the VSV glycoprotein gene. VSV G remains."
+    },
+    {
+      "id": "jvi-1998",
+      "stage": "preclinical",
+      "citation": "https://doi.org/10.1128/jvi.72.6.4704-4711.1998",
+      "note": "Intranasal VSV-HA raised neutralizing antibody to influenza virus and protected mice from challenge."
+    }
+  ]
+}

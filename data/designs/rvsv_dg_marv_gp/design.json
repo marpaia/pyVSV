@@ -48,7 +48,8 @@
   ],
   "parent_id": "vsv_indiana",
   "citations": [
-    "https://doi.org/10.1128/jvi.78.10.5458-5465.2004"
+    "https://doi.org/10.1128/jvi.78.10.5458-5465.2004",
+    "https://doi.org/10.1038/nm1258"
   ],
   "derivation": {
     "activity": "replace-module",
@@ -62,6 +63,12 @@
       "stage": "preclinical",
       "citation": "https://doi.org/10.1128/jvi.78.10.5458-5465.2004",
       "note": "Marburg virus transmembrane glycoprotein inserted between the matrix and polymerase genes of a glycoprotein-deleted, replication-competent rVSV."
+    },
+    {
+      "id": "nm-2005",
+      "stage": "preclinical",
+      "citation": "https://doi.org/10.1038/nm1258",
+      "note": "Replication-competent rVSV expressing the Marburg virus glycoprotein protected nonhuman primates."
     }
   ]
 }

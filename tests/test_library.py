@@ -35,6 +35,18 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
         "rvsv_niv_g",
         "rvsv_niv_f",
         "rvsv_lasv_gpc",
+        "rvsv_dg_sars_cov_2_s",
+        "rvsv_hiv_env",
+        "rvsv_dg_hiv_env",
+        "rvsv_influenza_ha",
+        "rvsv_gfp",
+        "rvsv_luc",
+        "rvsv_zika_e",
+        "rvsv_cchf_gpc",
+        "rvsv_rsv_f",
+        "rvsv_hantavirus_gp",
+        "rvsv_chikv_e",
+        "rvsv_rabies_g",
     }
     indiana = records["vsv_indiana"]
     assert indiana.realization == "NC_001560"
@@ -54,7 +66,7 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
     assert filo.modules == applied.modules
     assert filo.edit == applied.edit
     assert filo.replication == applied.replication
-    assert records["rvsv_dg_filovirus_gp"].card.evidence_level is EvidenceLevel.RODENT
+    assert records["rvsv_dg_filovirus_gp"].card.evidence_level is EvidenceLevel.NONHUMAN_PRIMATE
 
     nipah = records["rvsv_niv_g"].architecture
     added = next(module for module in nipah.modules if module.id == "niv_g")
@@ -78,7 +90,7 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
 
     marburg = records["rvsv_dg_marv_gp"]
     assert marburg.card.antigen_classes == ("marburgvirus-glycoprotein",)
-    assert marburg.card.evidence_level is EvidenceLevel.NONE
+    assert marburg.card.evidence_level is EvidenceLevel.NONHUMAN_PRIMATE
     assert marburg.observations[0].host is Host.OTHER
     assert "Zaire" not in marburg.observations[0].note
     ebola = records["rvsv_dg_filovirus_gp"].observations[0]
@@ -91,10 +103,18 @@ def test_queries_separate_antigen_class_and_evidence() -> None:
     glycoprotein = select(records, antigen_class="henipavirus-glycoprotein")
     assert [record.architecture.id for record in glycoprotein] == ["rvsv_niv_g"]
     protected = select(records, phenotype=Phenotype.PROTECTION, host=Host.NONHUMAN_PRIMATE)
-    assert [record.architecture.id for record in protected] == ["rvsv_niv_f", "rvsv_niv_g"]
+    assert [record.architecture.id for record in protected] == [
+        "rvsv_dg_filovirus_gp",
+        "rvsv_dg_marv_gp",
+        "rvsv_niv_f",
+        "rvsv_niv_g",
+    ]
     assert protected[0].observations[0].phenotype is Phenotype.PROTECTION
     clinical = select(records, min_evidence=EvidenceLevel.HUMAN)
-    assert [record.architecture.id for record in clinical] == ["rvsv_lasv_gpc"]
+    assert [record.architecture.id for record in clinical] == [
+        "rvsv_dg_sars_cov_2_s",
+        "rvsv_lasv_gpc",
+    ]
     marburg = select(records, antigen_class="marburgvirus-glycoprotein")
     assert [record.architecture.id for record in marburg] == ["rvsv_dg_marv_gp"]
     filovirus = select(records, antigen_class="filovirus-glycoprotein")

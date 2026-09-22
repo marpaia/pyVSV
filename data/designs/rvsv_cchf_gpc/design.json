@@ -1,0 +1,67 @@
+{
+  "id": "rvsv_cchf_gpc",
+  "name": "rVSV Crimean-Congo hemorrhagic fever glycoprotein",
+  "backbone": "VSV-Indiana",
+  "replication": "replication-competent",
+  "modules": [
+    {
+      "id": "leader",
+      "kind": "leader",
+      "name": "leader"
+    },
+    {
+      "id": "Nucleoprotein",
+      "kind": "viral-gene",
+      "name": "Nucleoprotein",
+      "locus": 0
+    },
+    {
+      "id": "Phosphoprotein",
+      "kind": "viral-gene",
+      "name": "Phosphoprotein",
+      "locus": 1
+    },
+    {
+      "id": "MatrixProtein",
+      "kind": "viral-gene",
+      "name": "MatrixProtein",
+      "locus": 2
+    },
+    {
+      "id": "Glycoprotein",
+      "kind": "antigen",
+      "name": "Crimean-Congo hemorrhagic fever glycoprotein",
+      "locus": 3,
+      "antigen_class": "nairovirus-glycoprotein"
+    },
+    {
+      "id": "LargePolymerase",
+      "kind": "viral-gene",
+      "name": "LargePolymerase",
+      "locus": 4
+    },
+    {
+      "id": "trailer",
+      "kind": "trailer",
+      "name": "trailer"
+    }
+  ],
+  "parent_id": "vsv_indiana",
+  "citations": [
+    "https://doi.org/10.1038/s41598-019-44210-6"
+  ],
+  "derivation": {
+    "activity": "replace-module",
+    "target": "Glycoprotein",
+    "module": "Glycoprotein"
+  },
+  "parent_status": "known",
+  "implementations": [
+    {
+      "id": "srep-2019",
+      "stage": "preclinical",
+      "citation": "https://doi.org/10.1038/s41598-019-44210-6",
+      "note": "The recovered genome is rVSVΔG-CCHFV-GPC. VSV G was removed and the CCHFV glycoprotein precursor occupies that position. Passage produced a replication-competent vector that protected STAT1 knockout mice from challenge."
+    }
+  ]
+}

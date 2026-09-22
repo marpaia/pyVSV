@@ -1,0 +1,22 @@
+[
+  {
+    "id": "jvi-1998-mouse-neutralization",
+    "implementation_id": "jvi-1998",
+    "phenotype": "immunogenicity",
+    "host": "mouse",
+    "assay": "neutralization",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1128/jvi.72.6.4704-4711.1998",
+    "note": "VSV-HA raised high levels of neutralizing antibody to influenza virus in mice."
+  },
+  {
+    "id": "jvi-1998-mouse-protection",
+    "implementation_id": "jvi-1998",
+    "phenotype": "protection",
+    "host": "mouse",
+    "assay": "lethal-challenge",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1128/jvi.72.6.4704-4711.1998",
+    "note": "VSV-HA completely protected mice from bronchial pneumonia caused by influenza virus challenge."
+  }
+]
