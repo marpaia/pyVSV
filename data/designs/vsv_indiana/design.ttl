@@ -1,0 +1,120 @@
+@prefix sbol: <http://sbols.org/v3#> .
+
+<https://vsv.bio/vsv_indiana> a sbol:Component ;
+    sbol:displayId "vsv_indiana" ;
+    sbol:hasAttachment <https://vsv.bio/realization> ;
+    sbol:hasConstraint <https://vsv.bio/vsv_indiana/Constraint1>,
+        <https://vsv.bio/vsv_indiana/Constraint2>,
+        <https://vsv.bio/vsv_indiana/Constraint3>,
+        <https://vsv.bio/vsv_indiana/Constraint4>,
+        <https://vsv.bio/vsv_indiana/Constraint5>,
+        <https://vsv.bio/vsv_indiana/Constraint6> ;
+    sbol:hasFeature <https://vsv.bio/vsv_indiana/Glycoprotein>,
+        <https://vsv.bio/vsv_indiana/LargePolymerase>,
+        <https://vsv.bio/vsv_indiana/MatrixProtein>,
+        <https://vsv.bio/vsv_indiana/Nucleoprotein>,
+        <https://vsv.bio/vsv_indiana/Phosphoprotein>,
+        <https://vsv.bio/vsv_indiana/leader>,
+        <https://vsv.bio/vsv_indiana/trailer> ;
+    sbol:hasModel <https://vsv.bio/vsv_indiana_intracellular> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "VSV Indiana" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/realization> a sbol:Attachment ;
+    sbol:displayId "realization" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "NC_001560" ;
+    sbol:source <https://vsv.bio/accession/NC_001560> .
+
+<https://vsv.bio/vsv_indiana/Constraint1> a sbol:Constraint ;
+    sbol:displayId "Constraint1" ;
+    sbol:object <https://vsv.bio/vsv_indiana/Nucleoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/vsv_indiana/leader> .
+
+<https://vsv.bio/vsv_indiana/Constraint2> a sbol:Constraint ;
+    sbol:displayId "Constraint2" ;
+    sbol:object <https://vsv.bio/vsv_indiana/Phosphoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/vsv_indiana/Nucleoprotein> .
+
+<https://vsv.bio/vsv_indiana/Constraint3> a sbol:Constraint ;
+    sbol:displayId "Constraint3" ;
+    sbol:object <https://vsv.bio/vsv_indiana/MatrixProtein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/vsv_indiana/Phosphoprotein> .
+
+<https://vsv.bio/vsv_indiana/Constraint4> a sbol:Constraint ;
+    sbol:displayId "Constraint4" ;
+    sbol:object <https://vsv.bio/vsv_indiana/Glycoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/vsv_indiana/MatrixProtein> .
+
+<https://vsv.bio/vsv_indiana/Constraint5> a sbol:Constraint ;
+    sbol:displayId "Constraint5" ;
+    sbol:object <https://vsv.bio/vsv_indiana/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/vsv_indiana/Glycoprotein> .
+
+<https://vsv.bio/vsv_indiana/Constraint6> a sbol:Constraint ;
+    sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/vsv_indiana/trailer> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/vsv_indiana/LargePolymerase> .
+
+<https://vsv.bio/vsv_indiana_intracellular> a sbol:Model ;
+    sbol:displayId "vsv_indiana_intracellular" ;
+    sbol:framework <https://identifiers.org/SBO:0000063> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:language <https://vsv.bio/language/stochastic-simulation> ;
+    sbol:name "Stochastic intracellular VSV replication" ;
+    sbol:source <https://doi.org/10.1371/journal.pcbi.1011373> .
+
+<https://vsv.bio/vsv_indiana/leader> a sbol:LocalSubComponent ;
+    sbol:displayId "leader" ;
+    sbol:name "leader" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/leader> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/vsv_indiana/trailer> a sbol:LocalSubComponent ;
+    sbol:displayId "trailer" ;
+    sbol:name "trailer" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/trailer> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/vsv_indiana/Glycoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Glycoprotein" ;
+    sbol:name "Glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/vsv_indiana/LargePolymerase> a sbol:LocalSubComponent ;
+    sbol:displayId "LargePolymerase" ;
+    sbol:name "LargePolymerase" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/vsv_indiana/MatrixProtein> a sbol:LocalSubComponent ;
+    sbol:displayId "MatrixProtein" ;
+    sbol:name "MatrixProtein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/vsv_indiana/Nucleoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Nucleoprotein" ;
+    sbol:name "Nucleoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/vsv_indiana/Phosphoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Phosphoprotein" ;
+    sbol:name "Phosphoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+

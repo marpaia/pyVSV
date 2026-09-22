@@ -10,8 +10,9 @@ from vsv.cli.render import cli_name, wrap
 from vsv.corpus.cluster import Cluster, clusters_from, write_design
 from vsv.corpus.models import Extraction
 from vsv.corpus.pipeline import coverage_report, extract_corpus
-from vsv.corpus.query import CORPUS_ROOT, VECTOR_KINDS
+from vsv.corpus.query import CORPUS_ROOT, VECTOR_KINDS, mentions
 from vsv.corpus.store import load_extractions, load_papers
+from vsv.design.library import load_library
 from vsv.errors import InputError
 
 
@@ -125,6 +126,7 @@ def extract_literature(ctx: click.Context, fulltext: bool) -> None:
 @click.option("--antigen", default=None, help="Antigen name or slug substring.")
 @click.option("--unresolved", is_flag=True, help="Papers the classifier could not place.")
 @click.option("--unclustered", is_flag=True, help="Vector papers that did not join a design.")
+@click.option("--plan", default=None, help="Curated design id. Matches the plan's aliases.")
 @click.option("--limit", default=40, show_default=True, help="Maximum rows. 0 lists every match.")
 @click.option(
     "--dest",
@@ -140,11 +142,18 @@ def papers(
     antigen: str | None,
     unresolved: bool,
     unclustered: bool,
+    plan: str | None,
     limit: int,
     dest: Path | None,
 ) -> None:
     """Search the local VSV corpus."""
     root = CORPUS_ROOT if dest is None else dest
+    aliases: tuple[str, ...] = ()
+    if plan is not None:
+        matched = [record for record in load_library() if record.architecture.id == plan]
+        if len(matched) != 1:
+            raise InputError(f"{plan}: design not found.")
+        aliases = matched[0].aliases
     records = load_papers(root)
     extractions: dict[str, Extraction] = {}
     if kind or unresolved or unclustered or antigen:
@@ -171,6 +180,8 @@ def papers(
             text is not None
             and text.casefold() not in f"{paper.title}\n{paper.abstract}".casefold()
         ):
+            continue
+        if plan is not None and not mentions(f"{paper.title}\n{paper.abstract}", aliases):
             continue
         if antigen is not None:
             if item is None:

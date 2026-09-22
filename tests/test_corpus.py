@@ -13,6 +13,7 @@ from vsv.corpus.extract import describe
 from vsv.corpus.fetch import clean_text, europepmc_records, methods_text
 from vsv.corpus.models import Paper
 from vsv.corpus.pipeline import coverage_report, ingest_corpus
+from vsv.corpus.query import mentions
 from vsv.corpus.store import load_ledger, load_papers
 from vsv.design.library import load_design
 
@@ -80,6 +81,27 @@ def test_extraction_quotes_a_replacement_and_redacts_nucleotides() -> None:
     assert "[sequence omitted]" in item.edit_activity.quote
 
 
+def test_species_glycoproteins_keep_their_own_classes() -> None:
+    sudan = describe(
+        paper(
+            pmid="2",
+            abstract=(
+                "Recombinant VSV expressing Sudan virus glycoprotein replaced the glycoprotein."
+            ),
+        )
+    )
+    ebola = describe(
+        paper(
+            pmid="3",
+            abstract=(
+                "Recombinant VSV expressing Ebola virus glycoprotein replaced the glycoprotein."
+            ),
+        )
+    )
+    assert sudan.antigen_slug.value == "sudan-ebolavirus-glycoprotein"
+    assert ebola.antigen_slug.value == "filovirus-glycoprotein"
+
+
 def test_conflicting_backbones_stay_unknown() -> None:
     item = describe(
         paper(
@@ -114,14 +136,25 @@ def test_clusters_keep_stated_loci_apart() -> None:
     assert "parent-unknown" in unknown.gaps
 
 
-def test_cluster_ids_keep_backbone_apart() -> None:
+def test_an_alias_matches_ignoring_case() -> None:
+    assert mentions("the rVSV-ZEBOV vaccine", ("rVSV-ZEBOV",))
+    assert not mentions("vesicular stomatitis virus", ("Ervebo",))
+
+
+def test_an_unstated_backbone_joins_one_stated_backbone() -> None:
     shared = "Recombinant VSV expressing Ebola virus glycoprotein replaced the glycoprotein. "
     indiana = describe(
         paper(pmid="1", abstract=shared + "The Indiana construct is replication-competent.")
     )
     unnamed = describe(paper(pmid="2", abstract=shared + "The construct is replication-competent."))
-    clusters = clusters_from([indiana, unnamed], curated=[])
-    assert len({cluster.id for cluster in clusters}) == 2
+    jersey = describe(
+        paper(pmid="3", abstract=shared + "The New Jersey construct is replication-competent.")
+    )
+    (cluster,) = clusters_from([indiana, unnamed], curated=[])
+    assert cluster.backbone == "indiana"
+    assert "backbone-unknown" in cluster.gaps
+    apart = clusters_from([indiana, jersey], curated=[])
+    assert {item.backbone for item in apart} == {"indiana", "new-jersey"}
 
 
 def test_promote_writes_a_loadable_design_without_sequences(tmp_path: Path) -> None:
@@ -140,7 +173,7 @@ def test_promote_writes_a_loadable_design_without_sequences(tmp_path: Path) -> N
     loaded = load_design(dest)
     assert loaded.architecture.edit is not None
     assert loaded.architecture.antigen_classes == ("filovirus-glycoprotein",)
-    blob = (dest / "design.json").read_text()
+    blob = (dest / "design.ttl").read_text()
     assert "sequence" not in blob
     assert "ACGT" not in blob
     assert loaded.observations[0].host.value == "mouse"

@@ -31,3 +31,9 @@ EUROPEPMC_SEARCH = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
 EUROPEPMC_FULLTEXT = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 
 VECTOR_KINDS = frozenset({"vaccine-vector", "oncolytic", "reporter"})
+
+
+def mentions(text: str, aliases: tuple[str, ...] | list[str]) -> bool:
+    """Whether ``text`` contains one of ``aliases``, ignoring case."""
+    folded = text.casefold()
+    return any(alias.casefold() in folded for alias in aliases if alias)

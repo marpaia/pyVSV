@@ -45,6 +45,7 @@ def select(
                 record.realization,
                 record.model_source,
                 record.unmodeled,
+                record.aliases,
             )
         )
     return found

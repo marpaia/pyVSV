@@ -12,15 +12,27 @@ from vsv import NAMESPACE
 from vsv.design import (
     Antigen,
     Architecture,
+    Design,
+    Host,
+    Implementation,
     ModuleKind,
+    Observation,
+    Outcome,
+    ParentStatus,
+    Phenotype,
     Replace,
     Replication,
+    Stage,
+    Unmodeled,
     add_order_constraints,
     architecture_of,
     canonical_chassis,
+    design_of,
+    design_to_document,
     project,
     to_document,
 )
+from vsv.design.evidence import Assay
 from vsv.design.modules import at_locus
 from vsv.errors import InputError
 from vsv.genome.annotation import annotate
@@ -171,16 +183,51 @@ def test_a_genome_is_not_an_architecture(synthetic: SyntheticGenome) -> None:
         architecture_of(genome.document)
 
 
-def test_unknown_locus_and_replication_are_not_serialized() -> None:
+def test_unknown_locus_and_replication_round_trip() -> None:
     architecture = canonical_chassis()
     unknown = at_locus(architecture.module("LargePolymerase"), None)
     modules = tuple(
         unknown if module.id == "LargePolymerase" else module for module in architecture.modules
     )
-    with pytest.raises(InputError, match="needs a locus"):
-        to_document(replace(architecture, modules=modules))
-    with pytest.raises(InputError, match="replication is unknown"):
-        to_document(replace(architecture, replication=Replication.UNKNOWN))
+    gapped = replace(architecture, modules=modules, replication=Replication.UNKNOWN)
+    loaded = _reload(gapped)
+    assert _logical(loaded) == _logical(gapped)
+    assert loaded.module("LargePolymerase").locus is None
+
+
+def test_design_round_trip_keeps_evidence_gaps_and_model() -> None:
+    architecture = replace(canonical_chassis(), parent=ParentStatus.UNKNOWN)
+    design = Design(
+        architecture,
+        (
+            Observation(
+                "paper-2004-mouse",
+                "paper-2004",
+                Phenotype.PROTECTION,
+                Host.MOUSE,
+                Assay.LETHAL_CHALLENGE,
+                Outcome.REPORTED,
+                _DOI,
+                "Mice survived challenge.",
+            ),
+        ),
+        (Implementation("paper-2004", Stage.PRECLINICAL, _DOI, "One preclinical lot."),),
+        realization="NC_001560",
+        model_source="https://doi.org/10.1371/journal.pcbi.1011373",
+        unmodeled=(Unmodeled("dose", "not quantified", "The abstract names no dose."),),
+    )
+    document = design_to_document(design)
+    assert not document.validate()
+    assert not any(isinstance(obj, sbol3.Sequence) for obj in document.objects)
+    reread = sbol3.Document()
+    reread.read_string(document.write_string(sbol3.TURTLE), sbol3.TURTLE)
+    loaded = design_of(reread)
+    assert _logical(loaded.architecture) == _logical(design.architecture)
+    assert loaded.implementations == design.implementations
+    assert loaded.observations == design.observations
+    assert loaded.realization == "NC_001560"
+    assert loaded.model_source == design.model_source
+    assert loaded.unmodeled == design.unmodeled
 
 
 def test_serialization_requires_locus_order() -> None:

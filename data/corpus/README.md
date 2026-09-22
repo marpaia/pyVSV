@@ -16,4 +16,4 @@ OR "Vesicular stomatitis New Jersey virus"[mh]
 
 `audit.json`, when present, is a hand-labeled sample. `vsv corpus` prints the classifier's misses on that sample.
 
-A cluster is papers that share a backbone, replication class, edit, antigen, and stated locus. `vsv promote` copies one cluster into `data/designs/` and does not run on its own.
+A cluster is papers that share a backbone, replication class, edit, antigen, and stated locus. `vsv promote` copies one cluster into `data/designs/` as `design.ttl` and does not run on its own.

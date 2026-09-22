@@ -131,13 +131,26 @@ _SLUGS: tuple[tuple[re.Pattern[str], str, str], ...] = (
     ),
     (
         re.compile(r"\bsudv[- ]?gp\b|\bsudan virus glycoprotein\b", re.IGNORECASE),
-        "filovirus-glycoprotein",
+        "sudan-ebolavirus-glycoprotein",
         "Sudan virus glycoprotein",
     ),
     (
-        re.compile(r"\bbundibugyo\b.{0,40}\bglycoprotein\b", re.IGNORECASE),
-        "filovirus-glycoprotein",
+        re.compile(r"\bbundibugyo\b.{0,40}\bglycoprotein\b|\bbdbv[- ]?gp\b", re.IGNORECASE),
+        "bundibugyo-ebolavirus-glycoprotein",
         "Bundibugyo virus glycoprotein",
+    ),
+    (
+        re.compile(r"\breston\b.{0,40}\bglycoprotein\b|\brestv[- ]?gp\b", re.IGNORECASE),
+        "reston-ebolavirus-glycoprotein",
+        "Reston virus glycoprotein",
+    ),
+    (
+        re.compile(
+            r"\bta[iï] forest\b.{0,40}\bglycoprotein\b|\btafv[- ]?gp\b",
+            re.IGNORECASE,
+        ),
+        "taiforest-ebolavirus-glycoprotein",
+        "Taï Forest virus glycoprotein",
     ),
     (
         re.compile(r"\bmarv[- ]?gp\b|\bmarburg\b.{0,40}\bglycoprotein\b", re.IGNORECASE),
@@ -205,6 +218,32 @@ _SLUGS: tuple[tuple[re.Pattern[str], str, str], ...] = (
         ),
         "nairovirus-glycoprotein",
         "Crimean-Congo hemorrhagic fever virus glycoprotein",
+    ),
+    (
+        re.compile(
+            r"\bzika\b.{0,40}\b(?:envelope|e protein)\b|\benvelope\b.{0,40}\bzika\b",
+            re.IGNORECASE,
+        ),
+        "zika-envelope",
+        "Zika envelope",
+    ),
+    (
+        re.compile(
+            r"\b(?:hantavirus|andes virus|hantaan)\b.{0,40}\bglycoprotein\b",
+            re.IGNORECASE,
+        ),
+        "hantavirus-glycoprotein",
+        "hantavirus glycoprotein",
+    ),
+    (
+        re.compile(r"\bchikungunya\b.{0,40}\b(?:envelope|structural protein)\b", re.IGNORECASE),
+        "chikungunya-envelope",
+        "chikungunya envelope",
+    ),
+    (
+        re.compile(r"\brabies\b.{0,40}\bglycoprotein\b", re.IGNORECASE),
+        "rabies-glycoprotein",
+        "rabies glycoprotein",
     ),
     (re.compile(r"\b(?:egfp|gfp)\b", re.IGNORECASE), "reporter-gfp", "GFP"),
     (re.compile(r"\bluciferase\b", re.IGNORECASE), "reporter-luciferase", "luciferase"),

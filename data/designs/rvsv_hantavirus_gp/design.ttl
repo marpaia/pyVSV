@@ -1,0 +1,274 @@
+@prefix ns1: <https://vsv.bio/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:rvsv_hantavirus_gp__jvi_2011_hamster_neutralization_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_hantavirus_gp__jvi_2011_hamster_neutralization_data" ;
+    sbol:hasAttachment ns1:rvsv_hantavirus_gp__jvi_2011_hamster_neutralization_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_hantavirus_gp__jvi_2011_hamster_neutralization .
+
+ns1:rvsv_hantavirus_gp__jvi_2011_hamster_protection_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_hantavirus_gp__jvi_2011_hamster_protection_data" ;
+    sbol:hasAttachment ns1:rvsv_hantavirus_gp__jvi_2011_hamster_protection_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_hantavirus_gp__jvi_2011_hamster_protection .
+
+ns1:rvsv_hantavirus_gp__npjv_2024_mouse_neutralization_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_hantavirus_gp__npjv_2024_mouse_neutralization_data" ;
+    sbol:hasAttachment ns1:rvsv_hantavirus_gp__npjv_2024_mouse_neutralization_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_hantavirus_gp__npjv_2024_mouse_neutralization .
+
+ns1:rvsv_hantavirus_gp__viruses_2014 a sbol:Implementation ;
+    sbol:built ns1:rvsv_hantavirus_gp ;
+    sbol:description "Replication-competent rVSV with Andes virus glycoproteins in place of VSV G. One dose still protected Syrian hamsters challenged 6 months later." ;
+    sbol:displayId "rvsv_hantavirus_gp__viruses_2014" ;
+    sbol:hasAttachment ns1:rvsv_hantavirus_gp__viruses_2014_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "viruses-2014" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 1 .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Constraint1> a sbol:Constraint ;
+    sbol:displayId "Constraint1" ;
+    sbol:object <https://vsv.bio/rvsv_hantavirus_gp/Nucleoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_hantavirus_gp/leader> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Constraint2> a sbol:Constraint ;
+    sbol:displayId "Constraint2" ;
+    sbol:object <https://vsv.bio/rvsv_hantavirus_gp/Phosphoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_hantavirus_gp/Nucleoprotein> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Constraint3> a sbol:Constraint ;
+    sbol:displayId "Constraint3" ;
+    sbol:object <https://vsv.bio/rvsv_hantavirus_gp/MatrixProtein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_hantavirus_gp/Phosphoprotein> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Constraint4> a sbol:Constraint ;
+    sbol:displayId "Constraint4" ;
+    sbol:object <https://vsv.bio/rvsv_hantavirus_gp/Glycoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_hantavirus_gp/MatrixProtein> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Constraint5> a sbol:Constraint ;
+    sbol:displayId "Constraint5" ;
+    sbol:object <https://vsv.bio/rvsv_hantavirus_gp/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_hantavirus_gp/Glycoprotein> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Constraint6> a sbol:Constraint ;
+    sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_hantavirus_gp/trailer> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_hantavirus_gp/LargePolymerase> .
+
+ns1:rvsv_hantavirus_gp__jvi_2011_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp__jvi_2011_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00794-11> .
+
+ns1:rvsv_hantavirus_gp__jvi_2011_hamster_neutralization a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "The Andes virus glycoprotein vaccine generated neutralizing antibodies in Syrian hamsters when given 28 days before challenge." ;
+    sbol:displayId "rvsv_hantavirus_gp__jvi_2011_hamster_neutralization" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "jvi-2011-hamster-neutralization" ;
+    sbol:type <https://vsv.bio/assay/neutralization>,
+        <https://vsv.bio/host/hamster>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/immunogenicity> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_hantavirus_gp__jvi_2011_hamster_neutralization/Usage1> ;
+    ns1:index 1 .
+
+<https://vsv.bio/rvsv_hantavirus_gp__jvi_2011_hamster_neutralization/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_hantavirus_gp__jvi_2011 .
+
+ns1:rvsv_hantavirus_gp__jvi_2011_hamster_neutralization_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp__jvi_2011_hamster_neutralization_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00794-11> .
+
+ns1:rvsv_hantavirus_gp__jvi_2011_hamster_protection a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "A single injection of VSVΔG expressing the Andes virus glycoprotein precursor fully protected Syrian hamsters from a lethal Andes virus challenge." ;
+    sbol:displayId "rvsv_hantavirus_gp__jvi_2011_hamster_protection" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "jvi-2011-hamster-protection" ;
+    sbol:type <https://vsv.bio/assay/lethal-challenge>,
+        <https://vsv.bio/host/hamster>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_hantavirus_gp__jvi_2011_hamster_protection/Usage1> ;
+    ns1:index 0 .
+
+<https://vsv.bio/rvsv_hantavirus_gp__jvi_2011_hamster_protection/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_hantavirus_gp__jvi_2011 .
+
+ns1:rvsv_hantavirus_gp__jvi_2011_hamster_protection_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp__jvi_2011_hamster_protection_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00794-11> .
+
+ns1:rvsv_hantavirus_gp__npjv_2024 a sbol:Implementation ;
+    sbol:built ns1:rvsv_hantavirus_gp ;
+    sbol:description "Hantaan glycoprotein replaces the VSV G open reading frame, and GFP is an additional transcription unit between that glycoprotein and L. A single dose elicited neutralizing antibody in mice." ;
+    sbol:displayId "rvsv_hantavirus_gp__npjv_2024" ;
+    sbol:hasAttachment ns1:rvsv_hantavirus_gp__npjv_2024_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "npjv-2024" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 2 .
+
+ns1:rvsv_hantavirus_gp__npjv_2024_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp__npjv_2024_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1038/s41541-024-00814-2> .
+
+ns1:rvsv_hantavirus_gp__npjv_2024_mouse_neutralization a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "A single intraperitoneal dose of rVSV-HTNV-GP elicited Hantaan virus neutralizing antibodies in BALB/c mice." ;
+    sbol:displayId "rvsv_hantavirus_gp__npjv_2024_mouse_neutralization" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "npjv-2024-mouse-neutralization" ;
+    sbol:type <https://vsv.bio/assay/neutralization>,
+        <https://vsv.bio/host/mouse>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/immunogenicity> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_hantavirus_gp__npjv_2024_mouse_neutralization/Usage1> ;
+    ns1:index 2 .
+
+<https://vsv.bio/rvsv_hantavirus_gp__npjv_2024_mouse_neutralization/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_hantavirus_gp__npjv_2024 .
+
+ns1:rvsv_hantavirus_gp__npjv_2024_mouse_neutralization_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp__npjv_2024_mouse_neutralization_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1038/s41541-024-00814-2> .
+
+ns1:rvsv_hantavirus_gp__viruses_2014_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp__viruses_2014_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.3390/v6020516> .
+
+ns1:rvsv_hantavirus_gp_citation_1 a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp_citation_1" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00794-11> .
+
+ns1:rvsv_hantavirus_gp_citation_2 a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp_citation_2" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.3390/v6020516> .
+
+ns1:rvsv_hantavirus_gp_citation_3 a sbol:Attachment ;
+    sbol:displayId "rvsv_hantavirus_gp_citation_3" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1038/s41541-024-00814-2> .
+
+ns1:rvsv_hantavirus_gp_derivation a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "target=Glycoprotein;module=Glycoprotein" ;
+    sbol:displayId "rvsv_hantavirus_gp_derivation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:type <https://vsv.bio/activity/replace-module> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_hantavirus_gp_derivation/parent> .
+
+<https://vsv.bio/rvsv_hantavirus_gp_derivation/parent> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "parent" ;
+    prov:entity ns1:vsv_indiana .
+
+<https://vsv.bio/rvsv_hantavirus_gp/leader> a sbol:LocalSubComponent ;
+    sbol:displayId "leader" ;
+    sbol:name "leader" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/leader> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/trailer> a sbol:LocalSubComponent ;
+    sbol:displayId "trailer" ;
+    sbol:name "trailer" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/trailer> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+ns1:rvsv_hantavirus_gp__jvi_2011 a sbol:Implementation ;
+    sbol:built ns1:rvsv_hantavirus_gp ;
+    sbol:description "ANDV glycoprotein precursor replaces VSV G in the fourth coding position. A single dose fully protected Syrian hamsters from a lethal Andes virus challenge." ;
+    sbol:displayId "rvsv_hantavirus_gp__jvi_2011" ;
+    sbol:hasAttachment ns1:rvsv_hantavirus_gp__jvi_2011_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "jvi-2011" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 0 .
+
+ns1:rvsv_hantavirus_gp a sbol:Component ;
+    sbol:displayId "rvsv_hantavirus_gp" ;
+    sbol:hasAttachment ns1:rvsv_hantavirus_gp_citation_1,
+        ns1:rvsv_hantavirus_gp_citation_2,
+        ns1:rvsv_hantavirus_gp_citation_3 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_hantavirus_gp/Constraint1>,
+        <https://vsv.bio/rvsv_hantavirus_gp/Constraint2>,
+        <https://vsv.bio/rvsv_hantavirus_gp/Constraint3>,
+        <https://vsv.bio/rvsv_hantavirus_gp/Constraint4>,
+        <https://vsv.bio/rvsv_hantavirus_gp/Constraint5>,
+        <https://vsv.bio/rvsv_hantavirus_gp/Constraint6> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_hantavirus_gp/Glycoprotein>,
+        <https://vsv.bio/rvsv_hantavirus_gp/LargePolymerase>,
+        <https://vsv.bio/rvsv_hantavirus_gp/MatrixProtein>,
+        <https://vsv.bio/rvsv_hantavirus_gp/Nucleoprotein>,
+        <https://vsv.bio/rvsv_hantavirus_gp/Phosphoprotein>,
+        <https://vsv.bio/rvsv_hantavirus_gp/leader>,
+        <https://vsv.bio/rvsv_hantavirus_gp/trailer> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "rVSV hantavirus glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_hantavirus_gp_derivation ;
+    ns1:alias "VSVΔG/ANDVGPC" .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Glycoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Glycoprotein" ;
+    sbol:name "hantavirus glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/hantavirus-glycoprotein> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/LargePolymerase> a sbol:LocalSubComponent ;
+    sbol:displayId "LargePolymerase" ;
+    sbol:name "LargePolymerase" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/MatrixProtein> a sbol:LocalSubComponent ;
+    sbol:displayId "MatrixProtein" ;
+    sbol:name "MatrixProtein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Nucleoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Nucleoprotein" ;
+    sbol:name "Nucleoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_hantavirus_gp/Phosphoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Phosphoprotein" ;
+    sbol:name "Phosphoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+

@@ -1,21 +1,24 @@
 """Group extracted papers into architectures.
 
-The cluster key is backbone, replication, edit, antigen, and stated locus. Unknown values stay
-in the key, so a paper that states a locus does not join one that does not. Papers with no
-antigen, or with a conflicting edit, stay unclustered.
+The cluster key is the stated edit, the antigen, and the stated locus. Unknown locus stays in
+the key, so a paper that states a locus does not join one that does not. Unknown backbone and
+replication are gaps. Two stated backbones stay apart. Papers with no antigen, or with a
+conflicting edit, stay unclustered.
 """
 
 from __future__ import annotations
 
-import json
 import re
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+
+import sbol3
 
 from vsv.corpus.models import Extraction, Paper
 from vsv.corpus.query import VECTOR_KINDS
 from vsv.design.architecture import Architecture, Replication
+from vsv.design.document import design_to_document
 from vsv.design.edits import Delete, Insert, Replace
 from vsv.design.evidence import (
     Assay,
@@ -30,7 +33,7 @@ from vsv.design.evidence import (
     is_citation,
 )
 from vsv.design.library import load_design, load_library
-from vsv.design.modules import Antigen, Leader, Module, Reporter, Trailer, ViralGene
+from vsv.design.modules import Antigen, Leader, Module, Reporter, Trailer, ViralGene, at_locus
 from vsv.errors import InputError
 from vsv.genes import Gene
 from vsv.ingest import redact
@@ -85,7 +88,11 @@ def clusters_from(
         if key is None:
             continue
         grouped.setdefault(key, []).append(item)
-    clusters = [_cluster(key, items) for key, items in grouped.items()]
+    clusters = [
+        _cluster(key, items)
+        for key, members in grouped.items()
+        for items in _backbone_groups(members)
+    ]
     linked = [_with_match(cluster, records) for cluster in clusters]
     return _unique_ids(linked)
 
@@ -117,45 +124,9 @@ def write_design(
     members = [by_pmid[pmid] for pmid in cluster.pmids if pmid in by_pmid]
     architecture = _architecture(cluster, members)
     implementations, observations = _evidence(cluster, members)
-    design = {
-        "id": architecture.id,
-        "name": architecture.name,
-        "backbone": architecture.backbone,
-        "replication": architecture.replication.value,
-        "modules": [_module_json(module) for module in architecture.modules],
-        "parent_id": architecture.parent_id,
-        "parent_status": "known" if architecture.parent_id else "unknown",
-        "citations": list(architecture.citations),
-        "derivation": _derivation_json(architecture),
-        "implementations": [
-            {
-                "id": item.id,
-                "stage": item.stage.value,
-                "citation": item.citation,
-                "note": item.note,
-            }
-            for item in implementations
-        ],
-    }
-    observation_rows = [
-        {
-            "id": item.id,
-            "implementation_id": item.implementation_id,
-            "phenotype": item.phenotype.value,
-            "host": item.host.value,
-            "assay": item.assay.value,
-            "outcome": item.outcome.value,
-            "citation": item.citation,
-            "note": item.note,
-        }
-        for item in observations
-    ]
+    document = design_to_document(Design(architecture, tuple(observations), tuple(implementations)))
     dest.mkdir(parents=True)
-    (dest / "design.json").write_text(json.dumps(design, indent=2) + "\n", encoding="utf-8")
-    (dest / "observations.json").write_text(
-        json.dumps(observation_rows, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    (dest / "design.ttl").write_text(document.write_string(sbol3.TURTLE), encoding="utf-8")
     (dest / "PROVENANCE.md").write_text(
         _provenance(cluster, members, paper_by_pmid),
         encoding="utf-8",
@@ -174,8 +145,6 @@ def _key(item: Extraction) -> tuple[str, ...] | None:
     if antigen == "unknown" or not item.antigen_name.known:
         return None
     return (
-        item.backbone.value,
-        item.replication.value,
         item.edit_activity.value,
         item.edit_target.value,
         antigen,
@@ -183,8 +152,31 @@ def _key(item: Extraction) -> tuple[str, ...] | None:
     )
 
 
+def _backbone_groups(items: list[Extraction]) -> list[list[Extraction]]:
+    """Keep two stated backbones apart. An unstated backbone joins a single stated one."""
+    stated = {item.backbone.value for item in items if item.backbone.known}
+    if len(stated) <= 1:
+        return [items]
+    groups: dict[str, list[Extraction]] = {value: [] for value in stated}
+    groups["unknown"] = []
+    for item in items:
+        key = item.backbone.value if item.backbone.known else "unknown"
+        groups[key].append(item)
+    return [group for group in groups.values() if group]
+
+
+def _stated(items: list[Extraction], value: Callable[[Extraction], str]) -> str:
+    stated = {value(item) for item in items}
+    stated.discard("unknown")
+    if len(stated) == 1:
+        return next(iter(stated))
+    return "unknown"
+
+
 def _cluster(key: tuple[str, ...], items: list[Extraction]) -> Cluster:
-    backbone, replication, activity, target, antigen, locus = key
+    activity, target, antigen, locus = key
+    backbone = _stated(items, lambda item: item.backbone.value)
+    replication = _stated(items, lambda item: item.replication.value)
     named = next((item.antigen_name.value for item in items if item.antigen_name.known), antigen)
     slug = next((item.antigen_slug.value for item in items if item.antigen_slug.known), "")
     hosts: list[str] = []
@@ -205,7 +197,9 @@ def _cluster(key: tuple[str, ...], items: list[Extraction]) -> Cluster:
             if candidate.rank > level.rank:
                 level = candidate
     gaps = ["parent-unknown"]
-    if replication == "unknown":
+    if any(not item.backbone.known for item in items):
+        gaps.append("backbone-unknown")
+    if replication == "unknown" or any(not item.replication.known for item in items):
         gaps.append("replication-unknown")
     if locus == "unknown":
         gaps.append("locus-unknown")
@@ -268,6 +262,14 @@ def _matches(cluster: Cluster, architecture: Architecture) -> bool:
         return False
     if not same:
         return False
+    if cluster.locus != "unknown":
+        module_id = edit.target if isinstance(edit, Delete) else edit.module
+        module = next((item for item in architecture.modules if item.id == module_id), None)
+        if module is None or module.locus is None or str(module.locus) != cluster.locus:
+            return False
+    expected = {"VSV-Indiana": "indiana", "VSV-NewJersey": "new-jersey"}.get(architecture.backbone)
+    if cluster.backbone not in {"unknown", expected}:
+        return False
     return (
         cluster.replication == "unknown"
         or architecture.replication is Replication.UNKNOWN
@@ -306,6 +308,24 @@ def _unique_ids(clusters: list[Cluster]) -> list[Cluster]:
     return unique
 
 
+class _Plan:
+    """Modules of one promoted plan, with the next transcription index."""
+
+    def __init__(self) -> None:
+        self.modules: list[Module] = [Leader()]
+        self._locus = 0
+
+    def place(self, module: Module) -> None:
+        """Append ``module`` at the next locus."""
+        self.modules.append(at_locus(module, self._locus))
+        self._locus += 1
+
+    def finish(self) -> tuple[Module, ...]:
+        """The module list, closed by the trailer."""
+        self.modules.append(Trailer())
+        return tuple(self.modules)
+
+
 def _architecture(cluster: Cluster, members: Sequence[Extraction]) -> Architecture:
     payload: Module
     slug = cluster.antigen_slug
@@ -315,33 +335,33 @@ def _architecture(cluster: Cluster, members: Sequence[Extraction]) -> Architectu
         payload = Antigen("antigen", cluster.antigen_name, slug)
     else:
         raise InputError(f"{cluster.id}: promoting a cluster needs an antigen class slug.")
-    modules: list[Module] = [Leader()]
+    plan = _Plan()
     if cluster.edit_activity == "replace-module":
-        for index, gene in enumerate(Gene):
+        for gene in Gene:
             if gene.value == cluster.edit_target:
-                modules.append(payload)
+                plan.place(payload)
             else:
-                modules.append(ViralGene(gene.value, gene.value, locus=index))
+                plan.place(ViralGene(gene.value, gene.value))
         edit: Replace | Insert | Delete = Replace(cluster.edit_target, payload.id)
     elif cluster.edit_activity == "delete-module":
-        kept = [gene for gene in Gene if gene.value != cluster.edit_target]
-        for index, gene in enumerate(kept):
-            modules.append(ViralGene(gene.value, gene.value, locus=index))
+        for gene in Gene:
+            if gene.value != cluster.edit_target:
+                plan.place(ViralGene(gene.value, gene.value))
         edit = Delete(cluster.edit_target)
     elif cluster.edit_activity == "insert-module":
         if cluster.edit_target == "leader":
-            modules.append(payload)
-        for index, gene in enumerate(Gene):
-            modules.append(ViralGene(gene.value, gene.value, locus=index))
+            plan.place(payload)
+        for gene in Gene:
+            plan.place(ViralGene(gene.value, gene.value))
             if gene.value == cluster.edit_target:
-                modules.append(payload)
+                plan.place(payload)
         edit = Insert(cluster.edit_target, payload.id)
     else:
         raise InputError(f"{cluster.id}: unknown edit.")
-    placed = any(module.id == payload.id for module in modules)
-    if cluster.edit_activity != "delete-module" and not placed:
+    placed = {module.id for module in plan.modules}
+    if cluster.edit_activity != "delete-module" and payload.id not in placed:
         raise InputError(f"{cluster.id}: the edit does not place {payload.id}.")
-    modules.append(Trailer())
+    modules = plan.finish()
     replication = {
         "replication-competent": Replication.COMPETENT,
         "single-cycle": Replication.SINGLE_CYCLE,
@@ -405,33 +425,6 @@ def _evidence(
                 )
             )
     return implementations, observations
-
-
-def _module_json(module: Module) -> dict[str, object]:
-    payload: dict[str, object] = {
-        "id": module.id,
-        "kind": module.kind.value,
-        "name": module.name,
-    }
-    if module.locus is not None:
-        payload["locus"] = module.locus
-    elif module.locus_status.value == "unknown":
-        payload["locus_status"] = "unknown"
-    antigen_class = module.antigen_class
-    if antigen_class is not None:
-        payload["antigen_class"] = antigen_class
-    return payload
-
-
-def _derivation_json(architecture: Architecture) -> dict[str, str] | None:
-    edit = architecture.edit
-    if isinstance(edit, Replace):
-        return {"activity": "replace-module", "target": edit.target, "module": edit.module}
-    if isinstance(edit, Insert):
-        return {"activity": "insert-module", "target": edit.after, "module": edit.module}
-    if isinstance(edit, Delete):
-        return {"activity": "delete-module", "target": edit.target}
-    return None
 
 
 def _provenance(

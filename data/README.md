@@ -2,7 +2,7 @@
 
 Keep downloaded sequence files in `data/raw/` and derived intermediate files in `data/processed/`. Treat raw inputs as immutable and regenerate processed data through documented commands.
 
-`data/designs/` is tracked. Each directory is one VSV architecture, its implementations, qualitative observations, and a provenance note. Those files describe antigen class, host, assay, and citation. A locus, parent, or replication class may be unknown. They do not contain nucleotide or amino-acid sequences.
+`data/designs/` is tracked. Each directory is one VSV architecture: `design.ttl` is the SBOL3 document for the genome plan, its implementations, and qualitative observations, and `PROVENANCE.md` is the reading note. Those files describe antigen class, host, assay, and citation. A locus, parent, or replication class may be unknown. They do not contain nucleotide or amino-acid sequences.
 
 `data/ingest/` holds the Europe PMC review queue written by `vsv ingest`. `papers/`, `queue/`, and `cursor.json` are local and gitignored. A pending proposal is not a curated design. See `data/ingest/README.md`.
 

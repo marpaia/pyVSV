@@ -1,26 +1,37 @@
 """The curated design library, its queries, and the linked intracellular model."""
 
-import json
 from pathlib import Path
 
 import pytest
+import sbol3
 
 from vsv.design import (
     Antigen,
+    Architecture,
+    Design,
     EvidenceLevel,
     Host,
+    Implementation,
+    Leader,
     LocusStatus,
+    Observation,
+    Outcome,
     ParentStatus,
     Phenotype,
+    Replication,
     Stage,
+    Trailer,
+    Unmodeled,
     canonical_chassis,
     check,
+    design_to_document,
     load_design,
     load_library,
     parameters_for,
     select,
     to_document,
 )
+from vsv.design.evidence import Assay
 from vsv.design.model import attach_model
 from vsv.errors import InputError
 from vsv.genes import Gene
@@ -63,10 +74,17 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
         filo.id,
         name=filo.name,
     )
-    assert filo.modules == applied.modules
+    assert [
+        (module.id, module.kind, module.name, module.locus, module.antigen_class)
+        for module in filo.modules
+    ] == [
+        (module.id, module.kind, module.name, module.locus, module.antigen_class)
+        for module in applied.modules
+    ]
     assert filo.edit == applied.edit
     assert filo.replication == applied.replication
     assert records["rvsv_dg_filovirus_gp"].card.evidence_level is EvidenceLevel.NONHUMAN_PRIMATE
+    assert "Ervebo" in records["rvsv_dg_filovirus_gp"].aliases
 
     nipah = records["rvsv_niv_g"].architecture
     added = next(module for module in nipah.modules if module.id == "niv_g")
@@ -121,71 +139,46 @@ def test_queries_separate_antigen_class_and_evidence() -> None:
     assert "rvsv_dg_marv_gp" not in [record.architecture.id for record in filovirus]
 
 
-def _partial_design(extra: dict[str, object]) -> dict[str, object]:
-    return {
-        "id": "partial",
-        "name": "partial",
-        "backbone": "VSV",
-        "replication": "unknown",
-        "parent_status": "unknown",
-        "citations": ["https://doi.org/10.1128/jvi.78.10.5458-5465.2004"],
-        "modules": [
-            {"id": "leader", "kind": "leader", "name": "leader"},
-            {
-                "id": "antigen_1",
-                "kind": "antigen",
-                "name": "antigen",
-                "antigen_class": "filovirus-glycoprotein",
-                "locus_status": "unknown",
-            },
-            {"id": "trailer", "kind": "trailer", "name": "trailer"},
-        ],
-        "implementations": [
-            {
-                "id": "paper-2004",
-                "stage": "preclinical",
-                "citation": "https://doi.org/10.1128/jvi.78.10.5458-5465.2004",
-            }
-        ],
-        **extra,
-    }
+_DOI = "https://doi.org/10.1128/jvi.78.10.5458-5465.2004"
+
+
+def _partial() -> Design:
+    architecture = Architecture(
+        "partial",
+        "partial",
+        "VSV",
+        Replication.UNKNOWN,
+        (Leader(), Antigen("antigen_1", "antigen", "filovirus-glycoprotein"), Trailer()),
+        parent=ParentStatus.UNKNOWN,
+        citations=(_DOI,),
+    )
+    return Design(
+        architecture,
+        (
+            Observation(
+                "safety",
+                "paper-2004",
+                Phenotype.SAFETY,
+                Host.OTHER,
+                Assay.SAFETY,
+                Outcome.REPORTED,
+                _DOI,
+            ),
+        ),
+        (Implementation("paper-2004", Stage.PRECLINICAL, _DOI),),
+        unmodeled=(
+            Unmodeled("dose", "not quantified", ""),
+            Unmodeled("route", "not stated", ""),
+            Unmodeled("species", "unspecified", "The abstract names no species."),
+        ),
+    )
 
 
 def test_unknown_fields_are_kept(tmp_path: Path) -> None:
     design = tmp_path / "partial"
     design.mkdir()
-    (design / "design.json").write_text(
-        json.dumps(
-            _partial_design(
-                {
-                    "dose": "not quantified",
-                    "unmodeled": [
-                        {
-                            "key": "species",
-                            "value": "unspecified",
-                            "source": "The abstract names no species.",
-                        }
-                    ],
-                }
-            )
-        )
-    )
-    (design / "observations.json").write_text(
-        json.dumps(
-            [
-                {
-                    "id": "safety",
-                    "implementation_id": "paper-2004",
-                    "phenotype": "safety",
-                    "host": "other",
-                    "assay": "safety",
-                    "outcome": "reported",
-                    "citation": "https://doi.org/10.1128/jvi.78.10.5458-5465.2004",
-                    "route": "not stated",
-                }
-            ]
-        )
-    )
+    document = design_to_document(_partial())
+    (design / "design.ttl").write_text(document.write_string(sbol3.TURTLE), encoding="utf-8")
     record = load_design(design)
     kept = {item.key: item for item in record.unmodeled}
     assert kept["dose"].value == "not quantified"
@@ -195,47 +188,33 @@ def test_unknown_fields_are_kept(tmp_path: Path) -> None:
     assert record.architecture.parent is ParentStatus.UNKNOWN
 
 
-def test_a_non_string_id_is_rejected(tmp_path: Path) -> None:
+def test_a_missing_document_is_rejected(tmp_path: Path) -> None:
     design = tmp_path / "bad"
     design.mkdir()
-    body = _partial_design({})
-    body["id"] = 12
-    (design / "design.json").write_text(json.dumps(body))
-    with pytest.raises(InputError, match="id must be a string"):
+    with pytest.raises(InputError, match=r"missing design\.ttl"):
         load_design(design)
 
 
 def test_a_sequence_field_is_rejected(tmp_path: Path) -> None:
     design = tmp_path / "bad"
     design.mkdir()
-    (design / "design.json").write_text(
-        json.dumps(
-            {
-                "id": "bad",
-                "name": "bad",
-                "backbone": "VSV",
-                "replication": "replication-competent",
-                "modules": [],
-                "sequence": "ATGC",
-            }
-        )
-    )
+    document = design_to_document(_partial())
+    document.add(sbol3.Sequence("bad_seq", elements="atgc", encoding=sbol3.IUPAC_DNA_ENCODING))
+    (design / "design.ttl").write_text(document.write_string(sbol3.TURTLE), encoding="utf-8")
     with pytest.raises(InputError, match="sequence payload"):
         load_design(design)
 
 
-def test_a_sequence_key_inside_unmodeled_is_rejected(tmp_path: Path) -> None:
-    design = tmp_path / "bad"
-    design.mkdir()
-    (design / "design.json").write_text(
-        json.dumps(
-            _partial_design(
-                {"unmodeled": [{"key": "sequence", "value": "ATGC", "source": "omitted"}]}
-            )
-        )
+def test_a_sequence_key_inside_unmodeled_is_rejected() -> None:
+    record = _partial()
+    rejected = Design(
+        record.architecture,
+        record.observations,
+        record.implementations,
+        unmodeled=(Unmodeled("sequence", "ATGC", "omitted"),),
     )
     with pytest.raises(InputError, match="sequence payload"):
-        load_design(design)
+        design_to_document(rejected)
 
 
 def test_parameters_describe_the_chassis_and_the_model_validates() -> None:

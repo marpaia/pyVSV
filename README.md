@@ -46,7 +46,7 @@ vsv compare data/raw/MF196237.fasta data/raw/NC_001560.fasta
 
 ### Designs
 
-`data/designs/` is a curated library of VSV architectures, the implementations of those architectures, and the qualitative evidence attached to each implementation. Antigen modules are named by class. A locus, a parent, or a replication class is unknown when the source does not state it. The library does not store insert sequences.
+`data/designs/` is a curated library of VSV architectures. Each directory holds `design.ttl`, an SBOL3 document for the genome plan, its implementations, and the qualitative evidence attached to each implementation, plus `PROVENANCE.md`. Antigen modules are named by class. A locus, a parent, or a replication class is unknown when the source does not state it. The library does not store insert sequences.
 
 ```bash
 vsv designs
@@ -69,11 +69,12 @@ vsv ingest --all
 vsv corpus
 vsv corpus extract
 vsv papers --class vaccine-vector --text ebola
+vsv papers --plan rvsv_dg_filovirus_gp
 vsv papers --unclustered
 vsv promote <cluster-id>
 ```
 
-`vsv promote` writes one cluster into `data/designs/` after a person accepts it. Papers that only say "VSV" and are not MeSH-indexed are counted on the ledger as a residual. They are not part of the corpus. Long nucleotide runs are omitted before anything is saved.
+`vsv papers --plan` lists corpus papers whose title or abstract contains an alias stored on that design. `vsv promote` writes one cluster into `data/designs/` as `design.ttl` after a person accepts it. Papers that only say "VSV" and are not MeSH-indexed are counted on the ledger as a residual. They are not part of the corpus. Long nucleotide runs are omitted before anything is saved.
 
 `vsv ingest` without `--all` still fills the Europe PMC review queue under `data/ingest/`. That queue is not the corpus. `vsv extract` still writes gene sequences from a genome file. Literature extraction is `vsv corpus extract`.
 

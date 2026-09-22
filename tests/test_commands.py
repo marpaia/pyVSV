@@ -1,6 +1,5 @@
 """Command-line behavior, run in process."""
 
-import json
 from pathlib import Path
 
 import pytest
@@ -9,6 +8,7 @@ import sbol3
 import vsv.genome.sbol as sbol
 from tests.synthetic import SyntheticGenome, build_genome
 from vsv.cli import main
+from vsv.design import Architecture, Design, Leader, Replication, Trailer, design_to_document
 from vsv.genes import Gene
 from vsv.genome.formats import OUTPUT_FORMATS
 
@@ -253,17 +253,9 @@ def test_check_fails_a_structural_violation(
 ) -> None:
     design = tmp_path / "bad"
     design.mkdir()
-    (design / "design.json").write_text(
-        json.dumps(
-            {
-                "id": "bad",
-                "name": "bad",
-                "backbone": "VSV",
-                "replication": "replication-competent",
-                "modules": [],
-            }
-        )
-    )
+    architecture = Architecture("bad", "bad", "VSV", Replication.COMPETENT, (Leader(), Trailer()))
+    document = design_to_document(Design(architecture))
+    (design / "design.ttl").write_text(document.write_string(sbol3.TURTLE), encoding="utf-8")
     status, out, err = run(capsys, "check", str(design))
     assert (status, err) == (1, "")
     assert "replication" in out

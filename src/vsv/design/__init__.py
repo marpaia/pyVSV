@@ -8,7 +8,7 @@ from vsv.design.architecture import (
     canonical_chassis,
     project,
 )
-from vsv.design.document import architecture_of, to_document
+from vsv.design.document import architecture_of, design_of, design_to_document, to_document
 from vsv.design.edits import Delete, Insert, Replace
 from vsv.design.evidence import (
     Assay,
@@ -73,6 +73,8 @@ __all__ = [
     "attach_model",
     "canonical_chassis",
     "check",
+    "design_of",
+    "design_to_document",
     "load_design",
     "load_library",
     "parameters_for",

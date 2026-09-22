@@ -185,11 +185,13 @@ class Design:
     realization: str | None = None
     model_source: str | None = None
     unmodeled: tuple[Unmodeled, ...] = ()
+    aliases: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "observations", tuple(self.observations))
         object.__setattr__(self, "implementations", tuple(self.implementations))
         object.__setattr__(self, "unmodeled", tuple(self.unmodeled))
+        object.__setattr__(self, "aliases", tuple(self.aliases))
         known = {item.id for item in self.implementations}
         for observation in self.observations:
             if observation.implementation_id not in known:
