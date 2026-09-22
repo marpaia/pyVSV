@@ -124,7 +124,7 @@ def test_bad_input_exits_with_an_error(
 def test_no_command_prints_help(capsys: pytest.CaptureFixture[str]) -> None:
     status, out, _ = run(capsys)
     assert status == 0
-    assert "usage: vsv" in out
+    assert "Usage: vsv" in out
 
 
 def test_genes_lists_the_five_genes(
@@ -272,7 +272,6 @@ def test_check_fails_a_structural_violation(
 def test_extract_rejects_unknown_genes(
     capsys: pytest.CaptureFixture[str], synthetic_fasta: Path
 ) -> None:
-    with pytest.raises(SystemExit) as raised:
-        main(["extract", "-g", "X", str(synthetic_fasta)])
-    assert raised.value.code == 2
-    assert "invalid gene" in capsys.readouterr().err
+    status, _out, err = run(capsys, "extract", "-g", "X", str(synthetic_fasta))
+    assert status == 2
+    assert "invalid gene" in err

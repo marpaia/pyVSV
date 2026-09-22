@@ -9,6 +9,8 @@ description = "Computational genetics tools for Vesicular Stomatitis Virus (VSV)
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "click>=8.5.0",
+    "fastapi>=0.124.2",
     "sbol-utilities>=1.0a17",
     "sbol2>=1.4.1",
     "sbol3>=1.2.0.post0",
@@ -18,7 +20,13 @@ dependencies = [
 vsv = "vsv.cli:main"
 
 [dependency-groups]
-dev = ["mypy>=1.15,<2", "pytest>=8.3,<10", "ruff>=0.11,<1"]
+dev = [
+    "httpx2>=2.13",
+    "mypy>=1.15,<2",
+    "pytest>=8.3,<10",
+    "ruff>=0.11,<1",
+    "uvicorn>=0.38.0",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vsv"]
@@ -38,7 +46,11 @@ include = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--import-mode=importlib", "-ra"]
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    # Starlette's TestClient still references anyio.abc.BlockingPortal.
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning:starlette.testclient",
+]
 
 [tool.ruff]
 target-version = "py312"
@@ -53,5 +65,12 @@ strict = true
 files = ["src", "tests"]
 
 [[tool.mypy.overrides]]
-module = ["sbol2", "sbol2.*", "sbol3", "sbol3.*", "sbol_utilities", "sbol_utilities.*"]
+module = [
+    "sbol2",
+    "sbol2.*",
+    "sbol3",
+    "sbol3.*",
+    "sbol_utilities",
+    "sbol_utilities.*",
+]
 ignore_missing_imports = true

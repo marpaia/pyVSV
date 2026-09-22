@@ -4,7 +4,7 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run 
 
 ## Working on the code
 
-Keep reusable implementation in `src/vsv/` and the command-line interface in `src/vsv/cli.py`. Add domain modules as concrete analysis requirements emerge. The initial package has no runtime dependencies; add each dependency when a feature needs it.
+Genomes live in `vsv.genome`. Architectures, edits, evidence, and the design library live in `vsv.design`. The command-line interface lives in `src/vsv/cli/`. The HTTP application lives in `vsv.server`, and its routes stay separate from genome and design code. Add a dependency when a feature needs it.
 
 Use type annotations for public interfaces. Keep file access, network access, and command-line argument handling separate from analysis code, so computations can be tested independently. Imports should not initiate downloads, write files, or run analyses.
 

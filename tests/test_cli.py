@@ -32,6 +32,6 @@ def test_version(command: list[str], tmp_path: Path) -> None:
 
 def test_help(command: list[str]) -> None:
     result = subprocess.run([*command, "--help"], capture_output=True, text=True, check=True)
-    assert "usage: vsv" in result.stdout
+    assert "Usage: vsv" in result.stdout
     assert "--version" in result.stdout
     assert result.stderr == ""

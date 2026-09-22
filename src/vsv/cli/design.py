@@ -1,0 +1,319 @@
+"""Commands for the curated VSV design library."""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from pathlib import Path
+
+import click
+
+from vsv.cli.render import cli_name, indent, row, table, widths, wrap
+from vsv.design import (
+    KNOWLEDGE_GAPS,
+    LIBRARY_ROOT,
+    Architecture,
+    Design,
+    EvidenceLevel,
+    Host,
+    LocusStatus,
+    Module,
+    Observation,
+    Phenotype,
+    load_design,
+    load_library,
+    select,
+)
+from vsv.design import check as check_design
+from vsv.design.edits import Delete, Edit, Insert, Replace
+from vsv.errors import InputError
+from vsv.ingest import DEFAULT_QUERY, INGEST_ROOT
+from vsv.ingest import ingest as fetch_papers
+
+_EVIDENCE = {
+    "none": EvidenceLevel.NONE,
+    "in-vitro": EvidenceLevel.IN_VITRO,
+    "rodent": EvidenceLevel.RODENT,
+    "preclinical": EvidenceLevel.RODENT,
+    "nonhuman-primate": EvidenceLevel.NONHUMAN_PRIMATE,
+    "human": EvidenceLevel.HUMAN,
+}
+
+
+class EvidenceName(click.ParamType[EvidenceLevel]):
+    """An evidence threshold, including the ``preclinical`` alias for rodent."""
+
+    name = "evidence"
+
+    def convert(
+        self, value: object, param: click.Parameter | None, ctx: click.Context | None
+    ) -> EvidenceLevel:
+        if isinstance(value, EvidenceLevel):
+            return value
+        text = str(value)
+        try:
+            return _EVIDENCE[text]
+        except KeyError:
+            self.fail(f"unknown evidence {text!r}.", param, ctx)
+
+
+def _phenotype(value: str | None) -> Phenotype | None:
+    return None if value is None else Phenotype(value)
+
+
+def _host(value: str | None) -> Host | None:
+    return None if value is None else Host(value)
+
+
+def _design_rows(records: Sequence[Design]) -> str:
+    rows = []
+    for record in records:
+        card = record.card
+        rows.append(
+            [
+                record.architecture.id,
+                card.replication.value,
+                ",".join(card.antigen_classes) or "-",
+                card.evidence_level.value,
+                ",".join(card.hosts) or "-",
+                _gap_text(record),
+            ]
+        )
+    if not rows:
+        return "no designs match"
+    return table(["id", "replication", "antigens", "evidence", "hosts", "gaps"], rows)
+
+
+def _gap_text(record: Design) -> str:
+    names = [
+        item.rule
+        for item in check_design(record.architecture, record.observations)
+        if item.rule in KNOWLEDGE_GAPS
+    ]
+    return ",".join(names) or "-"
+
+
+def _parent_text(architecture: Architecture) -> str:
+    if architecture.parent_id is not None:
+        return architecture.parent_id
+    return str(architecture.parent)
+
+
+def _derivation_text(edit: Edit) -> str:
+    match edit:
+        case Delete(target=target, replication=replication):
+            text = f"delete {cli_name(target)}"
+        case Insert(after=after, module=module, replication=replication):
+            text = f"insert after {cli_name(after)} with {cli_name(module)}"
+        case Replace(target=target, module=module, replication=replication):
+            text = f"replace {cli_name(target)}"
+            shown = cli_name(module)
+            if shown != cli_name(target):
+                text += f" with {shown}"
+    if replication is not None:
+        text += f", {replication.value}"
+    return text
+
+
+def _fact_lines(pairs: Sequence[tuple[str, str]]) -> list[str]:
+    width = max(len(key) for key, _value in pairs)
+    return [f"{key:<{width}}  {value}" for key, value in pairs]
+
+
+def _locus(module: Module) -> str:
+    if module.locus_status is LocusStatus.NOT_TRANSCRIBED:
+        return "-"
+    if module.locus_status is LocusStatus.UNKNOWN or module.locus is None:
+        return "unknown"
+    return str(module.locus)
+
+
+def _module_table(modules: Sequence[Module]) -> str:
+    rows = [[_locus(module), cli_name(module.id), module.antigen_class or ""] for module in modules]
+    return table(["locus", "module", "class"], rows)
+
+
+def _observation_lines(observations: Sequence[Observation], citation: str) -> list[str]:
+    if not observations:
+        return ["  no observations"]
+    header = ["phenotype", "host", "assay", "outcome"]
+    rows = [
+        [item.phenotype.value, item.host.value, item.assay.value, item.outcome.value]
+        for item in observations
+    ]
+    column_widths = widths(header, rows)
+    lines = ["  " + row(header, column_widths)]
+    for item, cells in zip(observations, rows, strict=True):
+        lines.append("  " + row(cells, column_widths))
+        if item.citation != citation:
+            lines.append(f"    {item.citation}")
+        if item.note:
+            lines.extend(wrap(item.note, "    "))
+        lines.append("")
+    return lines[:-1]
+
+
+def _show(record: Design) -> str:
+    architecture = record.architecture
+    facts = [
+        ("backbone", architecture.backbone),
+        ("replication", architecture.replication.value),
+        ("parent", _parent_text(architecture)),
+    ]
+    if architecture.edit is not None:
+        facts.append(("derivation", _derivation_text(architecture.edit)))
+    if record.realization:
+        facts.append(("realization", record.realization))
+    if record.model_source:
+        facts.append(("model", record.model_source))
+    lines = [
+        architecture.id,
+        architecture.name,
+        "",
+        *_fact_lines(facts),
+        "",
+        "modules",
+        indent(_module_table(architecture.modules)),
+    ]
+    known = {item.id for item in record.implementations}
+    grouped: dict[str, list[Observation]] = {item_id: [] for item_id in known}
+    for observation in record.observations:
+        if observation.implementation_id in known:
+            grouped[observation.implementation_id].append(observation)
+    if not record.implementations:
+        lines.extend(["", "implementations", "  none"])
+    for implementation in record.implementations:
+        lines.extend(
+            [
+                "",
+                f"{implementation.stage.value}  {implementation.id}",
+                f"  {implementation.citation}",
+            ]
+        )
+        if implementation.note:
+            lines.extend(wrap(implementation.note, "  "))
+        lines.append("")
+        lines.extend(_observation_lines(grouped[implementation.id], implementation.citation))
+    if record.unmodeled:
+        key_width = max(len(field.key) for field in record.unmodeled)
+        lines.extend(["", "unmodeled"])
+        for field in record.unmodeled:
+            lines.append(f"  {field.key:<{key_width}}  {field.value}")
+            if field.source:
+                lines.extend(wrap(field.source, " " * (key_width + 4)))
+    loose = [
+        observation.id
+        for observation in record.observations
+        if observation.implementation_id not in known
+    ]
+    if loose:
+        lines.extend(["", "observations without an implementation", "  " + ", ".join(loose)])
+    gaps = [
+        item.message
+        for item in check_design(architecture, record.observations)
+        if item.rule in KNOWLEDGE_GAPS
+    ]
+    if gaps:
+        lines.extend(["", "gaps", *[f"  {gap}" for gap in gaps]])
+    return "\n".join(lines)
+
+
+def _resolve_show(identifier: str) -> Design:
+    path = Path(identifier)
+    if path.is_dir():
+        return load_design(path)
+    matches = [record for record in load_library() if record.architecture.id == identifier]
+    if len(matches) != 1:
+        raise InputError(f"{identifier}: design not found.")
+    return matches[0]
+
+
+@click.command()
+@click.option("--antigen-class", default=None, help="Antigen class slug.")
+@click.option(
+    "--phenotype",
+    type=click.Choice([item.value for item in Phenotype]),
+    default=None,
+    help="Observation phenotype.",
+)
+@click.option(
+    "--host",
+    type=click.Choice([item.value for item in Host]),
+    default=None,
+    help="Observation host.",
+)
+@click.option(
+    "--evidence",
+    type=EvidenceName(),
+    default=None,
+    help="Minimum evidence: in-vitro, rodent, preclinical, nonhuman-primate, or human.",
+)
+@click.option(
+    "--library",
+    type=click.Path(path_type=Path),
+    default=LIBRARY_ROOT,
+    show_default=True,
+    help="Design library.",
+)
+def designs(
+    antigen_class: str | None,
+    phenotype: str | None,
+    host: str | None,
+    evidence: EvidenceLevel | None,
+    library: Path,
+) -> None:
+    """List curated VSV architectures and the evidence attached to them."""
+    records = select(
+        load_library(library),
+        antigen_class=antigen_class,
+        phenotype=_phenotype(phenotype),
+        host=_host(host),
+        min_evidence=evidence,
+    )
+    click.echo(_design_rows(records))
+
+
+@click.command()
+@click.argument("design", type=click.Path(path_type=Path))
+@click.pass_context
+def check(ctx: click.Context, design: Path) -> None:
+    """Report design-rule violations for one curated design."""
+    record = load_design(design)
+    violations = check_design(record.architecture, record.observations)
+    structural = [item for item in violations if item.rule not in KNOWLEDGE_GAPS]
+    gaps = [item for item in violations if item.rule in KNOWLEDGE_GAPS]
+    if not structural and not gaps:
+        click.echo(f"{record.architecture.id}: ok")
+        return
+    blocks = []
+    if structural:
+        blocks.append(
+            table(["rule", "message"], [(item.rule, item.message) for item in structural])
+        )
+    if gaps:
+        blocks.append(table(["gap", "message"], [(item.rule, item.message) for item in gaps]))
+    click.echo("\n".join(blocks))
+    if structural:
+        ctx.exit(1)
+
+
+@click.command()
+@click.argument("design")
+def show(design: str) -> None:
+    """Show one curated design, its implementations, and its observations."""
+    click.echo(_show(_resolve_show(design)))
+
+
+@click.command()
+@click.option(
+    "--dest",
+    type=click.Path(path_type=Path),
+    default=INGEST_ROOT,
+    show_default=True,
+    help="Ingest directory.",
+)
+@click.option("--since", default=None, help="Only papers first published on or after this date.")
+@click.option("--query", default=DEFAULT_QUERY, help="Europe PMC query.")
+def ingest(dest: Path, since: str | None, query: str) -> None:
+    """Fetch new VSV vector papers into the review queue."""
+    report = fetch_papers(dest, query=query, since=since)
+    click.echo(f"papers: {report.papers}\nproposals: {report.proposals}\ncursor: {report.cursor}")
