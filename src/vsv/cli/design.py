@@ -7,7 +7,12 @@ from pathlib import Path
 
 import click
 
+from vsv.cli.corpus import cluster_edit, resolve_cluster
 from vsv.cli.render import cli_name, indent, row, table, widths, wrap
+from vsv.corpus.cluster import Cluster, clusters_from
+from vsv.corpus.pipeline import ingest_corpus
+from vsv.corpus.query import CORPUS_ROOT
+from vsv.corpus.store import load_extractions
 from vsv.design import (
     KNOWLEDGE_GAPS,
     LIBRARY_ROOT,
@@ -64,23 +69,68 @@ def _host(value: str | None) -> Host | None:
     return None if value is None else Host(value)
 
 
-def _design_rows(records: Sequence[Design]) -> str:
-    rows = []
+def _design_rows(records: Sequence[Design], clusters: Sequence[Cluster]) -> str:
+    rows: list[list[str]] = []
     for record in records:
         card = record.card
+        edit = record.architecture.edit
         rows.append(
             [
                 record.architecture.id,
-                card.replication.value,
+                "curated",
+                _derivation_text(edit) if edit is not None else "-",
                 ",".join(card.antigen_classes) or "-",
+                card.replication.value,
                 card.evidence_level.value,
-                ",".join(card.hosts) or "-",
+                "-",
                 _gap_text(record),
+            ]
+        )
+    for cluster in clusters:
+        status = f"confirmed:{cluster.match}" if cluster.match else "extracted"
+        rows.append(
+            [
+                cluster.id,
+                status,
+                cluster_edit(cluster),
+                cluster.antigen_slug or cluster.antigen_name,
+                cluster.replication,
+                cluster.evidence,
+                str(len(cluster.pmids)),
+                ",".join(cluster.gaps) or "-",
             ]
         )
     if not rows:
         return "no designs match"
-    return table(["id", "replication", "antigens", "evidence", "hosts", "gaps"], rows)
+    return table(
+        ["id", "status", "edit", "antigens", "replication", "evidence", "papers", "gaps"],
+        rows,
+    )
+
+
+def _clusters(
+    curated: Sequence[Design],
+    antigen_class: str | None,
+    phenotype: str | None,
+    host: str | None,
+    evidence: EvidenceLevel | None,
+) -> list[Cluster]:
+    try:
+        extractions = load_extractions()
+    except InputError:
+        return []
+    found = []
+    for cluster in clusters_from(extractions, curated):
+        if antigen_class not in {None, cluster.antigen_slug, cluster.antigen_name}:
+            continue
+        if phenotype is not None and phenotype not in cluster.phenotypes:
+            continue
+        if host is not None and host not in cluster.hosts:
+            continue
+        if evidence is not None and EvidenceLevel(cluster.evidence).rank < evidence.rank:
+            continue
+        found.append(cluster)
+    return found
 
 
 def _gap_text(record: Design) -> str:
@@ -261,15 +311,16 @@ def designs(
     evidence: EvidenceLevel | None,
     library: Path,
 ) -> None:
-    """List curated VSV architectures and the evidence attached to them."""
+    """List curated and extracted VSV architectures."""
+    curated = load_library(library)
     records = select(
-        load_library(library),
+        curated,
         antigen_class=antigen_class,
         phenotype=_phenotype(phenotype),
         host=_host(host),
         min_evidence=evidence,
     )
-    click.echo(_design_rows(records))
+    click.echo(_design_rows(records, _clusters(curated, antigen_class, phenotype, host, evidence)))
 
 
 @click.command()
@@ -299,21 +350,47 @@ def check(ctx: click.Context, design: Path) -> None:
 @click.command()
 @click.argument("design")
 def show(design: str) -> None:
-    """Show one curated design, its implementations, and its observations."""
-    click.echo(_show(_resolve_show(design)))
+    """Show one curated design or one extracted cluster."""
+    try:
+        record = _resolve_show(design)
+    except InputError:
+        text = resolve_cluster(design)
+        if text is None:
+            raise
+        click.echo(text)
+        return
+    click.echo(_show(record))
 
 
 @click.command()
 @click.option(
     "--dest",
     type=click.Path(path_type=Path),
-    default=INGEST_ROOT,
-    show_default=True,
-    help="Ingest directory.",
+    default=None,
+    help="Output directory. Defaults to data/ingest, or data/corpus with --all.",
 )
 @click.option("--since", default=None, help="Only papers first published on or after this date.")
 @click.option("--query", default=DEFAULT_QUERY, help="Europe PMC query.")
-def ingest(dest: Path, since: str | None, query: str) -> None:
-    """Fetch new VSV vector papers into the review queue."""
-    report = fetch_papers(dest, query=query, since=since)
-    click.echo(f"papers: {report.papers}\nproposals: {report.proposals}\ncursor: {report.cursor}")
+@click.option("--all", "complete", is_flag=True, help="Fetch the frozen PubMed VSV corpus.")
+def ingest(dest: Path | None, since: str | None, query: str, complete: bool) -> None:
+    """Fetch papers into the review queue, or the whole PubMed corpus with --all."""
+    if complete:
+        if since is not None or query != DEFAULT_QUERY:
+            raise InputError("vsv ingest --all uses the frozen PubMed corpus query.")
+        root = CORPUS_ROOT if dest is None else dest
+        report = ingest_corpus(root, log=click.echo)
+        click.echo(
+            "\n".join(
+                [
+                    f"pubmed: {report.pubmed_count}",
+                    f"stored: {report.stored}",
+                    f"new: {report.new}",
+                    f"removed: {report.removed}",
+                    f"europepmc misses: {report.europepmc_misses}",
+                    f"residual: {report.residual_count}",
+                ]
+            )
+        )
+        return
+    queue = fetch_papers(INGEST_ROOT if dest is None else dest, query=query, since=since)
+    click.echo(f"papers: {queue.papers}\nproposals: {queue.proposals}\ncursor: {queue.cursor}")

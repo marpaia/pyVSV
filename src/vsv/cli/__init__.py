@@ -7,6 +7,7 @@ from collections.abc import Sequence
 import click
 
 from vsv import __version__
+from vsv.cli.corpus import corpus, papers, promote
 from vsv.cli.design import check, designs, ingest, show
 from vsv.cli.genome import annotate, compare, extract, genes, summary
 from vsv.errors import InputError
@@ -30,6 +31,9 @@ cli.add_command(designs)
 cli.add_command(check)
 cli.add_command(show)
 cli.add_command(ingest)
+cli.add_command(corpus)
+cli.add_command(papers)
+cli.add_command(promote)
 
 
 def main(argv: Sequence[str] | None = None) -> int:

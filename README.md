@@ -58,7 +58,24 @@ vsv check data/designs/vsv_indiana
 
 `vsv check` prints structural violations and knowledge gaps. An unknown locus, replication class, or parent is a gap. The command exits with status 1 when a structural rule fails.
 
-`vsv ingest` searches Europe PMC for recombinant VSV vector papers and writes a local review queue under `data/ingest/`. Proposals stay pending until a person promotes one into `data/designs/`. Long nucleotide runs are omitted before anything is saved. The queue is not part of the curated library.
+`vsv designs` lists the curated library and, once `data/corpus/extractions.jsonl` exists, the architectures extracted from the literature. A row is `curated`, `extracted`, or `confirmed:<id>` when an extracted cluster matches a curated design. `vsv show` accepts either a curated id or an extracted cluster id.
+
+### Literature corpus
+
+The corpus is every PubMed record for `"vesicular stomatitis virus"[tiab]` or the Indiana or New Jersey MeSH heading. `vsv ingest --all` stores that set under `data/corpus/`. `vsv corpus` exits 0 when the stored PMIDs match the ledger. `vsv corpus extract` classifies every paper and writes quote-backed fields for vaccine-vector, oncolytic, and reporter papers. `--fulltext` adds open-access methods text from a local cache.
+
+```bash
+vsv ingest --all
+vsv corpus
+vsv corpus extract
+vsv papers --class vaccine-vector --text ebola
+vsv papers --unclustered
+vsv promote <cluster-id>
+```
+
+`vsv promote` writes one cluster into `data/designs/` after a person accepts it. Papers that only say "VSV" and are not MeSH-indexed are counted on the ledger as a residual. They are not part of the corpus. Long nucleotide runs are omitted before anything is saved.
+
+`vsv ingest` without `--all` still fills the Europe PMC review queue under `data/ingest/`. That queue is not the corpus. `vsv extract` still writes gene sequences from a genome file. Literature extraction is `vsv corpus extract`.
 
 ## Literature
 

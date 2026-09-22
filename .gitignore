@@ -29,5 +29,8 @@ data/ingest/papers/
 data/ingest/queue/
 data/ingest/cursor.json
 
+# Open-access full text fetched for methods extraction. The corpus JSONL is tracked.
+data/corpus/fulltext/
+
 # Vercel project linking at the repository root
 .vercel

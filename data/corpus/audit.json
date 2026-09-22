@@ -1,0 +1,506 @@
+{
+  "seed": 20260921,
+  "size": 100,
+  "labels": [
+    {
+      "pmid": "17778040",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "18887764",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "13221548",
+      "kind": "structure",
+      "vector": false
+    },
+    {
+      "pmid": "4296928",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "206538",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "6288738",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "7796384",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "16809308",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "29939296",
+      "kind": "vaccine-vector",
+      "vector": true
+    },
+    {
+      "pmid": "35135700",
+      "kind": "pseudotype-reagent",
+      "vector": false
+    },
+    {
+      "pmid": "42766426",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "19870648",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "19871306",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "13811805",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4308952",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "163348",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "6303387",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "1312277",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "12829843",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "24330654",
+      "kind": "vaccine-vector",
+      "vector": true
+    },
+    {
+      "pmid": "39149059",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "19870716",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "21013309",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "13636068",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4301314",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "195964",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "2545712",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "7480176",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "19341745",
+      "kind": "structure",
+      "vector": false
+    },
+    {
+      "pmid": "21331888",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "32995359",
+      "kind": "pseudotype-reagent",
+      "vector": false
+    },
+    {
+      "pmid": "19870564",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "13204321",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4288572",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "170604",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "2820400",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "9405635",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "11435588",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "22238308",
+      "kind": "oncolytic",
+      "vector": true
+    },
+    {
+      "pmid": "33147444",
+      "kind": "basic-virology",
+      "vector": true
+    },
+    {
+      "pmid": "19870715",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "13798559",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4311211",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "163928",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "2966842",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "7550128",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "17985397",
+      "kind": "structure",
+      "vector": false
+    },
+    {
+      "pmid": "24574391",
+      "kind": "vaccine-vector",
+      "vector": true
+    },
+    {
+      "pmid": "37531246",
+      "kind": "pseudotype-reagent",
+      "vector": false
+    },
+    {
+      "pmid": "19870647",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "13444597",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4297603",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4375726",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "2820143",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "7818524",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "19152337",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "22246179",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "39162433",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "13362798",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4297405",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "189093",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "6330956",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "9658075",
+      "kind": "pseudotype-reagent",
+      "vector": false
+    },
+    {
+      "pmid": "18848710",
+      "kind": "structure",
+      "vector": false
+    },
+    {
+      "pmid": "25311513",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "34578160",
+      "kind": "epidemiology",
+      "vector": false
+    },
+    {
+      "pmid": "13481315",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4311306",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "1171263",
+      "kind": "structure",
+      "vector": false
+    },
+    {
+      "pmid": "6099659",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "8389917",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "15068877",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "23434013",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "42528628",
+      "kind": "epidemiology",
+      "vector": false
+    },
+    {
+      "pmid": "13587900",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4302957",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "228636",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "3201246",
+      "kind": "pseudotype-reagent",
+      "vector": false
+    },
+    {
+      "pmid": "2162846",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "16948530",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "21987743",
+      "kind": "vaccine-vector",
+      "vector": true
+    },
+    {
+      "pmid": "37584190",
+      "kind": "oncolytic",
+      "vector": true
+    },
+    {
+      "pmid": "13539380",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4309923",
+      "kind": "structure",
+      "vector": false
+    },
+    {
+      "pmid": "195058",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "2547986",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "8663371",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "15352074",
+      "kind": "pseudotype-reagent",
+      "vector": false
+    },
+    {
+      "pmid": "26358640",
+      "kind": "structure",
+      "vector": false
+    },
+    {
+      "pmid": "41766922",
+      "kind": "oncolytic",
+      "vector": true
+    },
+    {
+      "pmid": "13575684",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "4290948",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "4377639",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "3952984",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "8387212",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "15542635",
+      "kind": "other",
+      "vector": false
+    },
+    {
+      "pmid": "19995539",
+      "kind": "vaccine-vector",
+      "vector": true
+    },
+    {
+      "pmid": "38798499",
+      "kind": "basic-virology",
+      "vector": false
+    },
+    {
+      "pmid": "13259050",
+      "kind": "epidemiology",
+      "vector": false
+    },
+    {
+      "pmid": "4290664",
+      "kind": "basic-virology",
+      "vector": false
+    }
+  ]
+}
