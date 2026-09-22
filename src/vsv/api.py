@@ -17,7 +17,7 @@ from vsv.sequence import InputError
 
 
 class GeneWarning(UserWarning):
-    """A genome whose N, P, M, G, and L genes could not all be identified."""
+    """A genome whose five VSV genes could not all be identified."""
 
 
 def gene_problems(genome: Genome) -> list[str]:
@@ -49,7 +49,7 @@ def prepare(genome: Genome) -> list[str]:
 def load_all(paths: Sequence[str | PathLike[str]]) -> tuple[sbol3.Document, list[Genome]]:
     """Read every genome from FASTA, GenBank, or SBOL3 files, with genes identified.
 
-    Each genome that lacks one of N, P, M, G, or L raises a :class:`GeneWarning`.
+    Each genome that lacks one of the five VSV genes raises a :class:`GeneWarning`.
     """
     document, genomes = read_genomes([Path(path) for path in paths])
     for genome in genomes:

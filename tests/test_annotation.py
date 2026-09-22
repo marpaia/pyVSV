@@ -55,8 +55,20 @@ def test_annotate_finds_every_feature(synthetic: SyntheticGenome) -> None:
     annotate(genome)
     assert is_annotated(genome)
     assert spans(genome, sbol.SO_GENE) == synthetic.genes
-    assert spans(genome, sbol.SO_CDS) == synthetic.cds
+    assert {name: genome.span(genome.cds(name)) for name in Gene} == synthetic.cds
     assert list(spans(genome, sbol.SO_GENE)) == list(Gene)
+    coding = genome.cds(Gene.NUCLEOPROTEIN)
+    assert coding is not None
+    assert coding.name == "Nucleoprotein CDS"
+    assert coding.display_id == "Nucleoprotein_cds"
+    gene = genome.gene(Gene.NUCLEOPROTEIN)
+    assert gene is not None
+    assert any(
+        constraint.restriction == sbol3.SBOL_CONTAINS
+        and constraint.subject == gene.identity
+        and constraint.object == coding.identity
+        for constraint in genome.component.constraints
+    )
     assert spans(genome, sbol.ROLE_LEADER) == {"leader": synthetic.leader}
     assert spans(genome, sbol.ROLE_TRAILER) == {"trailer": synthetic.trailer}
 
@@ -91,7 +103,9 @@ def test_unexpected_gene_counts_get_positional_names() -> None:
         genome.document,
         "SHORT",
         "",
-        synthetic.sequence[: synthetic.genes["G"][1] + len(GENE_END_SIGNAL) - len(TRANSCRIPT_END)],
+        synthetic.sequence[
+            : synthetic.genes[Gene.GLYCOPROTEIN][1] + len(GENE_END_SIGNAL) - len(TRANSCRIPT_END)
+        ],
     )
     annotate(truncated)
     assert [f.name for f in truncated.features(sbol.SO_GENE)] == [f"gene{i}" for i in range(1, 5)]
@@ -115,22 +129,23 @@ def test_curated_cds_are_named_by_order(synthetic: SyntheticGenome) -> None:
     genome = make(synthetic)
     curated(genome, synthetic, genes=False)
     name_curated_genes(genome)
-    assert spans(genome, sbol.SO_CDS) == synthetic.cds
-    assert genome.protein("G") == synthetic.proteins["G"]
-    assert [f.description for f in genome.features(sbol.SO_CDS)] == [
-        f"product {i}" for i in range(5)
-    ]
+    assert {name: genome.span(genome.cds(name)) for name in Gene} == synthetic.cds
+    assert genome.protein(Gene.GLYCOPROTEIN) == synthetic.proteins[Gene.GLYCOPROTEIN]
+    assert [f.name for f in genome.features(sbol.SO_CDS)] == [f"product {i}" for i in range(5)]
+    nucleocapsid = genome.cds(Gene.NUCLEOPROTEIN)
+    assert nucleocapsid is not None and nucleocapsid.display_id == "Nucleoprotein_cds"
 
 
 def test_curated_genes_take_their_longest_cds(synthetic: SyntheticGenome) -> None:
     genome = make(synthetic)
     curated(genome, synthetic, genes=True)
-    start, _ = synthetic.cds["P"]
+    start, _ = synthetic.cds[Gene.PHOSPHOPROTEIN]
     genome.add_region("short orf", start + 3, start + 12, [sbol.SO_CDS])
     name_curated_genes(genome)
     assert spans(genome, sbol.SO_GENE) == synthetic.genes
-    assert genome.cds("P") is not None
-    assert genome.span(genome.cds("P")) == synthetic.cds["P"]
+    phosphoprotein = genome.cds(Gene.PHOSPHOPROTEIN)
+    assert phosphoprotein is not None
+    assert genome.span(phosphoprotein) == synthetic.cds[Gene.PHOSPHOPROTEIN]
     assert [f.name for f in genome.features(sbol.SO_CDS)].count("short orf") == 1
 
 
@@ -145,7 +160,7 @@ def test_naming_curated_genes_is_idempotent(synthetic: SyntheticGenome) -> None:
 
 def test_naming_leaves_other_gene_counts_alone(synthetic: SyntheticGenome) -> None:
     genome = make(synthetic)
-    genome.add_region("only", *synthetic.cds["N"], [sbol.SO_CDS])
+    genome.add_region("only", *synthetic.cds[Gene.NUCLEOPROTEIN], [sbol.SO_CDS])
     name_curated_genes(genome)
     assert [f.name for f in genome.features()] == ["only"]
 
@@ -155,8 +170,12 @@ def test_gff3_uses_one_based_inclusive_coordinates(synthetic: SyntheticGenome) -
     annotate(genome)
     lines = to_gff3([genome]).splitlines()
     assert lines[:2] == ["##gff-version 3", f"##sequence-region SYN0001.1 1 {len(genome)}"]
-    start, end = synthetic.cds["N"]
-    assert f"SYN0001.1\tvsv\tCDS\t{start + 1}\t{end}\t.\t+\t0\tID=SYN0001.1:CDS:N;Name=N" in lines
+    start, end = synthetic.cds[Gene.NUCLEOPROTEIN]
+    assert (
+        "SYN0001.1\tvsv\tCDS\t"
+        f"{start + 1}\t{end}\t.\t+\t0\t"
+        "ID=SYN0001.1:CDS:Nucleoprotein CDS;Name=Nucleoprotein CDS"
+    ) in lines
     assert (
         f"SYN0001.1\tvsv\tleader\t1\t{synthetic.leader[1]}\t.\t+\t.\tID=SYN0001.1:leader:leader;Name=leader"
         in lines

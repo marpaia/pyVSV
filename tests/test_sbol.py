@@ -106,6 +106,21 @@ def test_named_lookups(genome: sbol.Genome) -> None:
     assert genome.protein("P") is None
 
 
+def test_a_coding_sequence_is_its_own_part(genome: sbol.Genome) -> None:
+    coding = genome.add_cds("Nucleoprotein", 0, 12)
+    assert coding.display_id == "Nucleoprotein_cds"
+    assert coding.name == "Nucleoprotein CDS"
+    assert genome.cds("Nucleoprotein") is coding
+    assert genome.gene("Nucleoprotein") is None
+    component = genome.document.find("https://vsv.bio/X_1_Nucleoprotein_cds")
+    assert isinstance(component, sbol3.Component)
+    assert sbol.role_key(component.roles[0]) == "SO:0000316"
+    sequence = genome.document.find("https://vsv.bio/X_1_Nucleoprotein_cds_seq")
+    assert sequence.elements == "atgaaatttggg"
+    assert [record.id for record in sbol.genomes(genome.document)] == ["X_1.2"]
+    assert not genome.document.validate()
+
+
 def test_add_protein_links_the_coding_sequence_to_its_product(genome: sbol.Genome) -> None:
     cds = genome.add_region("N", 0, 12, [sbol.SO_CDS])
     protein = genome.add_protein(cds, "N")

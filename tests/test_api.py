@@ -13,9 +13,15 @@ from vsv.genes import Gene, Product
 
 
 def test_gene_is_a_string_enum_in_genome_order() -> None:
-    assert list(Gene) == ["N", "P", "M", "G", "L"]
-    assert Gene("P") is Gene.P
-    assert Gene.N == "N"
+    assert list(Gene) == [
+        "Nucleoprotein",
+        "Phosphoprotein",
+        "MatrixProtein",
+        "Glycoprotein",
+        "LargePolymerase",
+    ]
+    assert Gene("Phosphoprotein") is Gene.PHOSPHOPROTEIN
+    assert Gene.NUCLEOPROTEIN.value == "Nucleoprotein"
 
 
 def test_load_annotates_a_fasta_file(synthetic_fasta: Path, synthetic: SyntheticGenome) -> None:
@@ -30,7 +36,7 @@ def test_load_annotates_a_fasta_file(synthetic_fasta: Path, synthetic: Synthetic
 
 
 def test_load_accepts_a_string_path(synthetic_fasta: Path) -> None:
-    assert vsv.load(str(synthetic_fasta)).genes[Gene.N].cds_span is not None
+    assert vsv.load(str(synthetic_fasta)).genes[Gene.NUCLEOPROTEIN].cds_span is not None
 
 
 def test_load_names_a_curated_genbank_record(
@@ -38,24 +44,28 @@ def test_load_names_a_curated_genbank_record(
 ) -> None:
     genome = vsv.load(synthetic_genbank)
     assert list(genome.genes) == list(Gene)
-    assert genome.genes[Gene.G].cds_span == synthetic.cds["G"]
-    assert genome.genes[Gene.G].gene_span is None
+    assert genome.genes[Gene.GLYCOPROTEIN].cds_span == synthetic.cds[Gene.GLYCOPROTEIN]
+    assert genome.genes[Gene.GLYCOPROTEIN].gene_span is None
 
 
 def test_sequences_are_read_by_product(synthetic_fasta: Path, synthetic: SyntheticGenome) -> None:
-    annotation = vsv.load(synthetic_fasta).genes[Gene.M]
-    start, end = synthetic.cds["M"]
+    annotation = vsv.load(synthetic_fasta).genes[Gene.MATRIX_PROTEIN]
+    start, end = synthetic.cds[Gene.MATRIX_PROTEIN]
     assert annotation.sequence(Product.CDS) == synthetic.sequence[start:end]
-    assert annotation.sequence(Product.PROTEIN) == synthetic.proteins["M"]
-    gene_start, gene_end = synthetic.genes["M"]
+    assert annotation.sequence(Product.PROTEIN) == synthetic.proteins[Gene.MATRIX_PROTEIN]
+    gene_start, gene_end = synthetic.genes[Gene.MATRIX_PROTEIN]
     assert annotation.sequence(Product.GENE) == synthetic.sequence[gene_start:gene_end]
 
 
 def test_incomplete_genomes_warn(tmp_path: Path, synthetic: SyntheticGenome) -> None:
     truncated = tmp_path / "short.fasta"
-    end = synthetic.genes["G"][1] + 7
+    end = synthetic.genes[Gene.GLYCOPROTEIN][1] + 7
     truncated.write_text(f">SHORT\n{synthetic.sequence[:end]}\n")
-    with pytest.warns(vsv.GeneWarning, match=r"SHORT: genes not identified: N, P, M, G, L"):
+    with pytest.warns(
+        vsv.GeneWarning,
+        match=r"SHORT: genes not identified: Nucleoprotein, Phosphoprotein, "
+        r"MatrixProtein, Glycoprotein, LargePolymerase",
+    ):
         genome = vsv.load(truncated)
     assert not genome.genes
 
@@ -64,7 +74,10 @@ def test_gene_problems_names_genes_without_a_coding_sequence(synthetic: Syntheti
     genome = sbol.add_genome(sbol.new_document(), "ONLY", "", synthetic.sequence)
     for gene, (start, end) in synthetic.genes.items():
         genome.add_region(gene, start, end, [sbol.SO_GENE])
-    assert gene_problems(genome) == ["genes without a coding sequence: N, P, M, G, L"]
+    assert gene_problems(genome) == [
+        "genes without a coding sequence: "
+        "Nucleoprotein, Phosphoprotein, MatrixProtein, Glycoprotein, LargePolymerase"
+    ]
 
 
 def test_load_rejects_multi_record_files(tmp_path: Path, synthetic: SyntheticGenome) -> None:

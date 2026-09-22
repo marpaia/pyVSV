@@ -9,6 +9,7 @@ from tests.synthetic import SyntheticGenome, genbank_text
 from vsv import sbol
 from vsv.annotation import annotate
 from vsv.formats import OUTPUT_FORMATS, SBOL_SUFFIXES, read_genomes, write_document
+from vsv.genes import Gene
 from vsv.sequence import InputError
 
 
@@ -30,8 +31,19 @@ def test_genbank_becomes_an_sbol_genome_with_named_genes(
     assert genome.component.identity == "https://vsv.bio/SYN0001"
     assert genome.bases == synthetic.sequence
     assert genome.description.startswith("synthetic vesicular stomatitis virus")
-    assert {str(f.name): genome.span(f) for f in genome.features(sbol.SO_CDS)} == synthetic.cds
-    assert genome.protein("L") == synthetic.proteins["L"]
+    nucleocapsid = genome.cds(Gene.NUCLEOPROTEIN)
+    assert nucleocapsid is not None
+    found = {}
+    for name in Gene:
+        coding = genome.cds(name)
+        assert coding is not None
+        found[name] = genome.span(coding)
+    assert found == synthetic.cds
+    assert nucleocapsid.name == "nucleocapsid protein"
+    assert nucleocapsid.display_id == "Nucleoprotein_cds"
+    assert genome.gene(Gene.NUCLEOPROTEIN) is None
+    assert len(sbol.genomes(document)) == 1
+    assert genome.protein(Gene.LARGE_POLYMERASE) == synthetic.proteins[Gene.LARGE_POLYMERASE]
     assert not document.validate()
 
 

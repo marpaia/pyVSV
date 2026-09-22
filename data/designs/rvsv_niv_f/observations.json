@@ -1,0 +1,22 @@
+[
+  {
+    "id": "dewit-2023-nivf-neutralization",
+    "phenotype": "immunogenicity",
+    "host": "nonhuman-primate",
+    "assay": "neutralization",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1016/j.ebiom.2022.104405",
+    "note": "VSV-NiVF induced a lower humoral response than VSV-NiVG in African green monkeys.",
+    "implementation_id": "dewit-2023"
+  },
+  {
+    "id": "dewit-2023-nivf-protection",
+    "phenotype": "protection",
+    "host": "nonhuman-primate",
+    "assay": "lethal-challenge",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1016/j.ebiom.2022.104405",
+    "note": "VSV-NiVF gave complete homologous protection and partial heterologous protection from lethal Nipah challenge in African green monkeys.",
+    "implementation_id": "dewit-2023"
+  }
+]

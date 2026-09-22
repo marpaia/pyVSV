@@ -23,3 +23,11 @@ coverage.xml
 
 # Notebook checkpoints and generated research artifacts
 .ipynb_checkpoints/
+
+# Europe PMC review queue. The curated atlas stays in data/designs/.
+data/ingest/papers/
+data/ingest/queue/
+data/ingest/cursor.json
+
+# Vercel project linking at the repository root
+.vercel

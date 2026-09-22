@@ -36,6 +36,17 @@ def test_annotated_coding_sequences_match_the_curated_record(accession: str) -> 
         assert expected is not None, f"{name} is missing from the curated record"
         assert heuristic.span(found) == curated.span(expected), name
         assert heuristic.protein(name) == curated.protein(name), name
+        assert expected.display_id == f"{name}_cds"
+        gene = curated.gene(name)
+        if gene is not None:
+            assert gene.display_id == name
+    if accession == "NC_001560":
+        nucleocapsid = curated.cds(Gene.NUCLEOPROTEIN)
+        phosphoprotein = curated.cds(Gene.PHOSPHOPROTEIN)
+        inferred = heuristic.cds(Gene.NUCLEOPROTEIN)
+        assert nucleocapsid is not None and nucleocapsid.name == "nucleocapsid (N) protein"
+        assert phosphoprotein is not None and phosphoprotein.name == "NS protein"
+        assert inferred is not None and inferred.name == "Nucleoprotein CDS"
 
 
 def test_curated_genes_enclose_the_annotated_coding_sequences(accession: str) -> None:

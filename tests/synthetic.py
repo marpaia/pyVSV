@@ -66,11 +66,11 @@ def build_genome(
 
 
 _PRODUCTS = {
-    "N": "nucleocapsid protein",
-    "P": "phosphoprotein",
-    "M": "matrix protein",
-    "G": "glycoprotein",
-    "L": "L polymerase protein",
+    Gene.NUCLEOPROTEIN: "nucleocapsid protein",
+    Gene.PHOSPHOPROTEIN: "phosphoprotein",
+    Gene.MATRIX_PROTEIN: "matrix protein",
+    Gene.GLYCOPROTEIN: "glycoprotein",
+    Gene.LARGE_POLYMERASE: "L polymerase protein",
 }
 
 

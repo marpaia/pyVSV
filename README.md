@@ -11,7 +11,7 @@ Vesicular Stomatitis Virus (VSV) is a negative-strand RNA virus that belongs to 
 
 ## Usage
 
-VSV transcribes five genes, always in the order N, P, M, G, L. `vsv` finds them in a genome and gives typed access to each gene's coordinates and sequences. FASTA genomes are annotated from their sequence. GenBank and SBOL3 records keep their curated annotations, and their genes are named by position.
+VSV transcribes five genes, always in the order Nucleoprotein, Phosphoprotein, MatrixProtein, Glycoprotein, LargePolymerase. `vsv` finds them in a genome and gives typed access to each gene's coordinates and sequences. FASTA genomes are annotated from their sequence. GenBank and SBOL3 records keep their curated annotations, and their genes are named by position.
 
 ### Python
 
@@ -21,10 +21,10 @@ from vsv import Gene, Product
 
 genome = vsv.load("data/raw/NC_001560.fasta")  # FASTA, GenBank, or SBOL3
 
-for gene, annotation in genome.genes.items():  # N, P, M, G, L in genome order
+for gene, annotation in genome.genes.items():  # genome order
     print(gene, annotation.gene_span, annotation.cds_span, annotation.protein)
 
-n = genome.genes[Gene.N]
+n = genome.genes[Gene.NUCLEOPROTEIN]
 n.gene_span  # (50, 1376): zero-based, half-open, so genome.bases[50:1376]
 n.cds_dna  # coding sequence with its stop codon
 n.sequence(Product.PROTEIN)  # the same as n.protein
@@ -36,13 +36,29 @@ n.sequence(Product.PROTEIN)  # the same as n.protein
 
 ```bash
 vsv genes data/raw/NC_001560.fasta                        # table of the five genes
-vsv extract -g P --kind protein data/raw/NC_001560.gb     # FASTA; --kind is gene, cds, or protein
+vsv extract -g p --kind protein data/raw/NC_001560.gb  # FASTA; --kind is gene, cds, or protein
 vsv annotate data/raw/NC_001560.fasta --format gff3       # every feature, also SBOL3 formats
 vsv summary data/raw/*.fasta                              # length and base composition
 vsv compare data/raw/MF196237.fasta data/raw/NC_001560.fasta
 ```
 
-`extract` writes all five genes unless `-g` is given, once per gene wanted. Genomes that lack a gene get a warning on standard error.
+`extract` writes all five genes unless `-g` is given, once per gene wanted. On the command line the genes are `n`, `p`, `m`, `g`, and `l`. Genomes that lack a gene get a warning on standard error.
+
+### Designs
+
+`data/designs/` is a curated library of VSV architectures, the implementations of those architectures, and the qualitative evidence attached to each implementation. Antigen modules are named by class. A locus, a parent, or a replication class is unknown when the source does not state it. The library does not store insert sequences.
+
+```bash
+vsv designs
+vsv designs --antigen-class henipavirus-glycoprotein
+vsv show rvsv_niv_g
+vsv show data/designs/rvsv_lasv_gpc
+vsv check data/designs/vsv_indiana
+```
+
+`vsv check` prints structural violations and knowledge gaps. An unknown locus, replication class, or parent is a gap. The command exits with status 1 when a structural rule fails.
+
+`vsv ingest` searches Europe PMC for recombinant VSV vector papers and writes a local review queue under `data/ingest/`. Proposals stay pending until a person promotes one into `data/designs/`. Long nucleotide runs are omitted before anything is saved. The queue is not part of the curated library.
 
 ## Literature
 

@@ -1,11 +1,15 @@
 """Genome annotation for vesicular stomatitis virus (VSV) antigenome sequences.
 
-VSV is a non-segmented negative-strand virus. Its five genes (N, P, M, G, L) are transcribed
-as separate mRNAs, each delimited by a conserved gene-end signal (``TATG`` followed by a run of
-seven adenines, in antigenome sense) and a conserved gene-start signal (``AACAG``, two variable
-bases, ``ATC``). Sequences are expected in antigenome (positive) sense.
+VSV is a non-segmented negative-strand virus. Its five genes are transcribed as separate mRNAs,
+in the order Nucleoprotein, Phosphoprotein, MatrixProtein, Glycoprotein, LargePolymerase. Each is
+delimited by a conserved gene-end signal (``TATG`` followed by a run of seven adenines, in
+antigenome sense) and a conserved gene-start signal (``AACAG``, two variable bases, ``ATC``).
+Sequences are expected in antigenome (positive) sense.
 
-Annotations are SBOL3 features on a :class:`vsv.sbol.Genome`.
+Each transcription unit is a gene part named with that protein. Its coding sequence is a separate
+part, ``Nucleoprotein_cds``, named ``Nucleoprotein CDS`` when the product is not already known.
+The gene contains its start signal and its coding sequence. Annotations are SBOL3 features on a
+:class:`vsv.sbol.Genome`.
 """
 
 from __future__ import annotations
@@ -58,7 +62,7 @@ class _Unit:
         return self.end_signal + len(TRANSCRIPT_END)
 
 
-def kind(feature: sbol3.SequenceFeature) -> str:
+def kind(feature: sbol.Part) -> str:
     """A short label for what a feature is, such as ``gene``, ``CDS``, or ``leader``."""
     roles = {sbol.role_key(role) for role in feature.roles}
     for role, name in _KINDS:
@@ -67,7 +71,7 @@ def kind(feature: sbol3.SequenceFeature) -> str:
     return "region"
 
 
-def label(feature: sbol3.SequenceFeature) -> str:
+def label(feature: sbol.Part) -> str:
     """The name of a feature, falling back to its display ID."""
     return str(feature.name or feature.display_id)
 
@@ -142,9 +146,9 @@ def annotate(genome: Genome) -> None:
     """Add the leader, genes, signals, coding sequences, and trailer of a VSV genome.
 
     Each gene-end signal closes a transcription unit whose start signal is searched for shortly
-    after the previous unit. Units are named N, P, M, G, L in genome order only when exactly five
-    are found; otherwise they are named ``gene1``, ``gene2``, and so on. Every coding sequence is
-    also recorded as a protein component linked to it.
+    after the previous unit. Units take the five gene names in genome order only when exactly five
+    are found; otherwise they are named ``gene1``, ``gene2``, and so on. The coding sequence of a
+    unit is the part ``{name}_cds``, and the protein it encodes is linked to that part.
     """
     units = _find_units(genome.bases)
     names = (
@@ -153,60 +157,74 @@ def annotate(genome: Genome) -> None:
         else [f"gene{i}" for i in range(1, len(units) + 1)]
     )
     if units:
-        genome.add_region("leader", 0, units[0].start, [sbol.SO_REGION, sbol.ROLE_LEADER])
-    for name, unit in zip(names, units, strict=True):
-        genome.add_region(name, unit.start, unit.gene_end, [sbol.SO_GENE])
         genome.add_region(
+            "leader", 0, units[0].start, [sbol.SO_REGION, sbol.ROLE_LEADER], part="leader"
+        )
+    for name, unit in zip(names, units, strict=True):
+        gene = genome.add_region(
+            name, unit.start, unit.gene_end, [sbol.SO_GENE, sbol.gene_symbol_role(name)], part=name
+        )
+        start = genome.add_region(
             f"{name} gene start",
             unit.start,
             unit.start + len(GENE_START_SIGNAL),
             [sbol.SO_REGULATORY_REGION, sbol.ROLE_GENE_START],
+            part=sbol.part_id(name, "gene_start"),
         )
         genome.add_region(
             f"{name} gene end",
             unit.end_signal,
             unit.end,
             [sbol.SO_TERMINATOR, sbol.ROLE_GENE_END],
+            part=sbol.part_id(name, "gene_end"),
         )
+        genome.constrain(gene, start, sbol3.SBOL_CONTAINS)
         if unit.orf is not None:
-            cds = genome.add_region(name, unit.orf[0], unit.orf[1], [sbol.SO_CDS])
-            genome.add_protein(cds, name)
+            coding = genome.add_cds(name, unit.orf[0], unit.orf[1])
+            genome.constrain(gene, coding, sbol3.SBOL_CONTAINS)
+            genome.add_protein(coding, name)
     if units and units[-1].end < len(genome):
         genome.add_region(
-            "trailer", units[-1].end, len(genome), [sbol.SO_REGION, sbol.ROLE_TRAILER]
+            "trailer",
+            units[-1].end,
+            len(genome),
+            [sbol.SO_REGION, sbol.ROLE_TRAILER],
+            part="trailer",
         )
 
 
 def name_curated_genes(genome: Genome) -> None:
-    """Name the genes and coding sequences of a curated genome N, P, M, G, L by position.
+    """Identify the five VSV gene parts of a curated genome by position.
 
-    Curated records label features with free-text products such as ``phosphoprotein`` or
-    ``NS protein``, and often leave genes unnamed. VSV genes always occur in the order N, P, M, G,
-    L, so five genes are named in that order, and each takes the longest coding sequence within
-    it. Without gene features, exactly five coding sequences are named in order instead. Genomes
-    that fit neither pattern are left as they are. A name that is replaced is kept as the
-    feature description.
+    Curated records label transcription units ``gene`` and coding sequences with product names
+    such as ``nucleocapsid (N) protein`` or ``NS protein``. The genes occur in the order
+    Nucleoprotein, Phosphoprotein, MatrixProtein, Glycoprotein, LargePolymerase. Five
+    transcription units are named in that order. The longest coding sequence inside
+    each becomes that gene's coding-sequence part and keeps its product name. Without
+    transcription units, exactly five coding sequences are assigned in order instead. Genomes
+    that fit neither pattern are left as they are. A transcription-unit name that is replaced,
+    other than the feature key ``gene``, is kept as the feature description.
     """
     genes = genome.features(sbol.SO_GENE)
     cdss = genome.features(sbol.SO_CDS)
     if len(genes) == len(Gene):
-        for name, gene in zip(Gene, genes, strict=True):
+        for symbol, gene in zip(Gene, genes, strict=True):
             start, end = genome.span(gene)
-            inside = [c for c in cdss if start <= genome.span(c)[0] and genome.span(c)[1] <= end]
-            _rename(gene, name)
+            inside = [
+                coding
+                for coding in cdss
+                if start <= genome.span(coding)[0] and genome.span(coding)[1] <= end
+            ]
+            identified = genome.identify_gene(gene, symbol)
             if inside:
-                _rename(max(inside, key=lambda c: genome.span(c)[1] - genome.span(c)[0]), name)
+                coding = max(
+                    inside, key=lambda feature: genome.span(feature)[1] - genome.span(feature)[0]
+                )
+                coding = genome.define_cds(coding, symbol)
+                genome.constrain(identified, coding, sbol3.SBOL_CONTAINS)
     elif not genes and len(cdss) == len(Gene):
-        for name, cds in zip(Gene, cdss, strict=True):
-            _rename(cds, name)
-
-
-def _rename(feature: sbol3.SequenceFeature, name: str) -> None:
-    if feature.name == name:
-        return
-    if feature.name and not feature.description:
-        feature.description = feature.name
-    feature.name = name
+        for symbol, coding in zip(Gene, cdss, strict=True):
+            genome.define_cds(coding, symbol)
 
 
 def to_gff3(genomes: Sequence[Genome]) -> str:

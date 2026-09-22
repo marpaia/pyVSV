@@ -1,0 +1,12 @@
+[
+  {
+    "id": "garbutt-2004-mouse-protection",
+    "phenotype": "protection",
+    "host": "mouse",
+    "assay": "lethal-challenge",
+    "outcome": "reported",
+    "citation": "https://doi.org/10.1128/jvi.78.10.5458-5465.2004",
+    "note": "The rVSV expressing the Zaire Ebola virus transmembrane glycoprotein protected mice from a lethal Zaire Ebola virus challenge.",
+    "implementation_id": "garbutt-2004"
+  }
+]
