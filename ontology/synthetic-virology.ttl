@@ -1,0 +1,339 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix so: <http://purl.obolibrary.org/obo/SO_> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix : <https://vsv.bio/> .
+@prefix role: <https://vsv.bio/role/> .
+@prefix backbone: <https://vsv.bio/backbone/> .
+@prefix gene: <https://vsv.bio/gene/> .
+@prefix antigen: <https://vsv.bio/antigen-class/> .
+@prefix activity: <https://vsv.bio/activity/> .
+@prefix stage: <https://vsv.bio/stage/> .
+@prefix phenotype: <https://vsv.bio/phenotype/> .
+@prefix host: <https://vsv.bio/host/> .
+@prefix assay: <https://vsv.bio/assay/> .
+@prefix outcome: <https://vsv.bio/outcome/> .
+
+# Sequence feature classes are the Sequence Ontology. Design files write the same terms as
+# https://identifiers.org/SO:{id}. This ontology does not redefine them.
+
+<https://vsv.bio/ontology> a owl:Ontology ;
+    rdfs:label "synthetic virology ontology" ;
+    owl:versionIRI <https://vsv.bio/ontology/2026-09-22> ;
+    owl:versionInfo "2026-09-22" ;
+    owl:imports <http://purl.obolibrary.org/obo/so.owl> ;
+    rdfs:comment "Terms for recombinant RNA-virus vector genome plans. Sequence features use the Sequence Ontology. Assay, host, and stage terms are the labels stored on a plan; their definitions live here so a design file can be read without the program that wrote it." .
+
+:VectorPlan a owl:Class ;
+    rdfs:label "vector genome plan" ;
+    rdfs:subClassOf so:0001041 ;
+    rdfs:comment "A sequence-free recombinant vector genome: ordered features, backbone, and replication class. A design file records one plan as an sbol:Component." ;
+    rdfs:seeAlso sbol:Component .
+
+:AntigenClass a owl:Class ;
+    rdfs:label "antigen class" ;
+    rdfs:subClassOf so:0000704 ;
+    rdfs:comment "A foreign gene class carried by a vector plan. Strain and isolate are not separate classes." .
+
+:VsvGene a owl:Class ;
+    rdfs:label "VSV gene" ;
+    rdfs:subClassOf so:0000704 ;
+    rdfs:comment "One of the five vesicular stomatitis virus genes, in transcription order N, P, M, G, L." .
+
+:GenomicEdit a owl:Class ;
+    rdfs:label "genomic edit" ;
+    rdfs:comment "The edit that derives a plan from its parent. A design file records the edit as the sbol:type of a prov:Activity." ;
+    rdfs:seeAlso sbol:Activity .
+
+:DevelopmentStage a owl:Class ;
+    rdfs:label "development stage" ;
+    rdfs:comment "Where a built virus sits in development. Recorded as an sbol:role on an sbol:Implementation." ;
+    rdfs:seeAlso sbol:Implementation .
+
+:Phenotype a owl:Class ;
+    rdfs:label "phenotype" ;
+    rdfs:comment "The kind of result named by an observation. These classes are the library's labels. They do not replace an assay ontology." .
+
+:HostContext a owl:Class ;
+    rdfs:label "host context" ;
+    rdfs:comment "The biological context in which a result was measured." .
+
+:Assay a owl:Class ;
+    rdfs:label "assay" ;
+    rdfs:comment "The measurement named by an observation." .
+
+:Outcome a owl:Class ;
+    rdfs:label "outcome" ;
+    rdfs:comment "Whether the cited paper reports the phenotype, does not report it, or reports harm." .
+
+# Replication. A plan carries one of these roles when the source states it.
+
+role:replication-competent a owl:Class ;
+    rdfs:label "replication-competent" ;
+    rdfs:subClassOf :VectorPlan ;
+    rdfs:comment "The vector completes an infectious cycle on its own." .
+
+role:single-cycle a owl:Class ;
+    rdfs:label "single-cycle" ;
+    rdfs:subClassOf :VectorPlan ;
+    rdfs:comment "The vector does not complete an infectious cycle without a complementing protein." .
+
+# Backbone. A plan carries one of these roles.
+
+backbone:VSV-Indiana a owl:Class ;
+    rdfs:label "VSV Indiana" ;
+    rdfs:subClassOf :VectorPlan ;
+    rdfs:comment "Vesicular stomatitis Indiana virus serotype backbone." .
+
+backbone:VSV-NewJersey a owl:Class ;
+    rdfs:label "VSV New Jersey" ;
+    rdfs:subClassOf :VectorPlan ;
+    rdfs:comment "Vesicular stomatitis New Jersey virus serotype backbone." .
+
+# Parts of a VSV genome. Each pairs with the Sequence Ontology term the design file also writes.
+
+role:leader a owl:Class ;
+    rdfs:label "leader" ;
+    rdfs:subClassOf so:0000001 ;
+    rdfs:comment "The 3' leader. Design files also give this feature the Sequence Ontology region role." .
+
+role:trailer a owl:Class ;
+    rdfs:label "trailer" ;
+    rdfs:subClassOf so:0000001 ;
+    rdfs:comment "The 5' trailer. Design files also give this feature the Sequence Ontology region role." .
+
+role:gene-start a owl:Class ;
+    rdfs:label "gene start" ;
+    rdfs:subClassOf so:0005836 ;
+    rdfs:comment "The transcription start signal preceding a VSV gene." .
+
+role:gene-end a owl:Class ;
+    rdfs:label "gene end" ;
+    rdfs:subClassOf so:0000141 ;
+    rdfs:comment "The transcription stop signal following a VSV gene." .
+
+role:reporter a owl:Class ;
+    rdfs:label "reporter" ;
+    rdfs:subClassOf so:0000704 ;
+    rdfs:comment "A reporter gene, such as GFP or luciferase, that is not an antigen class." .
+
+role:parent-unknown a owl:Class ;
+    rdfs:label "parent unknown" ;
+    rdfs:comment "The source does not name the parent plan. This role is a gap marker. It is not a backbone and not a sequence feature." .
+
+gene:Nucleoprotein a owl:Class ;
+    rdfs:label "nucleoprotein" ;
+    rdfs:subClassOf :VsvGene .
+
+gene:Phosphoprotein a owl:Class ;
+    rdfs:label "phosphoprotein" ;
+    rdfs:subClassOf :VsvGene .
+
+gene:MatrixProtein a owl:Class ;
+    rdfs:label "matrix protein" ;
+    rdfs:subClassOf :VsvGene .
+
+gene:Glycoprotein a owl:Class ;
+    rdfs:label "glycoprotein" ;
+    rdfs:subClassOf :VsvGene ;
+    rdfs:comment "The VSV glycoprotein gene. An antigen that replaces this gene occupies the same transcription position and is an antigen class, not this term." .
+
+gene:LargePolymerase a owl:Class ;
+    rdfs:label "large polymerase" ;
+    rdfs:subClassOf :VsvGene .
+
+# Genomic edits.
+
+activity:replace-module a owl:Class ;
+    rdfs:label "replace module" ;
+    rdfs:subClassOf :GenomicEdit ;
+    rdfs:comment "A module of the parent was replaced. Replacing VSV G with a pathogen glycoprotein is this edit." .
+
+activity:insert-module a owl:Class ;
+    rdfs:label "insert module" ;
+    rdfs:subClassOf :GenomicEdit ;
+    rdfs:comment "A module was added and the parent's modules remain. An extra gene downstream of a retained VSV G is this edit." .
+
+activity:delete-module a owl:Class ;
+    rdfs:label "delete module" ;
+    rdfs:subClassOf :GenomicEdit ;
+    rdfs:comment "A module of the parent was removed and nothing was put in its place." .
+
+# Antigen classes. A feature carries one of these roles together with SO:0000704.
+# Species glycoproteins are subclasses of the genus class, so a query for the genus includes them.
+
+antigen:filovirus-glycoprotein a owl:Class ;
+    rdfs:label "filovirus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass ;
+    rdfs:comment "A filovirus glycoprotein gene. The Zaire ebolavirus glycoprotein plans use this class. Species classes below are subclasses." .
+
+antigen:sudan-ebolavirus-glycoprotein a owl:Class ;
+    rdfs:label "Sudan ebolavirus glycoprotein" ;
+    rdfs:subClassOf antigen:filovirus-glycoprotein .
+
+antigen:bundibugyo-ebolavirus-glycoprotein a owl:Class ;
+    rdfs:label "Bundibugyo ebolavirus glycoprotein" ;
+    rdfs:subClassOf antigen:filovirus-glycoprotein .
+
+antigen:reston-ebolavirus-glycoprotein a owl:Class ;
+    rdfs:label "Reston ebolavirus glycoprotein" ;
+    rdfs:subClassOf antigen:filovirus-glycoprotein .
+
+antigen:taiforest-ebolavirus-glycoprotein a owl:Class ;
+    rdfs:label "Taï Forest ebolavirus glycoprotein" ;
+    rdfs:subClassOf antigen:filovirus-glycoprotein .
+
+antigen:marburgvirus-glycoprotein a owl:Class ;
+    rdfs:label "Marburg virus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:arenavirus-gpc a owl:Class ;
+    rdfs:label "arenavirus glycoprotein complex" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:henipavirus-fusion a owl:Class ;
+    rdfs:label "henipavirus fusion protein" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:henipavirus-glycoprotein a owl:Class ;
+    rdfs:label "henipavirus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:sarbecovirus-spike a owl:Class ;
+    rdfs:label "sarbecovirus spike" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:influenza-hemagglutinin a owl:Class ;
+    rdfs:label "influenza hemagglutinin" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:hiv-envelope a owl:Class ;
+    rdfs:label "HIV envelope" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:pneumovirus-fusion a owl:Class ;
+    rdfs:label "pneumovirus fusion protein" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:nairovirus-glycoprotein a owl:Class ;
+    rdfs:label "nairovirus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:zika-envelope a owl:Class ;
+    rdfs:label "Zika envelope" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:hantavirus-glycoprotein a owl:Class ;
+    rdfs:label "hantavirus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:chikungunya-envelope a owl:Class ;
+    rdfs:label "chikungunya envelope" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:rabies-glycoprotein a owl:Class ;
+    rdfs:label "rabies glycoprotein" ;
+    rdfs:subClassOf :AntigenClass .
+
+# Development stage, phenotype, host, assay, and outcome. Leaf IRIs are the values stored on a plan.
+
+stage:preclinical a owl:Class ;
+    rdfs:label "preclinical" ;
+    rdfs:subClassOf :DevelopmentStage .
+
+stage:clinical a owl:Class ;
+    rdfs:label "clinical" ;
+    rdfs:subClassOf :DevelopmentStage .
+
+phenotype:expression a owl:Class ;
+    rdfs:label "expression" ;
+    rdfs:subClassOf :Phenotype .
+
+phenotype:growth a owl:Class ;
+    rdfs:label "growth" ;
+    rdfs:subClassOf :Phenotype .
+
+phenotype:immunogenicity a owl:Class ;
+    rdfs:label "immunogenicity" ;
+    rdfs:subClassOf :Phenotype .
+
+phenotype:safety a owl:Class ;
+    rdfs:label "safety" ;
+    rdfs:subClassOf :Phenotype .
+
+phenotype:protection a owl:Class ;
+    rdfs:label "protection" ;
+    rdfs:subClassOf :Phenotype .
+
+host:cell-line a owl:Class ;
+    rdfs:label "cell line" ;
+    rdfs:subClassOf :HostContext .
+
+host:mouse a owl:Class ;
+    rdfs:label "mouse" ;
+    rdfs:subClassOf :HostContext .
+
+host:hamster a owl:Class ;
+    rdfs:label "hamster" ;
+    rdfs:subClassOf :HostContext .
+
+host:nonhuman-primate a owl:Class ;
+    rdfs:label "nonhuman primate" ;
+    rdfs:subClassOf :HostContext .
+
+host:human a owl:Class ;
+    rdfs:label "human" ;
+    rdfs:subClassOf :HostContext .
+
+host:other a owl:Class ;
+    rdfs:label "other host" ;
+    rdfs:subClassOf :HostContext .
+
+assay:lethal-challenge a owl:Class ;
+    rdfs:label "lethal challenge" ;
+    rdfs:subClassOf :Assay .
+
+assay:neutralization a owl:Class ;
+    rdfs:label "neutralization" ;
+    rdfs:subClassOf :Assay .
+
+assay:immunogenicity a owl:Class ;
+    rdfs:label "immunogenicity assay" ;
+    rdfs:subClassOf :Assay .
+
+assay:safety a owl:Class ;
+    rdfs:label "safety assay" ;
+    rdfs:subClassOf :Assay .
+
+assay:reactogenicity a owl:Class ;
+    rdfs:label "reactogenicity" ;
+    rdfs:subClassOf :Assay .
+
+outcome:reported a owl:Class ;
+    rdfs:label "reported" ;
+    rdfs:subClassOf :Outcome .
+
+outcome:not-reported a owl:Class ;
+    rdfs:label "not reported" ;
+    rdfs:subClassOf :Outcome .
+
+outcome:adverse a owl:Class ;
+    rdfs:label "adverse" ;
+    rdfs:subClassOf :Outcome .
+
+# Predicates written on a design document that are not sequence features.
+
+:alias a owl:AnnotationProperty ;
+    rdfs:label "alias" ;
+    rdfs:comment "A name the literature uses for this plan, such as Ervebo for the Zaire ebolavirus glycoprotein plan." ;
+    rdfs:range xsd:string .
+
+:index a owl:AnnotationProperty ;
+    rdfs:label "record index" ;
+    rdfs:comment "Position of an implementation or observation in the curated record. This keeps authored order in a format that does not order triples. It is not a biological relation." ;
+    rdfs:range xsd:integer .
+
+<https://vsv.bio/language/stochastic-simulation> a owl:NamedIndividual ;
+    rdfs:label "stochastic simulation" ;
+    rdfs:comment "Language identifier of the intracellular replication model that a plan may link as an sbol:Model." .
