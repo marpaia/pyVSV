@@ -29,6 +29,7 @@ import sbol3
 from vsv import NAMESPACE
 from vsv.errors import InputError
 from vsv.genes import Gene, Product
+from vsv.genome.payload import AntigenClass, AntigenFeature
 from vsv.genome.sequence import reverse_complement, translate
 
 sbol3.set_namespace(NAMESPACE)
@@ -53,6 +54,15 @@ _SO_TERM = re.compile(r"SO[:_](\d{7})$")
 _INVALID_DISPLAY_ID = re.compile(r"[^A-Za-z0-9_]")
 _ACCESSION_VERSION = re.compile(r"\.\d+$")
 _REVERSE = frozenset({sbol3.SBOL_REVERSE_COMPLEMENT, sbol3.SO_REVERSE})
+
+
+def _is_coding(feature: Part) -> bool:
+    """Whether ``feature`` is a gene or a coding sequence, including a located CDS component."""
+    roles = [str(role) for role in feature.roles]
+    if isinstance(feature, sbol3.SubComponent) and feature.role_integration is not None:
+        roles.append(str(feature.role_integration))
+    keys = {role_key(role) for role in roles}
+    return role_key(SO_CDS) in keys or role_key(SO_GENE) in keys
 
 
 def role_key(role: str) -> str:
@@ -309,6 +319,23 @@ class Genome:
         """The translated product of gene ``name`` without the stop codon."""
         cds = self.cds(name)
         return None if cds is None else self.translate(cds)
+
+    def mark(self, feature: Part | None, antigen_class: AntigenClass) -> AntigenFeature:
+        """Mark ``feature`` with ``antigen_class`` and return that antigen.
+
+        The role is written on the feature already in this document. The feature has to be a
+        gene or coding sequence this genome carries.
+        """
+        if feature is None or not any(item is feature for item in self.component.features):
+            raise InputError(f"{self.id}: the feature to mark is not on this genome.")
+        prefix = f"{NAMESPACE}/antigen-class/"
+        existing = [str(role) for role in feature.roles if str(role).startswith(prefix)]
+        if any(role_key(role) != role_key(antigen_class.role) for role in existing):
+            raise InputError(f"{self.id}: {feature.display_id} already has an antigen class.")
+        if not existing and not _is_coding(feature):
+            raise InputError(f"{self.id}: {feature.display_id} is not a coding feature.")
+        ensure_role(feature, antigen_class.role)
+        return AntigenFeature(feature, antigen_class)
 
     @property
     def genes(self) -> dict[Gene, GeneAnnotation]:

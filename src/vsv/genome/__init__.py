@@ -13,9 +13,12 @@ from vsv.errors import InputError
 from vsv.genes import Gene
 from vsv.genome.annotation import annotate, is_annotated, name_curated_genes
 from vsv.genome.formats import read_genomes
+from vsv.genome.payload import AntigenClass, AntigenFeature
 from vsv.genome.sbol import GeneAnnotation, Genome
 
 __all__ = [
+    "AntigenClass",
+    "AntigenFeature",
     "GeneAnnotation",
     "GeneWarning",
     "Genome",
@@ -23,6 +26,7 @@ __all__ = [
     "load",
     "load_all",
     "prepare",
+    "read_record",
 ]
 
 
@@ -74,6 +78,18 @@ def load(path: str | PathLike[str]) -> Genome:
     Raises :class:`~vsv.errors.InputError` if the file holds more than one record.
     """
     _, genomes = load_all([path])
+    if len(genomes) != 1:
+        raise InputError(f"{path}: expected one record, found {len(genomes)}; use load_all.")
+    return genomes[0]
+
+
+def read_record(path: str | PathLike[str]) -> Genome:
+    """Read one FASTA, GenBank, or SBOL3 record and leave its features unnamed as VSV genes.
+
+    A GenBank or SBOL record keeps the features it arrived with. A FASTA record has none until
+    they are added. Raises :class:`~vsv.errors.InputError` if the file holds more than one record.
+    """
+    _, genomes = read_genomes([Path(path)], name_genes=False)
     if len(genomes) != 1:
         raise InputError(f"{path}: expected one record, found {len(genomes)}; use load_all.")
     return genomes[0]

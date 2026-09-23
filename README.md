@@ -1,6 +1,6 @@
 # Vesicular Stomatitis Virus (VSV)
 
-Vesicular Stomatitis Virus (VSV) is a negative-strand RNA virus that belongs to the Rhabdoviridae family. It primarily affects livestock, but VSV is also of interest in virology research due to its potential use as a viral vector for vaccine development and gene therapy. This repository contains information and resources related to VSV and a software ecosystem for the architecture, design, and simulation of VSV-based viral vectors.
+`vsv` builds a recombinant VSV vaccine plan from a pathogen genome and the Indiana chassis. Mark the glycoprotein, place it by a method the literature states, and read which published vaccines used that same arrangement.
 
 <p align="center">
   <img src="./docs/images/vsv-structure-genome.jpg" alt="VSV Structure and Genome">
@@ -9,74 +9,83 @@ Vesicular Stomatitis Virus (VSV) is a negative-strand RNA virus that belongs to 
   <em>Liu G, Cao W, Salawudeen A, et al. Vesicular Stomatitis Virus: From Agricultural Pathogen to Vaccine Vector. Pathogens. 2021;10(9):1092. Published 2021 Aug 27. doi:<a href="https://doi.org/10.3390/pathogens10091092">10.3390/pathogens10091092</a></em>
 </p>
 
-## Usage
-
-VSV transcribes five genes, always in the order Nucleoprotein, Phosphoprotein, MatrixProtein, Glycoprotein, LargePolymerase. `vsv` finds them in a genome and gives typed access to each gene's coordinates and sequences. FASTA genomes are annotated from their sequence. GenBank and SBOL3 records keep their curated annotations, and their genes are named by position.
-
-### Python
+## Develop a vaccine
 
 ```python
 import vsv
-from vsv import Gene, Product
+from vsv import AntigenClass, Gene, Replication
 
-genome = vsv.load("data/raw/NC_001560.fasta")  # FASTA, GenBank, or SBOL3
+virus = vsv.read_record("outbreak.gb")  # FASTA, GenBank, or SBOL3
+glycoprotein = virus.mark(virus.cds("GP"), AntigenClass.filovirus_glycoprotein)
 
-for gene, annotation in genome.genes.items():  # genome order
-    print(gene, annotation.gene_span, annotation.cds_span, annotation.protein)
+chassis = vsv.indiana()
+vaccine = chassis.replace(
+    chassis.feature(Gene.GLYCOPROTEIN),
+    glycoprotein,
+    replication=Replication.COMPETENT,
+    identifier="rvsv_dg_outbreak_gp",
+    name="rVSV outbreak glycoprotein",
+)
 
-n = genome.genes[Gene.NUCLEOPROTEIN]
-n.gene_span  # (50, 1376): zero-based, half-open, so genome.bases[50:1376]
-n.cds_dna  # coding sequence with its stop codon
-n.sequence(Product.PROTEIN)  # the same as n.protein
+vaccine.check()  # true when the plan passes
+
+for published in vaccine.precedents(vsv.plans()):
+    for result in published.observations:
+        result.phenotype, result.host, result.citation, result.note
 ```
 
-`vsv.load_all(paths)` reads several files, and a genome whose five genes cannot all be identified raises a `vsv.GeneWarning`. Spans and sequences are `None` for anything a genome does not annotate.
+`read_record` keeps the features in the file. `mark` writes an antigen class onto the coding feature you name. The classes the library already uses are attributes of `AntigenClass`, such as `AntigenClass.filovirus_glycoprotein`. A glycoprotein it has not named yet is `AntigenClass("paramyxovirus-glycoprotein")`.
 
-### Command line
+`replace` removes VSV G and puts the marked gene in that position. Pass `Replication.COMPETENT` when the foreign protein supplies entry, and `Replication.SINGLE_CYCLE` when it does not. The plan records the gene order, the edit, and the citation for the method. The open reading frame stays on `virus`.
 
-```bash
-vsv genes data/raw/NC_001560.fasta                        # table of the five genes
-vsv extract -g p --kind protein data/raw/NC_001560.gb  # FASTA; --kind is gene, cds, or protein
-vsv annotate data/raw/NC_001560.fasta --format gff3       # every feature, also SBOL3 formats
-vsv summary data/raw/*.fasta                              # length and base composition
-vsv compare data/raw/MF196237.fasta data/raw/NC_001560.fasta
+`check` is true when the plan passes. The failures are on `check().violations`. `precedents` returns the published plans with this same arrangement. For a replacement, that includes the filovirus, Marburg, Lassa, and SARS-CoV-2 spike plans. Each `result` is one cited outcome from those plans: phenotype, host, assay, and the paper. `vaccine.observations` is empty.
+
+`vaccine.write` stores the plan as an SBOL3 file. Any SBOL3 reader opens that file. `vsv.read` loads it again, and `antigen` returns the feature for one antigen class:
+
+```python
+vaccine.write("rvsv_dg_outbreak_gp.ttl")
+vaccine_from_file = vsv.read("rvsv_dg_outbreak_gp.ttl")
+vaccine_from_file.antigen(AntigenClass.filovirus_glycoprotein).display_id  # "GP"
 ```
 
-`extract` writes all five genes unless `-g` is given, once per gene wanted. On the command line the genes are `n`, `p`, `m`, `g`, and `l`. Genomes that lack a gene get a warning on standard error.
+A FASTA record has no features. Give the coding sequence as a zero-based, half-open span:
 
-### Designs
+```python
+virus = vsv.read_record("outbreak.fasta")
+glycoprotein = virus.mark(
+    virus.add_cds("GP", start, end), AntigenClass("paramyxovirus-glycoprotein")
+)
+```
 
-`data/designs/` is a curated library of VSV architectures. Each directory holds `design.ttl`, an SBOL3 document for the genome plan, its implementations, and the qualitative evidence attached to each implementation, plus `PROVENANCE.md`. Antigen modules are named by class. A locus, a parent, or a replication class is unknown when the source does not state it. The library does not store insert sequences.
+To keep VSV G, insert the gene after it. To place the gene first, insert it after the leader.
+
+```python
+vaccine = chassis.insert(
+    glycoprotein,
+    after=chassis.feature(Gene.GLYCOPROTEIN),
+    identifier="rvsv_outbreak_gp",
+    name="rVSV outbreak glycoprotein",
+)
+# chassis.insert(glycoprotein, after=chassis.leader, identifier=..., name=...)
+```
+
+A sequenced Indiana genome is a chassis as well: `vsv.plan(vsv.load("data/raw/NC_001560.fasta"))`. `vsv.load` names the five VSV genes in genome order. Spans are zero-based and half-open, so `genome.genes[Gene.GLYCOPROTEIN].cds_dna` is the coding sequence.
+
+## Command line
 
 ```bash
+vsv genes data/raw/NC_001560.fasta
+vsv extract -g g --kind protein data/raw/NC_001560.gb
 vsv designs
-vsv designs --antigen-class henipavirus-glycoprotein
-vsv show rvsv_niv_g
-vsv show data/designs/rvsv_lasv_gpc
+vsv show rvsv_dg_filovirus_gp
 vsv check data/designs/vsv_indiana
 ```
 
-`vsv check` prints structural violations and knowledge gaps. An unknown locus, replication class, or parent is a gap. The command exits with status 1 when a structural rule fails.
+On the command line the genes are `n`, `p`, `m`, `g`, and `l`. `vsv extract` writes gene, cds, or protein sequence. `vsv designs` lists the curated library. `vsv check` prints structural violations and knowledge gaps and exits 1 when a structural rule fails.
 
-`vsv designs` lists the curated library and, once `data/corpus/extractions.jsonl` exists, the architectures extracted from the literature. A row is `curated`, `extracted`, or `confirmed:<id>` when an extracted cluster matches a curated design. `vsv show` accepts either a curated id or an extracted cluster id.
+`data/designs/` holds one directory per published architecture: `design.ttl` and `PROVENANCE.md`. The plan stores no insert sequence. `vsv.plans()` reads that library.
 
-### Literature corpus
-
-The corpus is every PubMed record for `"vesicular stomatitis virus"[tiab]` or the Indiana or New Jersey MeSH heading. `vsv ingest --all` stores that set under `data/corpus/`. `vsv corpus` exits 0 when the stored PMIDs match the ledger. `vsv corpus extract` classifies every paper and writes quote-backed fields for vaccine-vector, oncolytic, and reporter papers. `--fulltext` adds open-access methods text from a local cache.
-
-```bash
-vsv ingest --all
-vsv corpus
-vsv corpus extract
-vsv papers --class vaccine-vector --text ebola
-vsv papers --plan rvsv_dg_filovirus_gp
-vsv papers --unclustered
-vsv promote <cluster-id>
-```
-
-`vsv papers --plan` lists corpus papers whose title or abstract contains an alias stored on that design. `vsv promote` writes one cluster into `data/designs/` as `design.ttl` after a person accepts it. Papers that only say "VSV" and are not MeSH-indexed are counted on the ledger as a residual. They are not part of the corpus. Long nucleotide runs are omitted before anything is saved.
-
-`vsv ingest` without `--all` still fills the Europe PMC review queue under `data/ingest/`. That queue is not the corpus. `vsv extract` still writes gene sequences from a genome file. Literature extraction is `vsv corpus extract`.
+`vsv ingest --all` stores the PubMed corpus under `data/corpus/`. `vsv papers --plan rvsv_dg_filovirus_gp` lists papers that mention an alias of that design. `vsv promote` writes one accepted cluster into `data/designs/`.
 
 ## Literature
 

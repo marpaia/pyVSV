@@ -36,11 +36,14 @@ OUTPUT_FORMATS = {
 }
 
 
-def read_genomes(paths: Sequence[Path]) -> tuple[sbol3.Document, list[Genome]]:
+def read_genomes(
+    paths: Sequence[Path], *, name_genes: bool = True
+) -> tuple[sbol3.Document, list[Genome]]:
     """Read every genome from ``paths`` into a single SBOL3 document.
 
     The format of each file is chosen by its suffix: FASTA, GenBank, or SBOL3 (Turtle,
-    N-Triples, RDF/XML, or JSON-LD). Genomes are returned in input order.
+    N-Triples, RDF/XML, or JSON-LD). Genomes are returned in input order. When ``name_genes``
+    is set, a GenBank or SBOL record with five genes is named as a VSV genome.
     """
     document = sbol.new_document()
     found: list[Genome] = []
@@ -50,9 +53,9 @@ def read_genomes(paths: Sequence[Path]) -> tuple[sbol3.Document, list[Genome]]:
             if suffix in FASTA_SUFFIXES:
                 loaded = _read_fasta(document, path)
             elif suffix in GENBANK_SUFFIXES:
-                loaded = _read_genbank(document, path)
+                loaded = _read_genbank(document, path, name_genes=name_genes)
             elif suffix in SBOL_SUFFIXES:
-                loaded = _read_sbol(document, path)
+                loaded = _read_sbol(document, path, name_genes=name_genes)
             else:
                 raise InputError(
                     f"Unrecognized file type {suffix or '(none)'}; expected FASTA "
@@ -79,7 +82,7 @@ def _read_fasta(document: sbol3.Document, path: Path) -> list[Genome]:
     ]
 
 
-def _read_genbank(document: sbol3.Document, path: Path) -> list[Genome]:
+def _read_genbank(document: sbol3.Document, path: Path, *, name_genes: bool) -> list[Genome]:
     try:
         converted = convert_from_genbank(str(path), NAMESPACE)
     except ValueError as error:
@@ -87,20 +90,20 @@ def _read_genbank(document: sbol3.Document, path: Path) -> list[Genome]:
     except SBOLError as error:
         # The message describes SBOL2 validation, which does not help with a GenBank file.
         raise InputError("not a readable GenBank file.") from error
-    return _merge(document, converted)
+    return _merge(document, converted, name_genes=name_genes)
 
 
-def _read_sbol(document: sbol3.Document, path: Path) -> list[Genome]:
+def _read_sbol(document: sbol3.Document, path: Path, *, name_genes: bool) -> list[Genome]:
     incoming = sbol3.Document()
     try:
         incoming.read(str(path), SBOL_SUFFIXES[path.suffix.lower()])
     except (ValueError, SyntaxError, SAXParseException) as error:
         raise InputError(f"not a readable SBOL3 file: {error}") from error
-    return _merge(document, incoming)
+    return _merge(document, incoming, name_genes=name_genes)
 
 
-def _merge(document: sbol3.Document, incoming: sbol3.Document) -> list[Genome]:
-    """Move every object of ``incoming`` into ``document`` and return its curated genomes."""
+def _merge(document: sbol3.Document, incoming: sbol3.Document, *, name_genes: bool) -> list[Genome]:
+    """Move every object of ``incoming`` into ``document`` and return its genomes."""
     names = [str(o.identity) for o in incoming.objects]
     duplicates = [name for name in names if document.find(name) is not None]
     if duplicates:
@@ -108,8 +111,9 @@ def _merge(document: sbol3.Document, incoming: sbol3.Document) -> list[Genome]:
     for obj in list(incoming.objects):
         document.add(obj)
     merged = [g for g in sbol.genomes(document) if str(g.component.identity) in names]
-    for genome in merged:
-        name_curated_genes(genome)
+    if name_genes:
+        for genome in merged:
+            name_curated_genes(genome)
     return merged
 
 

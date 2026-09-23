@@ -35,6 +35,7 @@ from vsv.design.modules import (
     Trailer,
     ViralGene,
 )
+from vsv.design.plan import CheckResult, Plan, indiana, plan, plans, read
 from vsv.design.query import select
 from vsv.design.rules import KNOWLEDGE_GAPS, Property, Violation, check, satisfies
 
@@ -45,6 +46,7 @@ __all__ = [
     "Architecture",
     "Assay",
     "ChassisCard",
+    "CheckResult",
     "Delete",
     "Design",
     "EvidenceLevel",
@@ -59,6 +61,7 @@ __all__ = [
     "Outcome",
     "ParentStatus",
     "Phenotype",
+    "Plan",
     "Property",
     "Replace",
     "Replication",
@@ -75,10 +78,14 @@ __all__ = [
     "check",
     "design_of",
     "design_to_document",
+    "indiana",
     "load_design",
     "load_library",
     "parameters_for",
+    "plan",
+    "plans",
     "project",
+    "read",
     "satisfies",
     "select",
     "to_document",
