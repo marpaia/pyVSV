@@ -3,7 +3,7 @@ requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
 
 [project]
-name = "vsv"
+name = "vsv-bio"
 version = "0.3.0"
 description = "Computational genetics tools for Vesicular Stomatitis Virus (VSV) research."
 readme = "README.md"
