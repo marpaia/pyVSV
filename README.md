@@ -16,6 +16,7 @@ import vsv
 from lab.protocols import (
     AssemblyReaction,
     AssemblyRequest,
+    BSAI,
     ProtocolCompiler,
 )
 from lab.targets import Manual
@@ -43,7 +44,7 @@ compiled = ProtocolCompiler().compile(
                 product=plasmid.product,
                 backbone=plasmid.backbone,
                 parts=[plasmid.insert],
-                restriction_enzyme="https://SBOL2Build.org/BsaI/1",
+                restriction_enzyme=BSAI,
             ),
         ),
     ),

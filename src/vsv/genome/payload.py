@@ -15,6 +15,7 @@ import sbol3
 
 from vsv import NAMESPACE
 from vsv.errors import InputError
+from vsv.genome.sequence import Nucleotides
 
 _SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 _ANTIGEN_CLASS = f"{NAMESPACE}/antigen-class"
@@ -86,4 +87,4 @@ class AntigenFeature:
 
     feature: sbol3.SequenceFeature | sbol3.SubComponent
     antigen_class: AntigenClass
-    sequence: str
+    sequence: Nucleotides

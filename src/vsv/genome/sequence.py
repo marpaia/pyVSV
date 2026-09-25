@@ -34,6 +34,18 @@ class FastaError(InputError):
 
 
 @dataclass(frozen=True, slots=True)
+class Nucleotides:
+    """Uppercase IUPAC DNA, with T for thymine."""
+
+    bases: str
+
+    def __post_init__(self) -> None:
+        invalid = set(self.bases) - IUPAC_NUCLEOTIDES
+        if not self.bases or self.bases != self.bases.upper() or invalid:
+            raise InputError("A coding sequence must be uppercase IUPAC DNA.")
+
+
+@dataclass(frozen=True, slots=True)
 class SequenceRecord:
     """A named nucleotide sequence.
 

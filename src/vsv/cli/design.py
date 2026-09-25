@@ -413,8 +413,8 @@ def plasmid(plasmid: Path) -> None:
                     ("edit", record.edit),
                     ("slot", record.slot),
                     ("insert", record.insert_id),
-                    ("backbone", record.backbone),
-                    ("product", record.product),
+                    ("backbone", record.backbone.iri),
+                    ("product", record.product.iri),
                 ]
             )
         )

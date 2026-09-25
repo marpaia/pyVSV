@@ -14,6 +14,7 @@ from dataclasses import replace as data_replace
 from pathlib import Path
 
 import sbol3
+from lab.protocols import Part
 
 from vsv import NAMESPACE
 from vsv.design.architecture import Architecture, Replication, canonical_chassis, project
@@ -28,6 +29,7 @@ from vsv.errors import InputError
 from vsv.genes import Gene
 from vsv.genome.payload import AntigenClass, AntigenFeature
 from vsv.genome.sbol import ROLE_LEADER, Genome, display_id, role_key
+from vsv.genome.sequence import Nucleotides
 
 _BACKBONE = f"{NAMESPACE}/backbone/"
 _ANTIGEN_CLASS = f"{NAMESPACE}/antigen-class/"
@@ -59,7 +61,7 @@ class Plan:
         document: sbol3.Document,
         component: sbol3.Component,
         *,
-        sequences: Mapping[str, str] | None = None,
+        sequences: Mapping[str, Nucleotides] | None = None,
     ) -> None:
         self.document = document
         self.component = component
@@ -224,10 +226,10 @@ class Plan:
             edit=edit,
             slot=slot,
             insert_id=insert_id,
-            insert=f"{NAMESPACE}/{self.id}/{insert_id}",
+            insert=Part(f"{NAMESPACE}/{self.id}/{insert_id}"),
             sequence=sequence,
-            backbone=f"{NAMESPACE}/backbone/{backbone}",
-            product=f"{NAMESPACE}/{self.id}/plasmid",
+            backbone=Part(f"{NAMESPACE}/backbone/{backbone}"),
+            product=Part(f"{NAMESPACE}/{self.id}/plasmid"),
         )
 
     def check(self) -> CheckResult:
@@ -293,13 +295,13 @@ def plans(root: Path | None = None) -> list[Plan]:
     return found
 
 
-def _publish(built: Architecture, citation: str, sequences: Mapping[str, str]) -> Plan:
+def _publish(built: Architecture, citation: str, sequences: Mapping[str, Nucleotides]) -> Plan:
     document = to_document(data_replace(built, citations=(citation,)))
     return Plan(document, _plan_component(document), sequences=sequences)
 
 
 def _require_sequence(plan_id: str, payload: AntigenFeature) -> Antigen:
-    if not payload.sequence:
+    if not payload.sequence.bases:
         raise InputError(f"{plan_id}: {payload.feature.display_id} has no coding sequence.")
     return _antigen(payload)
 

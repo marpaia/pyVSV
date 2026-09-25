@@ -30,7 +30,7 @@ from vsv import NAMESPACE
 from vsv.errors import InputError
 from vsv.genes import Gene, Product
 from vsv.genome.payload import AntigenClass, AntigenFeature
-from vsv.genome.sequence import reverse_complement, translate
+from vsv.genome.sequence import Nucleotides, reverse_complement, translate
 
 sbol3.set_namespace(NAMESPACE)
 
@@ -339,7 +339,7 @@ class Genome:
         sequence = self.feature_bases(feature)
         if not sequence:
             raise InputError(f"{self.id}: {feature.display_id} has no coding sequence.")
-        return AntigenFeature(feature, antigen_class, sequence)
+        return AntigenFeature(feature, antigen_class, Nucleotides(sequence))
 
     @property
     def genes(self) -> dict[Gene, GeneAnnotation]:

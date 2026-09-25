@@ -24,6 +24,7 @@ from vsv.design.document import architecture_of
 from vsv.design.edits import Insert, Replace
 from vsv.errors import InputError
 from vsv.genome.payload import AntigenFeature
+from vsv.genome.sequence import Nucleotides
 
 _REPLACE = "https://doi.org/10.1128/jvi.78.10.5458-5465.2004"
 _AFTER_G = "https://doi.org/10.1128/jvi.71.8.5982-5989.1997"
@@ -56,6 +57,12 @@ def _payload(synthetic: SyntheticGenome, fasta: Path) -> tuple[AntigenFeature, s
     return payload, virus.feature_bases(coding)
 
 
+def test_nucleotides_require_uppercase_iupac_dna() -> None:
+    assert Nucleotides("ATGC").bases == "ATGC"
+    with pytest.raises(InputError, match="uppercase IUPAC"):
+        Nucleotides("atgc")
+
+
 def test_read_record_does_not_name_vsv_genes(
     synthetic_fasta: Path, synthetic_genbank: Path
 ) -> None:
@@ -72,7 +79,7 @@ def test_mark_records_the_antigen_class_on_the_coding_feature(
     synthetic: SyntheticGenome, synthetic_fasta: Path
 ) -> None:
     payload, bases = _payload(synthetic, synthetic_fasta)
-    assert payload.sequence == bases
+    assert payload.sequence.bases == bases
     assert payload.antigen_class is AntigenClass.filovirus_glycoprotein
     assert payload.antigen_class.role in {str(role) for role in payload.feature.roles}
     fresh = AntigenClass("paramyxovirus-glycoprotein")
@@ -256,12 +263,12 @@ def test_plasmid_uses_the_sequence_recorded_at_mark(
         name="rVSV outbreak glycoprotein",
     )
     plasmid = vaccine.plasmid()
-    assert plasmid.sequence == bases
+    assert plasmid.sequence.bases == bases
     assert plasmid.slot == "g"
     assert plasmid.edit == "replace g"
-    assert plasmid.insert == "https://vsv.bio/rvsv_dg_outbreak_gp/GP"
-    assert plasmid.backbone == "https://vsv.bio/backbone/pvsv-dg"
-    assert plasmid.product == "https://vsv.bio/rvsv_dg_outbreak_gp/plasmid"
+    assert plasmid.insert.iri == "https://vsv.bio/rvsv_dg_outbreak_gp/GP"
+    assert plasmid.backbone.iri == "https://vsv.bio/backbone/pvsv-dg"
+    assert plasmid.product.iri == "https://vsv.bio/rvsv_dg_outbreak_gp/plasmid"
     plan_path = tmp_path / "rvsv_dg_outbreak_gp.ttl"
     vaccine.write(plan_path)
     assert bases not in plan_path.read_text(encoding="utf-8")
@@ -293,9 +300,9 @@ def test_plasmid_follows_the_insertion_site(
         name="rVSV outbreak glycoprotein",
     )
     assert after_g.plasmid().slot == "g-l"
-    assert after_g.plasmid().backbone == "https://vsv.bio/backbone/pvsv-g-l"
+    assert after_g.plasmid().backbone.iri == "https://vsv.bio/backbone/pvsv-g-l"
     assert after_leader.plasmid().slot == "leader"
-    assert after_leader.plasmid().backbone == "https://vsv.bio/backbone/pvsv-leader"
+    assert after_leader.plasmid().backbone.iri == "https://vsv.bio/backbone/pvsv-leader"
     with pytest.raises(InputError, match="no coding sequence"):
         plans()[0].plasmid()
 

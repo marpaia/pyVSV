@@ -10,10 +10,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import sbol3
+from lab.protocols import Part
 
 from vsv import NAMESPACE
 from vsv.errors import InputError
 from vsv.genome.sbol import SO_CDS, new_document
+from vsv.genome.sequence import Nucleotides
 
 _BACKBONE = f"{NAMESPACE}/backbone/"
 _KEYS = ("plan", "edit", "slot", "insert")
@@ -27,10 +29,10 @@ class Plasmid:
     edit: str
     slot: str
     insert_id: str
-    insert: str
-    sequence: str
-    backbone: str
-    product: str
+    insert: Part
+    sequence: Nucleotides
+    backbone: Part
+    product: Part
 
     def write(self, path: str | Path) -> None:
         """Write this plasmid as an SBOL3 file. The suffix selects the format."""
@@ -74,31 +76,31 @@ def read_plasmid(path: str | Path) -> Plasmid:
         facts["edit"],
         facts["slot"],
         facts["insert"],
-        str(insert.identity),
-        str(sequence.elements).upper(),
-        backbones[0],
-        str(product.identity),
+        Part(str(insert.identity)),
+        Nucleotides(str(sequence.elements).upper()),
+        Part(backbones[0]),
+        Part(str(product.identity)),
     )
 
 
 def _document(plasmid: Plasmid) -> sbol3.Document:
     document = new_document()
     sequence = sbol3.Sequence(
-        f"{plasmid.insert}_seq",
-        elements=plasmid.sequence.lower(),
+        f"{plasmid.insert.iri}_seq",
+        elements=plasmid.sequence.bases.lower(),
         encoding=sbol3.IUPAC_DNA_ENCODING,
     )
     insert = sbol3.Component(
-        plasmid.insert,
+        plasmid.insert.iri,
         [sbol3.SBO_DNA],
         roles=[SO_CDS],
         sequences=[sequence],
         name=plasmid.insert_id,
     )
     product = sbol3.Component(
-        plasmid.product,
+        plasmid.product.iri,
         [sbol3.SBO_DNA],
-        roles=[plasmid.backbone],
+        roles=[plasmid.backbone.iri],
         name=plasmid.plan_id,
         description=(
             f"plan={plasmid.plan_id};edit={plasmid.edit};"

@@ -10,10 +10,14 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "click>=8.5.0",
+    "lab-compiler",
     "sbol-utilities>=1.0a17",
     "sbol2>=1.4.1",
     "sbol3>=1.2.0.post0",
 ]
+
+[tool.uv.sources]
+lab-compiler = { path = "../../lab-lang/lab-py", editable = true }
 
 [project.scripts]
 vsv = "vsv.cli:main"
