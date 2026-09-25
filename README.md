@@ -16,7 +16,6 @@ import vsv
 from lab.protocols import (
     AssemblyReaction,
     AssemblyRequest,
-    MaterialRef,
     ProtocolCompiler,
 )
 from lab.targets import Manual
@@ -35,21 +34,16 @@ vaccine = chassis.replace(
 )
 plasmid = vaccine.plasmid()
 
-gp = MaterialRef(identity=plasmid.insert, label="GP")
-backbone = MaterialRef(identity=plasmid.backbone, label="pVSV-dG")
-product = MaterialRef(identity=plasmid.product, label=vaccine.id)
-bsai = MaterialRef(identity="https://SBOL2Build.org/BsaI/1", label="BsaI")
-
 compiled = ProtocolCompiler().compile(
     AssemblyRequest(
         id=vaccine.id,
         reactions=(
             AssemblyReaction(
                 id=f"{vaccine.id}-assembly",
-                product=product,
-                backbone=backbone,
-                parts=(gp,),
-                restriction_enzyme=bsai,
+                product=plasmid.product,
+                backbone=plasmid.backbone,
+                parts=[plasmid.insert],
+                restriction_enzyme="https://SBOL2Build.org/BsaI/1",
             ),
         ),
     ),
