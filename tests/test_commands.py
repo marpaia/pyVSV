@@ -7,6 +7,7 @@ import sbol3
 
 import vsv.genome.sbol as sbol
 from tests.synthetic import SyntheticGenome, build_genome
+from vsv import AntigenClass, indiana, read_record
 from vsv.cli import main
 from vsv.design import Architecture, Design, Leader, Replication, Trailer, design_to_document
 from vsv.genes import Gene
@@ -259,6 +260,51 @@ def test_check_fails_a_structural_violation(
     status, out, err = run(capsys, "check", str(design))
     assert (status, err) == (1, "")
     assert "replication" in out
+
+
+def test_precedents_and_plasmid_commands(
+    capsys: pytest.CaptureFixture[str],
+    synthetic: SyntheticGenome,
+    synthetic_fasta: Path,
+    tmp_path: Path,
+) -> None:
+    virus = read_record(synthetic_fasta)
+    start, end = synthetic.cds[Gene.GLYCOPROTEIN]
+    payload = virus.mark(virus.add_cds("GP", start, end), AntigenClass.filovirus_glycoprotein)
+    chassis = indiana()
+    vaccine = chassis.replace(
+        chassis.feature(Gene.GLYCOPROTEIN),
+        payload,
+        replication=Replication.COMPETENT,
+        identifier="rvsv_dg_outbreak_gp",
+        name="rVSV outbreak glycoprotein",
+    )
+    plan_path = tmp_path / "rvsv_dg_outbreak_gp.ttl"
+    plasmid_path = tmp_path / "rvsv_dg_outbreak_gp_plasmid.ttl"
+    vaccine.write(plan_path)
+    vaccine.plasmid().write(plasmid_path)
+    status, out, err = run(
+        capsys,
+        "precedents",
+        str(plan_path),
+        "--antigen-class",
+        "filovirus-glycoprotein",
+        "--phenotype",
+        "protection",
+    )
+    assert (status, err) == (0, "")
+    assert out.splitlines()[0].split() == ["id", "phenotype", "host", "assay", "citation"]
+    assert "rvsv_dg_filovirus_gp" in out
+    assert "rvsv_dg_marv_gp" not in out
+    assert "https://doi.org/10.1038/nm1258" in out
+    status, out, err = run(capsys, "plasmid", str(plasmid_path))
+    assert (status, err) == (0, "")
+    assert "plan      rvsv_dg_outbreak_gp" in out
+    assert "edit      replace g" in out
+    assert "slot      g" in out
+    assert "insert    GP" in out
+    assert "backbone  https://vsv.bio/backbone/pvsv-dg" in out
+    assert "product   https://vsv.bio/rvsv_dg_outbreak_gp/plasmid" in out
 
 
 def test_extract_rejects_unknown_genes(

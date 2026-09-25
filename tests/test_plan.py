@@ -9,12 +9,14 @@ from tests.synthetic import SyntheticGenome
 from vsv import (
     AntigenClass,
     Gene,
+    Phenotype,
     Replication,
     indiana,
     load,
     plan,
     plans,
     read,
+    read_plasmid,
     read_record,
 )
 from vsv.corpus.extract import _REPORTER_SLUGS, _SLUGS
@@ -69,7 +71,8 @@ def test_read_record_does_not_name_vsv_genes(
 def test_mark_records_the_antigen_class_on_the_coding_feature(
     synthetic: SyntheticGenome, synthetic_fasta: Path
 ) -> None:
-    payload, _bases = _payload(synthetic, synthetic_fasta)
+    payload, bases = _payload(synthetic, synthetic_fasta)
+    assert payload.sequence == bases
     assert payload.antigen_class is AntigenClass.filovirus_glycoprotein
     assert payload.antigen_class.role in {str(role) for role in payload.feature.roles}
     fresh = AntigenClass("paramyxovirus-glycoprotein")
@@ -238,6 +241,86 @@ def test_plan_round_trips_through_an_sbol_file(
     assert loaded.check()
     with pytest.raises(InputError, match="expected one marburgvirus-glycoprotein"):
         loaded.antigen(AntigenClass.marburgvirus_glycoprotein)
+
+
+def test_plasmid_uses_the_sequence_recorded_at_mark(
+    synthetic: SyntheticGenome, synthetic_fasta: Path, tmp_path: Path
+) -> None:
+    payload, bases = _payload(synthetic, synthetic_fasta)
+    chassis = indiana()
+    vaccine = chassis.replace(
+        chassis.feature(Gene.GLYCOPROTEIN),
+        payload,
+        replication=Replication.COMPETENT,
+        identifier="rvsv_dg_outbreak_gp",
+        name="rVSV outbreak glycoprotein",
+    )
+    plasmid = vaccine.plasmid()
+    assert plasmid.sequence == bases
+    assert plasmid.slot == "g"
+    assert plasmid.edit == "replace g"
+    assert plasmid.insert == "https://vsv.bio/rvsv_dg_outbreak_gp/GP"
+    assert plasmid.backbone == "https://vsv.bio/backbone/pvsv-dg"
+    assert plasmid.product == "https://vsv.bio/rvsv_dg_outbreak_gp/plasmid"
+    plan_path = tmp_path / "rvsv_dg_outbreak_gp.ttl"
+    vaccine.write(plan_path)
+    assert bases not in plan_path.read_text(encoding="utf-8")
+    loaded = read(plan_path)
+    with pytest.raises(InputError, match="no coding sequence"):
+        loaded.plasmid()
+    plasmid_path = tmp_path / "rvsv_dg_outbreak_gp_plasmid.ttl"
+    plasmid.write(plasmid_path)
+    restored = read_plasmid(plasmid_path)
+    assert restored == plasmid
+    assert bases.lower() in plasmid_path.read_text(encoding="utf-8").lower()
+
+
+def test_plasmid_follows_the_insertion_site(
+    synthetic: SyntheticGenome, synthetic_fasta: Path
+) -> None:
+    payload, _bases = _payload(synthetic, synthetic_fasta)
+    chassis = indiana()
+    after_g = chassis.insert(
+        payload,
+        after=chassis.feature(Gene.GLYCOPROTEIN),
+        identifier="rvsv_outbreak_gp",
+        name="rVSV outbreak glycoprotein",
+    )
+    after_leader = chassis.insert(
+        payload,
+        after=chassis.leader,
+        identifier="rvsv_leader_gp",
+        name="rVSV outbreak glycoprotein",
+    )
+    assert after_g.plasmid().slot == "g-l"
+    assert after_g.plasmid().backbone == "https://vsv.bio/backbone/pvsv-g-l"
+    assert after_leader.plasmid().slot == "leader"
+    assert after_leader.plasmid().backbone == "https://vsv.bio/backbone/pvsv-leader"
+    with pytest.raises(InputError, match="no coding sequence"):
+        plans()[0].plasmid()
+
+
+def test_precedents_can_require_an_antigen_class_and_a_phenotype(
+    synthetic: SyntheticGenome, synthetic_fasta: Path
+) -> None:
+    payload, _bases = _payload(synthetic, synthetic_fasta)
+    library = plans()
+    chassis = indiana()
+    replaced = chassis.replace(
+        chassis.feature(Gene.GLYCOPROTEIN),
+        payload,
+        replication=Replication.COMPETENT,
+        identifier="rvsv_dg_outbreak_gp",
+        name="rVSV outbreak glycoprotein",
+    )
+    matched = replaced.precedents(
+        library,
+        antigen_class=AntigenClass.filovirus_glycoprotein,
+        phenotype=Phenotype.PROTECTION,
+    )
+    assert tuple(item.id for item in matched) == ("rvsv_dg_filovirus_gp",)
+    sudan = replaced.precedents(library, antigen_class=AntigenClass.sudan_ebolavirus_glycoprotein)
+    assert sudan == []
 
 
 def test_plan_of_a_sequenced_genome_has_no_sequence(synthetic_fasta: Path) -> None:

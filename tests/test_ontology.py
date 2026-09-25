@@ -7,6 +7,7 @@ from rdflib import OWL, RDF, RDFS, URIRef
 
 from vsv.corpus.extract import _REPORTER_SLUGS, _SLUGS
 from vsv.design.evidence import Assay, Host, Outcome, Phenotype, Stage
+from vsv.design.query import antigen_matches
 from vsv.genes import Gene
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -63,6 +64,20 @@ def test_an_antigen_class_is_a_sequence_ontology_gene() -> None:
     assert (antigen, RDFS.subClassOf, _SO_GENE) in graph
     assert (filovirus, RDFS.subClassOf, antigen) in graph
     assert (sudan, RDFS.subClassOf, filovirus) in graph
+
+
+def test_antigen_queries_follow_the_ontology() -> None:
+    graph = _graph()
+    prefix = f"{_NS}antigen-class/"
+    edges = [
+        (str(child).removeprefix(prefix), str(parent).removeprefix(prefix))
+        for child, parent in graph.subject_objects(RDFS.subClassOf)
+        if str(child).startswith(prefix) and str(parent).startswith(prefix)
+    ]
+    assert ("sudan-ebolavirus-glycoprotein", "filovirus-glycoprotein") in edges
+    for child, parent in edges:
+        assert antigen_matches(child, parent)
+    assert not antigen_matches("marburgvirus-glycoprotein", "filovirus-glycoprotein")
 
 
 def test_alias_is_an_annotation_and_the_sequence_ontology_is_not_redefined() -> None:

@@ -2,12 +2,13 @@
 
 ``indiana`` is the canonical chassis. ``replace`` and ``insert`` write a new document: ordered
 features, a precedence chain, a derivation activity, and the citation for that method. The plan
-carries no sequence. Precedents are curated plans with the same precedence chain.
+file carries no sequence. A plan built from a marked feature keeps that coding sequence in
+memory, and ``plasmid`` reads it. Precedents are curated plans with the same precedence chain.
 """
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from dataclasses import replace as data_replace
 from pathlib import Path
@@ -17,9 +18,11 @@ import sbol3
 from vsv import NAMESPACE
 from vsv.design.architecture import Architecture, Replication, canonical_chassis, project
 from vsv.design.document import architecture_of, design_of, to_document
-from vsv.design.evidence import Observation
+from vsv.design.evidence import Host, Observation, Phenotype
 from vsv.design.library import LIBRARY_ROOT
 from vsv.design.modules import Antigen, ViralGene, require_display_id
+from vsv.design.plasmid import Plasmid
+from vsv.design.query import antigen_matches
 from vsv.design.rules import Violation, check
 from vsv.errors import InputError
 from vsv.genes import Gene
@@ -45,11 +48,22 @@ class CheckResult:
 
 
 class Plan:
-    """One sequence-free genome plan and the SBOL document that holds it."""
+    """One genome plan and the SBOL document that holds it.
 
-    def __init__(self, document: sbol3.Document, component: sbol3.Component) -> None:
+    ``sequences`` maps an antigen module id to the coding sequence recorded when that module was
+    marked. ``write`` does not store those sequences. A plan read from a file has none.
+    """
+
+    def __init__(
+        self,
+        document: sbol3.Document,
+        component: sbol3.Component,
+        *,
+        sequences: Mapping[str, str] | None = None,
+    ) -> None:
         self.document = document
         self.component = component
+        self._sequences = dict(sequences or {})
 
     @property
     def id(self) -> str:
@@ -103,19 +117,23 @@ class Plan:
         """Replace the viral glycoprotein with ``payload``.
 
         ``replication`` is competent when the payload supplies entry, and single-cycle when it
-        does not. The new document cites the 2004 glycoprotein-replacement method.
+        does not. The new document cites the 2004 glycoprotein-replacement method. The new plan
+        keeps the payload's coding sequence.
         """
         self._require_owned(target)
         if not _is_viral_glycoprotein(target):
             raise InputError(f"{self.id}: {Gene.GLYCOPROTEIN} is not a viral gene on this plan.")
+        antigen = _require_sequence(self.id, payload)
         built = architecture_of(self.document).replace(
             str(target.display_id),
-            _antigen(payload),
+            antigen,
             identifier,
             name=name,
             replication=replication,
         )
-        return _publish(built, _REPLACE_GLYCOPROTEIN)
+        sequences = dict(self._sequences)
+        sequences[antigen.id] = payload.sequence
+        return _publish(built, _REPLACE_GLYCOPROTEIN, sequences)
 
     def insert(
         self,
@@ -128,7 +146,8 @@ class Plan:
         """Insert ``payload`` after the leader or after the viral glycoprotein.
 
         An insert after the glycoprotein keeps that gene and cites the 1997 method. An insert
-        after the leader cites the 2014 method. The new plan keeps this plan's replication class.
+        after the leader cites the 2014 method. The new plan keeps this plan's replication class
+        and the payload's coding sequence.
         """
         self._require_owned(after)
         if _is_leader(after):
@@ -139,27 +158,77 @@ class Plan:
             raise InputError(
                 f"{self.id}: a published insertion site is the leader or {Gene.GLYCOPROTEIN}."
             )
+        antigen = _require_sequence(self.id, payload)
         built = architecture_of(self.document).insert(
-            str(after.display_id), _antigen(payload), identifier, name=name
+            str(after.display_id), antigen, identifier, name=name
         )
-        return _publish(built, citation)
+        sequences = dict(self._sequences)
+        sequences[antigen.id] = payload.sequence
+        return _publish(built, citation, sequences)
 
-    def precedents(self, plans: Sequence[Plan]) -> list[Plan]:
+    def precedents(
+        self,
+        plans: Sequence[Plan],
+        *,
+        antigen_class: AntigenClass | None = None,
+        phenotype: Phenotype | None = None,
+        host: Host | None = None,
+    ) -> list[Plan]:
         """Published plans that arrange a gene the same way this one does.
 
         A glycoprotein replacement returns the curated replacements, an insert after G returns
         the curated inserts after G, and an insert after the leader returns the curated insert
-        there. Each result is that published plan, observations included. This candidate keeps
-        its own empty observation list.
+        there. ``antigen_class`` keeps plans whose antigen is that class or a subclass of it.
+        ``phenotype`` and ``host`` keep plans with a matching observation. Each result is that
+        published plan, observations included. This candidate keeps its own empty observation
+        list.
         """
         shape = _shape(self)
         if shape is None:
             return []
-        return [
-            item
-            for item in plans
-            if item.component.identity != self.component.identity and _shape(item) == shape
-        ]
+        found: list[Plan] = []
+        for item in plans:
+            if item.component.identity == self.component.identity or _shape(item) != shape:
+                continue
+            if antigen_class is not None and not _matches_antigen(item, antigen_class):
+                continue
+            if phenotype is not None or host is not None:
+                observations = item.observations
+                if not any(
+                    (phenotype is None or observation.phenotype is phenotype)
+                    and (host is None or observation.host is host)
+                    for observation in observations
+                ):
+                    continue
+            found.append(item)
+        return found
+
+    def plasmid(self) -> Plasmid:
+        """The plasmid for this plan, using the coding sequence it already holds.
+
+        A replacement uses the glycoprotein-deleted backbone and the G slot. An insert after G
+        uses the site between G and L. An insert after the leader uses the site there. The
+        sequence is the marked coding sequence.
+        """
+        shape = _shape(self)
+        if shape is None:
+            raise InputError(f"{self.id}: the plan has no published insertion site.")
+        if not self._sequences:
+            raise InputError(f"{self.id}: the plan has no coding sequence.")
+        if len(self._sequences) != 1:
+            raise InputError(f"{self.id}: the plan has more than one coding sequence.")
+        insert_id, sequence = next(iter(self._sequences.items()))
+        edit, slot, backbone = _PLASMID_SITES[shape]
+        return Plasmid(
+            plan_id=self.id,
+            edit=edit,
+            slot=slot,
+            insert_id=insert_id,
+            insert=f"{NAMESPACE}/{self.id}/{insert_id}",
+            sequence=sequence,
+            backbone=f"{NAMESPACE}/backbone/{backbone}",
+            product=f"{NAMESPACE}/{self.id}/plasmid",
+        )
 
     def check(self) -> CheckResult:
         """Whether this plan meets the structural rules.
@@ -224,9 +293,28 @@ def plans(root: Path | None = None) -> list[Plan]:
     return found
 
 
-def _publish(built: Architecture, citation: str) -> Plan:
+def _publish(built: Architecture, citation: str, sequences: Mapping[str, str]) -> Plan:
     document = to_document(data_replace(built, citations=(citation,)))
-    return Plan(document, _plan_component(document))
+    return Plan(document, _plan_component(document), sequences=sequences)
+
+
+def _require_sequence(plan_id: str, payload: AntigenFeature) -> Antigen:
+    if not payload.sequence:
+        raise InputError(f"{plan_id}: {payload.feature.display_id} has no coding sequence.")
+    return _antigen(payload)
+
+
+def _matches_antigen(plan: Plan, antigen_class: AntigenClass) -> bool:
+    slugs = architecture_of(plan.document).antigen_classes
+    return any(antigen_matches(slug, antigen_class.slug) for slug in slugs)
+
+
+_G = Gene.GLYCOPROTEIN.short
+_PLASMID_SITES = {
+    "replace-glycoprotein": (f"replace {_G}", _G, "pvsv-dg"),
+    "insert-after-glycoprotein": (f"insert after {_G}", f"{_G}-l", "pvsv-g-l"),
+    "insert-after-leader": ("insert after leader", "leader", "pvsv-leader"),
+}
 
 
 def _plan_component(document: sbol3.Document) -> sbol3.Component:

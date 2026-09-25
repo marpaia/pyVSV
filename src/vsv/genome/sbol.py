@@ -324,7 +324,8 @@ class Genome:
         """Mark ``feature`` with ``antigen_class`` and return that antigen.
 
         The role is written on the feature already in this document. The feature has to be a
-        gene or coding sequence this genome carries.
+        gene or coding sequence this genome carries. The returned feature keeps that coding
+        sequence.
         """
         if feature is None or not any(item is feature for item in self.component.features):
             raise InputError(f"{self.id}: the feature to mark is not on this genome.")
@@ -335,7 +336,10 @@ class Genome:
         if not existing and not _is_coding(feature):
             raise InputError(f"{self.id}: {feature.display_id} is not a coding feature.")
         ensure_role(feature, antigen_class.role)
-        return AntigenFeature(feature, antigen_class)
+        sequence = self.feature_bases(feature)
+        if not sequence:
+            raise InputError(f"{self.id}: {feature.display_id} has no coding sequence.")
+        return AntigenFeature(feature, antigen_class, sequence)
 
     @property
     def genes(self) -> dict[Gene, GeneAnnotation]:

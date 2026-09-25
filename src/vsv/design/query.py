@@ -1,10 +1,21 @@
-"""Select published VSV designs by antigen class, phenotype, host, and evidence."""
+"""Select published VSV designs by antigen class, phenotype, host, and evidence.
+
+Antigen-class subclasses are the ``rdfs:subClassOf`` edges in ``ontology/synthetic-virology.ttl``.
+"""
 
 from __future__ import annotations
 
 from collections.abc import Sequence
+from functools import cache
+from pathlib import Path
+
+import rdflib
+from rdflib import RDFS
 
 from vsv.design.evidence import Design, EvidenceLevel, Host, Phenotype
+from vsv.errors import InputError
+
+_ANTIGEN = "https://vsv.bio/antigen-class/"
 
 
 def select(
@@ -49,3 +60,39 @@ def select(
             )
         )
     return found
+
+
+def antigen_matches(slug: str, ancestor: str) -> bool:
+    """Whether ``slug`` is ``ancestor`` or a subclass of it in the ontology."""
+    seen: set[str] = set()
+    current: str | None = slug
+    parents = _antigen_parents()
+    while current is not None and current not in seen:
+        if current == ancestor:
+            return True
+        seen.add(current)
+        current = parents.get(current)
+    return False
+
+
+def _ontology_path() -> Path:
+    root = Path(__file__).resolve().parents[3]
+    checkout = root / "ontology" / "synthetic-virology.ttl"
+    if (root / "pyproject.toml").is_file() and checkout.is_file():
+        return checkout
+    packaged = Path(__file__).resolve().parents[1] / "synthetic-virology.ttl"
+    if packaged.is_file():
+        return packaged
+    raise InputError("The synthetic virology ontology is not installed.")
+
+
+@cache
+def _antigen_parents() -> dict[str, str]:
+    graph = rdflib.Graph()
+    graph.parse(_ontology_path())
+    parents: dict[str, str] = {}
+    for child, parent in graph.subject_objects(RDFS.subClassOf):
+        child_iri, parent_iri = str(child), str(parent)
+        if child_iri.startswith(_ANTIGEN) and parent_iri.startswith(_ANTIGEN):
+            parents[child_iri.removeprefix(_ANTIGEN)] = parent_iri.removeprefix(_ANTIGEN)
+    return parents

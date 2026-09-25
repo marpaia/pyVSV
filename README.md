@@ -13,7 +13,14 @@
 
 ```python
 import vsv
-from vsv import AntigenClass, Gene, Replication
+from lab.protocols import (
+    AssemblyReaction,
+    AssemblyRequest,
+    MaterialRef,
+    ProtocolCompiler,
+)
+from lab.targets import Manual
+from vsv import AntigenClass, Gene, Phenotype, Replication
 
 virus = vsv.read_record("outbreak.gb")  # FASTA, GenBank, or SBOL3
 glycoprotein = virus.mark(virus.cds("GP"), AntigenClass.filovirus_glycoprotein)
@@ -26,50 +33,36 @@ vaccine = chassis.replace(
     identifier="rvsv_dg_outbreak_gp",
     name="rVSV outbreak glycoprotein",
 )
+plasmid = vaccine.plasmid()
 
-vaccine.check()  # true when the plan passes
+gp = MaterialRef(identity=plasmid.insert, label="GP")
+backbone = MaterialRef(identity=plasmid.backbone, label="pVSV-dG")
+product = MaterialRef(identity=plasmid.product, label=vaccine.id)
+bsai = MaterialRef(identity="https://SBOL2Build.org/BsaI/1", label="BsaI")
 
-for published in vaccine.precedents(vsv.plans()):
-    for result in published.observations:
-        result.phenotype, result.host, result.citation, result.note
-```
-
-`read_record` keeps the features in the file. `mark` writes an antigen class onto the coding feature you name. The classes the library already uses are attributes of `AntigenClass`, such as `AntigenClass.filovirus_glycoprotein`. A glycoprotein it has not named yet is `AntigenClass("paramyxovirus-glycoprotein")`.
-
-`replace` removes VSV G and puts the marked gene in that position. Pass `Replication.COMPETENT` when the foreign protein supplies entry, and `Replication.SINGLE_CYCLE` when it does not. The plan records the gene order, the edit, and the citation for the method. The open reading frame stays on `virus`.
-
-`check` is true when the plan passes. The failures are on `check().violations`. `precedents` returns the published plans with this same arrangement. For a replacement, that includes the filovirus, Marburg, Lassa, and SARS-CoV-2 spike plans. Each `result` is one cited outcome from those plans: phenotype, host, assay, and the paper. `vaccine.observations` is empty.
-
-`vaccine.write` stores the plan as an SBOL3 file. Any SBOL3 reader opens that file. `vsv.read` loads it again, and `antigen` returns the feature for one antigen class:
-
-```python
-vaccine.write("rvsv_dg_outbreak_gp.ttl")
-vaccine_from_file = vsv.read("rvsv_dg_outbreak_gp.ttl")
-vaccine_from_file.antigen(AntigenClass.filovirus_glycoprotein).display_id  # "GP"
-```
-
-A FASTA record has no features. Give the coding sequence as a zero-based, half-open span:
-
-```python
-virus = vsv.read_record("outbreak.fasta")
-glycoprotein = virus.mark(
-    virus.add_cds("GP", start, end), AntigenClass("paramyxovirus-glycoprotein")
+compiled = ProtocolCompiler().compile(
+    AssemblyRequest(
+        id=vaccine.id,
+        reactions=(
+            AssemblyReaction(
+                id=f"{vaccine.id}-assembly",
+                product=product,
+                backbone=backbone,
+                parts=(gp,),
+                restriction_enzyme=bsai,
+            ),
+        ),
+    ),
+    hardware=Manual(),
 )
+compiled.write("build/plasmid/assembly")
 ```
 
-To keep VSV G, insert the gene after it. To place the gene first, insert it after the leader.
+`mark` records the antigen class and the coding sequence. A class the library has not named yet is `AntigenClass("paramyxovirus-glycoprotein")`. A FASTA record has no features, so pass `virus.add_cds("GP", start, end)` to `mark`. Spans are zero-based and half-open.
 
-```python
-vaccine = chassis.insert(
-    glycoprotein,
-    after=chassis.feature(Gene.GLYCOPROTEIN),
-    identifier="rvsv_outbreak_gp",
-    name="rVSV outbreak glycoprotein",
-)
-# chassis.insert(glycoprotein, after=chassis.leader, identifier=..., name=...)
-```
+`replace` removes VSV G. Pass `Replication.SINGLE_CYCLE` when the foreign protein does not supply entry. To keep VSV G, insert after `chassis.feature(Gene.GLYCOPROTEIN)`. To place the gene first, insert after `chassis.leader`. `vsv.plan(vsv.load("data/raw/NC_001560.fasta"))` is a chassis taken from a sequenced Indiana genome.
 
-A sequenced Indiana genome is a chassis as well: `vsv.plan(vsv.load("data/raw/NC_001560.fasta"))`. `vsv.load` names the five VSV genes in genome order. Spans are zero-based and half-open, so `genome.genes[Gene.GLYCOPROTEIN].cds_dna` is the coding sequence.
+`check` is true when the plan passes. Failures are on `check().violations`. `precedents` returns published plans with this arrangement, and the antigen class includes its subclasses. `vaccine.observations` is empty. `vaccine.write` stores the plan without the coding sequence. `plasmid.write` stores that sequence, and the assembly compiles it onto the bought backbone.
 
 ## Command line
 
@@ -79,9 +72,11 @@ vsv extract -g g --kind protein data/raw/NC_001560.gb
 vsv designs
 vsv show rvsv_dg_filovirus_gp
 vsv check data/designs/vsv_indiana
+vsv precedents rvsv_dg_outbreak_gp.ttl --antigen-class filovirus-glycoprotein --phenotype protection
+vsv plasmid rvsv_dg_outbreak_gp_plasmid.ttl
 ```
 
-On the command line the genes are `n`, `p`, `m`, `g`, and `l`. `vsv extract` writes gene, cds, or protein sequence. `vsv designs` lists the curated library. `vsv check` prints structural violations and knowledge gaps and exits 1 when a structural rule fails.
+On the command line the genes are `n`, `p`, `m`, `g`, and `l`. `vsv extract` writes gene, cds, or protein sequence. `vsv designs` lists the curated library. `vsv check` prints structural violations and knowledge gaps and exits 1 when a structural rule fails. `vsv precedents` lists published plans with the same arrangement. `vsv plasmid` prints the backbone, slot, and insert in a plasmid file.
 
 `data/designs/` holds one directory per published architecture: `design.ttl` and `PROVENANCE.md`. The plan stores no insert sequence. `vsv.plans()` reads that library.
 

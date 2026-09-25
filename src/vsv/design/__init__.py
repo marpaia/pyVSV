@@ -36,6 +36,7 @@ from vsv.design.modules import (
     ViralGene,
 )
 from vsv.design.plan import CheckResult, Plan, indiana, plan, plans, read
+from vsv.design.plasmid import Plasmid, read_plasmid
 from vsv.design.query import select
 from vsv.design.rules import KNOWLEDGE_GAPS, Property, Violation, check, satisfies
 
@@ -62,6 +63,7 @@ __all__ = [
     "ParentStatus",
     "Phenotype",
     "Plan",
+    "Plasmid",
     "Property",
     "Replace",
     "Replication",
@@ -86,6 +88,7 @@ __all__ = [
     "plans",
     "project",
     "read",
+    "read_plasmid",
     "satisfies",
     "select",
     "to_document",

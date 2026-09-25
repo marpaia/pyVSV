@@ -82,7 +82,8 @@ for _name, _slug in _KNOWN:
 
 @dataclass(frozen=True, slots=True)
 class AntigenFeature:
-    """A genome feature that carries one antigen-class role."""
+    """A genome feature that carries one antigen-class role and its coding sequence."""
 
     feature: sbol3.SequenceFeature | sbol3.SubComponent
     antigen_class: AntigenClass
+    sequence: str

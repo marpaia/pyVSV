@@ -24,13 +24,18 @@ from vsv.design import (
     Module,
     Observation,
     Phenotype,
+    Plan,
     load_design,
     load_library,
+    plans,
+    read,
+    read_plasmid,
     select,
 )
 from vsv.design import check as check_design
 from vsv.design.edits import Delete, Edit, Insert, Replace
 from vsv.errors import InputError
+from vsv.genome.payload import AntigenClass
 from vsv.ingest import DEFAULT_QUERY, INGEST_ROOT
 from vsv.ingest import ingest as fetch_papers
 
@@ -345,6 +350,80 @@ def check(ctx: click.Context, design: Path) -> None:
     click.echo("\n".join(blocks))
     if structural:
         ctx.exit(1)
+
+
+@click.command()
+@click.argument("plan", type=click.Path(path_type=Path))
+@click.option("--antigen-class", default=None, help="Antigen class slug, including subclasses.")
+@click.option(
+    "--phenotype",
+    type=click.Choice([item.value for item in Phenotype]),
+    default=None,
+    help="Observation phenotype.",
+)
+@click.option(
+    "--host",
+    type=click.Choice([item.value for item in Host]),
+    default=None,
+    help="Observation host.",
+)
+def precedents(
+    plan: Path, antigen_class: str | None, phenotype: str | None, host: str | None
+) -> None:
+    """List published plans with this plan's arrangement."""
+    candidate = _read_plan(plan)
+    antigen = None if antigen_class is None else AntigenClass(antigen_class)
+    rows: list[list[str]] = []
+    for published in candidate.precedents(
+        plans(),
+        antigen_class=antigen,
+        phenotype=_phenotype(phenotype),
+        host=_host(host),
+    ):
+        for result in published.observations:
+            if phenotype is not None and result.phenotype is not Phenotype(phenotype):
+                continue
+            if host is not None and result.host is not Host(host):
+                continue
+            rows.append(
+                [
+                    published.id,
+                    result.phenotype.value,
+                    result.host.value,
+                    result.assay.value,
+                    result.citation,
+                ]
+            )
+    if not rows:
+        click.echo("no precedents")
+        return
+    click.echo(table(["id", "phenotype", "host", "assay", "citation"], rows))
+
+
+@click.command()
+@click.argument("plasmid", type=click.Path(path_type=Path))
+def plasmid(plasmid: Path) -> None:
+    """Show the backbone, slot, and insert in a plasmid file."""
+    record = read_plasmid(plasmid)
+    click.echo(
+        "\n".join(
+            _fact_lines(
+                [
+                    ("plan", record.plan_id),
+                    ("edit", record.edit),
+                    ("slot", record.slot),
+                    ("insert", record.insert_id),
+                    ("backbone", record.backbone),
+                    ("product", record.product),
+                ]
+            )
+        )
+    )
+
+
+def _read_plan(path: Path) -> Plan:
+    turtle = path / "design.ttl" if path.is_dir() else path
+    return read(turtle)
 
 
 @click.command()
