@@ -35,10 +35,17 @@ from vsv.design.modules import (
     Trailer,
     ViralGene,
 )
-from vsv.design.plan import CheckResult, Plan, indiana, plan, plans, read
-from vsv.design.plasmid import Plasmid, read_plasmid
+from vsv.design.plan import Plan, indiana, plan, plans, read
+from vsv.design.plasmid import Backbone, Plasmid, Slot, TranscriptionUnit, read_plasmid
 from vsv.design.query import select
-from vsv.design.rules import KNOWLEDGE_GAPS, Property, Violation, check, satisfies
+from vsv.design.rules import (
+    KNOWLEDGE_GAPS,
+    CheckResult,
+    Property,
+    Violation,
+    check,
+    satisfies,
+)
 
 __all__ = [
     "KNOWLEDGE_GAPS",
@@ -46,6 +53,7 @@ __all__ = [
     "Antigen",
     "Architecture",
     "Assay",
+    "Backbone",
     "ChassisCard",
     "CheckResult",
     "Delete",
@@ -68,8 +76,10 @@ __all__ = [
     "Replace",
     "Replication",
     "Reporter",
+    "Slot",
     "Stage",
     "Trailer",
+    "TranscriptionUnit",
     "Unmodeled",
     "Violation",
     "ViralGene",

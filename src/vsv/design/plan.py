@@ -9,7 +9,6 @@ memory, and ``plasmid`` reads it. Precedents are curated plans with the same pre
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
 from dataclasses import replace as data_replace
 from pathlib import Path
 
@@ -22,9 +21,9 @@ from vsv.design.document import architecture_of, design_of, to_document
 from vsv.design.evidence import Host, Observation, Phenotype
 from vsv.design.library import LIBRARY_ROOT
 from vsv.design.modules import Antigen, ViralGene, require_display_id
-from vsv.design.plasmid import Plasmid
+from vsv.design.plasmid import Plasmid, TranscriptionUnit, backbone
 from vsv.design.query import antigen_matches
-from vsv.design.rules import Violation, check
+from vsv.design.rules import CheckResult, check
 from vsv.errors import InputError
 from vsv.genes import Gene
 from vsv.genome.payload import AntigenClass, AntigenFeature
@@ -37,16 +36,6 @@ _REPORTER = f"{NAMESPACE}/role/reporter"
 _REPLACE_GLYCOPROTEIN = "https://doi.org/10.1128/jvi.78.10.5458-5465.2004"
 _INSERT_AFTER_GLYCOPROTEIN = "https://doi.org/10.1128/jvi.71.8.5982-5989.1997"
 _INSERT_AFTER_LEADER = "https://doi.org/10.1128/jvi.00019-14"
-
-
-@dataclass(frozen=True, slots=True)
-class CheckResult:
-    """Structural check of one plan. True when the plan passes."""
-
-    violations: tuple[Violation, ...]
-
-    def __bool__(self) -> bool:
-        return not self.violations
 
 
 class Plan:
@@ -208,9 +197,9 @@ class Plan:
     def plasmid(self) -> Plasmid:
         """The plasmid for this plan, using the coding sequence it already holds.
 
-        A replacement uses the glycoprotein-deleted backbone and the G slot. An insert after G
-        uses the site between G and L. An insert after the leader uses the site there. The
-        sequence is the marked coding sequence.
+        A replacement uses the glycoprotein slot on ``pvsv-dg``. An insert after G uses the
+        site between G and L. An insert after the leader uses the site there. The sequence is
+        a transcription unit: the slot's gene-start, this coding sequence, and the gene-end.
         """
         shape = _shape(self)
         if shape is None:
@@ -219,16 +208,27 @@ class Plan:
             raise InputError(f"{self.id}: the plan has no coding sequence.")
         if len(self._sequences) != 1:
             raise InputError(f"{self.id}: the plan has more than one coding sequence.")
-        insert_id, sequence = next(iter(self._sequences.items()))
-        edit, slot, backbone = _PLASMID_SITES[shape]
+        insert_id, coding = next(iter(self._sequences.items()))
+        edit, slot_name, backbone_id = _PLASMID_SITES[shape]
+        cited = backbone(backbone_id)
+        unit = TranscriptionUnit(cited.slot.gene_start, coding, cited.slot.gene_end)
+        sequence = unit.sequence
+        antigenome = Nucleotides(
+            cited.sequence.bases[: cited.slot.start]
+            + sequence.bases
+            + cited.sequence.bases[cited.slot.end :]
+        )
         return Plasmid(
             plan_id=self.id,
             edit=edit,
-            slot=slot,
+            slot=slot_name,
             insert_id=insert_id,
             insert=Part(f"{NAMESPACE}/{self.id}/{insert_id}"),
+            unit=unit,
             sequence=sequence,
-            backbone=Part(f"{NAMESPACE}/backbone/{backbone}"),
+            replication=architecture_of(self.document).replication,
+            backbone=cited,
+            antigenome=antigenome,
             product=Part(f"{NAMESPACE}/{self.id}/plasmid"),
         )
 

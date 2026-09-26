@@ -13,14 +13,9 @@
 
 ```python
 import vsv
-from lab.protocols import (
-    AssemblyReaction,
-    AssemblyRequest,
-    BSAI,
-    ProtocolCompiler,
-)
+from lab.protocols import Assembly, AssemblyRequest, BSAI, ProtocolCompiler
 from lab.targets import Manual
-from vsv import AntigenClass, Gene, Phenotype, Replication
+from vsv import AntigenClass, Gene, Replication
 
 virus = vsv.read_record("outbreak.gb")  # FASTA, GenBank, or SBOL3
 glycoprotein = virus.mark(virus.cds("GP"), AntigenClass.filovirus_glycoprotein)
@@ -38,8 +33,8 @@ plasmid = vaccine.plasmid()
 compiled = ProtocolCompiler().compile(
     AssemblyRequest(
         id=vaccine.id,
-        reactions=(
-            AssemblyReaction(
+        assemblies=(
+            Assembly(
                 id=f"{vaccine.id}-assembly",
                 product=plasmid.product,
                 backbone=plasmid.backbone,
@@ -57,7 +52,9 @@ compiled.write("build/plasmid/assembly")
 
 `replace` removes VSV G. Pass `Replication.SINGLE_CYCLE` when the foreign protein does not supply entry. To keep VSV G, insert after `chassis.feature(Gene.GLYCOPROTEIN)`. To place the gene first, insert after `chassis.leader`. `vsv.plan(vsv.load("data/raw/NC_001560.fasta"))` is a chassis taken from a sequenced Indiana genome.
 
-`check` is true when the plan passes. Failures are on `check().violations`. `precedents` returns published plans with this arrangement, and the antigen class includes its subclasses. `vaccine.observations` is empty. `vaccine.write` stores the plan without the coding sequence. `plasmid.write` stores that sequence, and the assembly compiles it onto the bought backbone.
+`check` is true when the plan passes. Failures are on `check().violations`. `precedents` returns published plans with this arrangement, and the antigen class includes its subclasses. `vaccine.observations` is empty. `vaccine.write` stores the plan without the coding sequence.
+
+`plasmid.sequence` is the transcription unit: the Indiana G gene-start, the marked coding sequence, and the gene-end. The backbone is the Indiana antigenome NC_001560.1, and the slot is the span that unit replaces. `plasmid.check()` fails an unclosed reading frame, a gene-end inside the unit, or a replication-competent glycoprotein replacement with no hydrophobic anchor in its last 60 residues. `plasmid.write` stores the unit and that antigenome. The assembly compiles the part identities onto the bought backbone.
 
 ## Command line
 

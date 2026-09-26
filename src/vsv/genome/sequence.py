@@ -170,6 +170,27 @@ def translate(sequence: str, *, to_stop: bool = False) -> str:
     return "".join(protein)
 
 
+HYDROPHOBIC = frozenset("AILMFVWY")
+
+
+def hydrophobic_window(
+    protein: str, *, width: int = 20, within: int = 60, minimum: int = 15
+) -> bool:
+    """Whether the last ``within`` residues contain a hydrophobic window.
+
+    A window is ``width`` residues of which at least ``minimum`` belong to ``AILMFVWY``.
+    """
+    if width < 1 or within < 1 or minimum < 1:
+        raise ValueError("width, within, and minimum must be positive.")
+    region = protein[-within:]
+    if len(region) < width:
+        return False
+    return any(
+        sum(residue in HYDROPHOBIC for residue in region[index : index + width]) >= minimum
+        for index in range(len(region) - width + 1)
+    )
+
+
 def composition(sequence: str) -> Composition:
     """Count nucleotides in a sequence."""
     tally = Counter(sequence)

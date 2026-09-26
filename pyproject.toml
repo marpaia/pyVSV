@@ -40,6 +40,7 @@ exclude = ["/src/vsv/server"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "ontology/synthetic-virology.ttl" = "vsv/synthetic-virology.ttl"
+"data/raw/NC_001560.fasta" = "vsv/NC_001560.fasta"
 
 # Editable installs keep the checkout on the path. The wheel omits vsv.server.
 [tool.hatch.build]
@@ -52,6 +53,7 @@ install = "uv sync --locked --no-dev --group server"
 include = [
     "/src",
     "/ontology/synthetic-virology.ttl",
+    "/data/raw/NC_001560.fasta",
     "/tests",
     "/README.md",
     "/CONTRIBUTING.md",

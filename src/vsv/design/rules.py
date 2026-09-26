@@ -52,6 +52,16 @@ class Violation:
     message: str
 
 
+@dataclass(frozen=True, slots=True)
+class CheckResult:
+    """Rule check of one plan or plasmid. True when every rule passes."""
+
+    violations: tuple[Violation, ...]
+
+    def __bool__(self) -> bool:
+        return not self.violations
+
+
 def _loci(architecture: Architecture) -> list[Violation]:
     body = list(architecture.transcribed)
     unknown = [module.id for module in body if module.locus is None]

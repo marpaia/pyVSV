@@ -263,7 +263,11 @@ def test_plasmid_uses_the_sequence_recorded_at_mark(
         name="rVSV outbreak glycoprotein",
     )
     plasmid = vaccine.plasmid()
-    assert plasmid.sequence.bases == bases
+    assert plasmid.unit.coding_sequence.bases == bases
+    assert plasmid.unit.gene_start.bases == "AACAGAGATC"
+    assert plasmid.unit.gene_end.bases == "TATGAAAAAAA"
+    assert plasmid.sequence.bases == f"AACAGAGATC{bases}TATGAAAAAAA"
+    assert plasmid.check()
     assert plasmid.slot == "g"
     assert plasmid.edit == "replace g"
     assert plasmid.insert.iri == "https://vsv.bio/rvsv_dg_outbreak_gp/GP"
