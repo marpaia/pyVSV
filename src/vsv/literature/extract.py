@@ -10,11 +10,11 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Iterable
 
-from vsv.corpus.classify import classify
-from vsv.corpus.fetch import clean_text
-from vsv.corpus.models import UNKNOWN, Claim, Extraction, Paper, Quoted
-from vsv.corpus.query import VECTOR_KINDS
 from vsv.design.evidence import Assay, Host, Outcome, Phenotype, Stage
+from vsv.literature.classify import classify
+from vsv.literature.fetch import clean_text
+from vsv.literature.query import VECTOR_KINDS
+from vsv.literature.records import UNKNOWN, Claim, Extraction, Paper, Quoted
 
 _SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z\"(])")
 _DELTA_G = re.compile(

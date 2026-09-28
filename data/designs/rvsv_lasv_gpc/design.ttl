@@ -86,7 +86,8 @@ ns1:rvsv_lasv_gpc__malkin_2025_immunogenicity a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/immunogenicity>,
         <https://vsv.bio/host/human>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/immunogenicity> ;
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_lasv_gpc__malkin_2025_immunogenicity/Usage1> ;
     ns1:index 0 .
 
@@ -109,7 +110,8 @@ ns1:rvsv_lasv_gpc__malkin_2025_reactogenicity a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/reactogenicity>,
         <https://vsv.bio/host/human>,
         <https://vsv.bio/outcome/adverse>,
-        <https://vsv.bio/phenotype/safety> ;
+        <https://vsv.bio/phenotype/safety>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_lasv_gpc__malkin_2025_reactogenicity/Usage1> ;
     ns1:index 2 .
 
@@ -132,7 +134,8 @@ ns1:rvsv_lasv_gpc__malkin_2025_safety a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/safety>,
         <https://vsv.bio/host/human>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/safety> ;
+        <https://vsv.bio/phenotype/safety>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_lasv_gpc__malkin_2025_safety/Usage1> ;
     ns1:index 1 .
 

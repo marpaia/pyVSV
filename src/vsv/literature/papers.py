@@ -7,15 +7,15 @@ import json
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-from vsv.corpus.models import Claim, Extraction, Ledger, Paper, Quoted
-from vsv.corpus.query import (
+from vsv.errors import InputError
+from vsv.literature.query import (
     AUDIT_NAME,
     CORPUS_ROOT,
     EXTRACTIONS_NAME,
     LEDGER_NAME,
     PAPERS_NAME,
 )
-from vsv.errors import InputError
+from vsv.literature.records import Claim, Extraction, Ledger, Paper, Quoted
 
 
 def digest_pmids(pmids: Sequence[str]) -> str:

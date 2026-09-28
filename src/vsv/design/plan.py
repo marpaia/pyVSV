@@ -13,7 +13,7 @@ from dataclasses import replace as data_replace
 from pathlib import Path
 
 import sbol3
-from lab.protocols import Part
+from lab.part import Part
 
 from vsv import NAMESPACE
 from vsv.design.architecture import Architecture, Replication, canonical_chassis, project

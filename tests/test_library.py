@@ -12,8 +12,8 @@ from vsv.design import (
     EvidenceLevel,
     Host,
     Implementation,
+    Insert,
     Leader,
-    LocusStatus,
     Observation,
     Outcome,
     ParentStatus,
@@ -41,8 +41,14 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
     records = {record.architecture.id: record for record in load_library()}
     assert set(records) == {
         "vsv_indiana",
+        "rvsv_dg_bombali_gp",
         "rvsv_dg_filovirus_gp",
         "rvsv_dg_marv_gp",
+        "rvsv_dg_mers_s",
+        "rvsv_dg_niv_f",
+        "rvsv_dg_niv_g",
+        "rvsv_dg_sars_s",
+        "rvsv_dg_sudv_gp",
         "rvsv_niv_g",
         "rvsv_niv_f",
         "rvsv_lasv_gpc",
@@ -50,6 +56,10 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
         "rvsv_hiv_env",
         "rvsv_dg_hiv_env",
         "rvsv_influenza_ha",
+        "rvsv_gl_hev_g",
+        "rvsv_gl_hiv_gag",
+        "rvsv_gl_niv_f",
+        "rvsv_gl_niv_g",
         "rvsv_gfp",
         "rvsv_luc",
         "rvsv_zika_e",
@@ -83,19 +93,19 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
     ]
     assert filo.edit == applied.edit
     assert filo.replication == applied.replication
-    assert records["rvsv_dg_filovirus_gp"].card.evidence_level is EvidenceLevel.NONHUMAN_PRIMATE
+    assert records["rvsv_dg_filovirus_gp"].card.evidence_level is EvidenceLevel.HUMAN
     assert "Ervebo" in records["rvsv_dg_filovirus_gp"].aliases
 
     nipah = records["rvsv_niv_g"].architecture
     added = next(module for module in nipah.modules if module.id == "niv_g")
     assert nipah.parent_id == filo.id
-    assert nipah.edit is None
-    assert added.locus is None
-    assert added.locus_status is LocusStatus.UNKNOWN
-    assert next(module.locus for module in nipah.modules if module.id == "LargePolymerase") == 4
+    assert isinstance(nipah.edit, Insert)
+    assert nipah.edit.after == "Glycoprotein"
+    assert added.locus == 4
+    assert next(module.locus for module in nipah.modules if module.id == "LargePolymerase") == 5
     fusion = records["rvsv_niv_f"].architecture
-    assert fusion.edit is None
-    assert next(module for module in fusion.modules if module.id == "niv_f").locus is None
+    assert isinstance(fusion.edit, Insert)
+    assert next(module for module in fusion.modules if module.id == "niv_f").locus == 4
     assert records["rvsv_niv_f"].card.evidence_level is EvidenceLevel.NONHUMAN_PRIMATE
 
     lassa = records["rvsv_lasv_gpc"]
@@ -114,22 +124,44 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
     ebola = records["rvsv_dg_filovirus_gp"].observations[0]
     assert ebola.implementation_id == "garbutt-2004"
     assert "Zaire" in ebola.note
+    sudan = records["rvsv_dg_sudv_gp"]
+    assert sudan.architecture.antigen_classes == ("sudan-ebolavirus-glycoprotein",)
+    assert sudan.observations[0].challenge_virus == "SEBOV"
+    assert sudan.observations[0].route.value == "unknown"
+    hendra = records["rvsv_gl_hev_g"]
+    assert hendra.architecture.edit is not None
+    assert hendra.observations[0].route.value == "intranasal"
+    assert records["rvsv_dg_mers_s"].architecture.replication.value == "replication-competent"
+    hiv = records["rvsv_hiv_env"].architecture
+    assert isinstance(hiv.edit, Insert)
+    assert next(module for module in hiv.modules if module.id == "hiv_env").locus == 4
+    single = records["rvsv_dg_hiv_env"]
+    assert single.observations[0].host is Host.MOUSE
+    assert single.observations[0].route.value == "intramuscular"
+    assert records["rvsv_luc"].observations == ()
 
 
 def test_queries_separate_antigen_class_and_evidence() -> None:
     records = load_library()
     glycoprotein = select(records, antigen_class="henipavirus-glycoprotein")
-    assert [record.architecture.id for record in glycoprotein] == ["rvsv_niv_g"]
+    assert [record.architecture.id for record in glycoprotein] == [
+        "rvsv_dg_niv_g",
+        "rvsv_gl_hev_g",
+        "rvsv_gl_niv_g",
+        "rvsv_niv_g",
+    ]
     protected = select(records, phenotype=Phenotype.PROTECTION, host=Host.NONHUMAN_PRIMATE)
     assert [record.architecture.id for record in protected] == [
         "rvsv_dg_filovirus_gp",
         "rvsv_dg_marv_gp",
+        "rvsv_dg_sudv_gp",
         "rvsv_niv_f",
         "rvsv_niv_g",
     ]
     assert protected[0].observations[0].phenotype is Phenotype.PROTECTION
     clinical = select(records, min_evidence=EvidenceLevel.HUMAN)
     assert [record.architecture.id for record in clinical] == [
+        "rvsv_dg_filovirus_gp",
         "rvsv_dg_sars_cov_2_s",
         "rvsv_lasv_gpc",
     ]

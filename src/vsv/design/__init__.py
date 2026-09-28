@@ -20,6 +20,7 @@ from vsv.design.evidence import (
     Observation,
     Outcome,
     Phenotype,
+    Route,
     Stage,
     Unmodeled,
 )
@@ -76,6 +77,7 @@ __all__ = [
     "Replace",
     "Replication",
     "Reporter",
+    "Route",
     "Slot",
     "Stage",
     "Trailer",

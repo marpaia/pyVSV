@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from vsv.corpus.audit import audit_messages
-from vsv.corpus.cluster import clusters_from, unclustered_pmids
-from vsv.corpus.extract import describe
-from vsv.corpus.fetch import (
+from vsv.errors import InputError
+from vsv.literature.audit import audit_messages
+from vsv.literature.cluster import clusters_from, unclustered_pmids
+from vsv.literature.extract import describe
+from vsv.literature.fetch import (
     Fetch,
     FetchText,
     clean_text,
@@ -22,9 +23,7 @@ from vsv.corpus.fetch import (
     pubmed_count,
     pubmed_ids,
 )
-from vsv.corpus.models import Extraction, Ledger, Paper
-from vsv.corpus.query import FULLTEXT_NAME, PUBMED_TERM, RESIDUAL_TERM, VECTOR_KINDS
-from vsv.corpus.store import (
+from vsv.literature.papers import (
     digest_pmids,
     load_audit,
     load_extractions,
@@ -34,7 +33,8 @@ from vsv.corpus.store import (
     write_ledger,
     write_papers,
 )
-from vsv.errors import InputError
+from vsv.literature.query import FULLTEXT_NAME, PUBMED_TERM, RESIDUAL_TERM, VECTOR_KINDS
+from vsv.literature.records import Extraction, Ledger, Paper
 
 Log = Callable[[str], None]
 

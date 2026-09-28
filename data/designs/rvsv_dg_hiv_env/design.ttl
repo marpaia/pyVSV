@@ -3,15 +3,11 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ns1:rvsv_dg_hiv_env__jvi_2005 a sbol:Implementation ;
-    sbol:built ns1:rvsv_dg_hiv_env ;
-    sbol:description "Single-cycle rVSV in which G is deleted and a secreted form of HIV envelope is expressed, so the vector does not regain entry on CD4-positive cells." ;
-    sbol:displayId "rvsv_dg_hiv_env__jvi_2005" ;
-    sbol:hasAttachment ns1:rvsv_dg_hiv_env__jvi_2005_citation ;
+ns1:rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "jvi-2005" ;
-    sbol:role <https://vsv.bio/stage/preclinical> ;
-    ns1:index 0 .
+    prov:wasGeneratedBy ns1:rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity .
 
 ns1:rvsv_dg_hiv_env a sbol:Component ;
     sbol:displayId "rvsv_dg_hiv_env" ;
@@ -74,8 +70,42 @@ ns1:rvsv_dg_hiv_env a sbol:Component ;
     sbol:restriction sbol:strictlyPrecedes ;
     sbol:subject <https://vsv.bio/rvsv_dg_hiv_env/LargePolymerase> .
 
+ns1:rvsv_dg_hiv_env__jvi_2005 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_hiv_env ;
+    sbol:description "Because expression of HIV Env by G-deleted VSV might allow replication in human cells expressing CD4, we generated a single-cycle VSV recombinant expressing a secreted form of the HIV Env protein." ;
+    sbol:displayId "rvsv_dg_hiv_env__jvi_2005" ;
+    sbol:hasAttachment ns1:rvsv_dg_hiv_env__jvi_2005_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "jvi-2005" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 0 .
+
 ns1:rvsv_dg_hiv_env__jvi_2005_citation a sbol:Attachment ;
     sbol:displayId "rvsv_dg_hiv_env__jvi_2005_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.79.21.13231-13238.2005> .
+
+ns1:rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "When given by the intramuscular route in mice, we found that the single-cycle vector was equivalent to the replication-competent VSV vector in generating high-level primary and memory CD8 T-cell responses as well as antibody responses to Env." ;
+    sbol:displayId "rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "jvi-2005-mouse-immunogenicity" ;
+    sbol:type <https://vsv.bio/assay/immunogenicity>,
+        <https://vsv.bio/host/mouse>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity/Usage1> ;
+    ns1:index 0 .
+
+<https://vsv.bio/rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_hiv_env__jvi_2005 .
+
+ns1:rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_hiv_env__jvi_2005_mouse_immunogenicity_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1128/jvi.79.21.13231-13238.2005> .
 

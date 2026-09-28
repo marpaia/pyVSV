@@ -81,7 +81,8 @@ ns1:rvsv_hantavirus_gp__jvi_2011_hamster_neutralization a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/neutralization>,
         <https://vsv.bio/host/hamster>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/immunogenicity> ;
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intraperitoneal> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_hantavirus_gp__jvi_2011_hamster_neutralization/Usage1> ;
     ns1:index 1 .
 
@@ -104,8 +105,12 @@ ns1:rvsv_hantavirus_gp__jvi_2011_hamster_protection a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/hamster>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intraperitoneal> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_hantavirus_gp__jvi_2011_hamster_protection/Usage1> ;
+    ns1:challenge-dose "100× LD50" ;
+    ns1:challenge-route "intraperitoneal" ;
+    ns1:challenge-virus "ANDV" ;
     ns1:index 0 .
 
 <https://vsv.bio/rvsv_hantavirus_gp__jvi_2011_hamster_protection/Usage1> a sbol:Identified,
@@ -142,8 +147,10 @@ ns1:rvsv_hantavirus_gp__npjv_2024_mouse_neutralization a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/neutralization>,
         <https://vsv.bio/host/mouse>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/immunogenicity> ;
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intraperitoneal> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_hantavirus_gp__npjv_2024_mouse_neutralization/Usage1> ;
+    ns1:challenge-virus "HTNV" ;
     ns1:index 2 .
 
 <https://vsv.bio/rvsv_hantavirus_gp__npjv_2024_mouse_neutralization/Usage1> a sbol:Identified,

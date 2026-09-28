@@ -12,7 +12,7 @@ from functools import cache
 from pathlib import Path
 
 import sbol3
-from lab.protocols import Part
+from lab.part import Part
 
 from vsv import NAMESPACE
 from vsv.design.architecture import Replication

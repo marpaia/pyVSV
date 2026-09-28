@@ -9,10 +9,6 @@ import click
 
 from vsv.cli.corpus import cluster_edit, resolve_cluster
 from vsv.cli.render import cli_name, indent, row, table, widths, wrap
-from vsv.corpus.cluster import Cluster, clusters_from
-from vsv.corpus.pipeline import ingest_corpus
-from vsv.corpus.query import CORPUS_ROOT
-from vsv.corpus.store import load_extractions
 from vsv.design import (
     KNOWLEDGE_GAPS,
     LIBRARY_ROOT,
@@ -38,6 +34,10 @@ from vsv.errors import InputError
 from vsv.genome.payload import AntigenClass
 from vsv.ingest import DEFAULT_QUERY, INGEST_ROOT
 from vsv.ingest import ingest as fetch_papers
+from vsv.literature.cluster import Cluster, clusters_from
+from vsv.literature.papers import load_extractions
+from vsv.literature.pipeline import ingest_corpus
+from vsv.literature.query import CORPUS_ROOT
 
 _EVIDENCE = {
     "none": EvidenceLevel.NONE,

@@ -4,6 +4,6 @@ The VSV glycoprotein part is an antigen of class `marburgvirus-glycoprotein`. Ga
 
 The animal-safety note follows the abstract: none of the rVSV vectors, including the Marburg glycoprotein vector, displayed pathogenic potential in animals. The host is `other`, because the abstract does not name the species for that sentence. The mouse protection result in the same paper is the Zaire Ebola glycoprotein vector and is not an observation on this design.
 
-A 2005 Nature Medicine paper (https://doi.org/10.1038/nm1258) reports the same replacement class expressing the Marburg virus glycoprotein. That vector protected nonhuman primates and is the `nm-2005` implementation. No glycoprotein sequence is stored.
+A 2005 Nature Medicine paper (https://doi.org/10.1038/nm1258) reports the same replacement class expressing the Marburg virus glycoprotein. That vector protected nonhuman primates after a single intramuscular injection and is the `nm-2005` implementation. No glycoprotein sequence is stored.
 
 Retrieved 22 September 2026.

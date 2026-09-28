@@ -113,8 +113,10 @@ ns1:rvsv_dg_marv_gp__nm_2005_nhp_protection a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/nonhuman-primate>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_dg_marv_gp__nm_2005_nhp_protection/Usage1> ;
+    ns1:challenge-virus "MARV" ;
     ns1:index 1 .
 
 <https://vsv.bio/rvsv_dg_marv_gp__nm_2005_nhp_protection/Usage1> a sbol:Identified,

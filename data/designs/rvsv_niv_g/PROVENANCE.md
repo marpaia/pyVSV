@@ -2,8 +2,8 @@
 
 de Wit and colleagues (eBioMedicine, January 2023, https://doi.org/10.1016/j.ebiom.2022.104405) tested a VSV-EBOV vaccine expressing Nipah virus glycoprotein G in African green monkeys. The parent design is `rvsv_dg_filovirus_gp`. This record keeps that filovirus-glycoprotein module and adds a `henipavirus-glycoprotein` module.
 
-The abstract does not state the genomic coordinate of the added Nipah gene. That module's locus is unknown, and no derivation is recorded. The backbone modules keep the parent design's loci. Listing the added module after those backbone modules is not a genomic coordinate. No Nipah or Ebola glycoprotein sequence is stored.
+The NiV Bangladesh G open reading frame is cloned into pVSVXN2ΔG-EBOVKik GP downstream of the Ebola Kikwit glycoprotein, after the VSV intergenic region is duplicated. That places the Nipah gene after the filovirus glycoprotein and before L. No Nipah or Ebola glycoprotein sequence is stored.
 
-The neutralization and protection notes follow the abstract: high neutralizing titers, and complete homologous and heterologous protection. Both observations belong to the preclinical implementation.
+Animals were vaccinated intramuscularly with 10^7 PFU. Twenty-eight days later, half of each cohort received a lethal dose of homologous NiV Bangladesh or heterologous NiV Malaysia, 10^5 TCID50 intranasally and 10^5 TCID50 intratracheally. Every VSV-NiVG animal survived both challenges. The neutralization and protection notes belong to the preclinical implementation.
 
 Retrieved 21 September 2026.

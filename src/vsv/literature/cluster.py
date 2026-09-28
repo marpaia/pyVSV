@@ -15,8 +15,6 @@ from pathlib import Path
 
 import sbol3
 
-from vsv.corpus.models import Extraction, Paper
-from vsv.corpus.query import VECTOR_KINDS
 from vsv.design.architecture import Architecture, Replication
 from vsv.design.document import design_to_document
 from vsv.design.edits import Delete, Insert, Replace
@@ -37,6 +35,8 @@ from vsv.design.modules import Antigen, Leader, Module, Reporter, Trailer, Viral
 from vsv.errors import InputError
 from vsv.genes import Gene
 from vsv.ingest import redact
+from vsv.literature.query import VECTOR_KINDS
+from vsv.literature.records import Extraction, Paper
 
 _HOST_LEVEL = {
     Host.CELL_LINE: EvidenceLevel.IN_VITRO,

@@ -32,5 +32,10 @@ data/ingest/cursor.json
 # Open-access full text fetched for methods extraction. The corpus JSONL is tracked.
 data/corpus/fulltext/
 
+# Article files for the construction-paper census. The index and manifest are tracked.
+data/census/acquired/
+data/census/sections/
+data/census/drafts/
+
 # Vercel project linking at the repository root
 .vercel

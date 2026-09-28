@@ -1,5 +1,6 @@
 """Command-line behavior, run in process."""
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -9,7 +10,16 @@ import vsv.genome.sbol as sbol
 from tests.synthetic import SyntheticGenome, build_genome
 from vsv import AntigenClass, indiana, read_record
 from vsv.cli import main
-from vsv.design import Architecture, Design, Leader, Replication, Trailer, design_to_document
+from vsv.design import (
+    Architecture,
+    Design,
+    Leader,
+    Replication,
+    Trailer,
+    canonical_chassis,
+    design_to_document,
+)
+from vsv.design.modules import at_locus
 from vsv.genes import Gene
 from vsv.genome.formats import OUTPUT_FORMATS
 
@@ -227,13 +237,15 @@ def test_show_separates_lassa_implementations(capsys: pytest.CaptureFixture[str]
     assert "Zaire" not in out
 
 
-def test_show_records_the_nipah_locus_as_unknown(capsys: pytest.CaptureFixture[str]) -> None:
+def test_show_places_the_nipah_gene_after_the_glycoprotein(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     status, out, err = run(capsys, "show", "data/designs/rvsv_niv_g")
     assert (status, err) == (0, "")
     assert "parent       rvsv_dg_filovirus_gp" in out
-    assert not any(line.startswith("derivation") for line in out.splitlines())
-    assert "  unknown  niv_g    henipavirus-glycoprotein" in out
-    assert "locus unknown for niv_g" in out
+    assert "derivation   insert after g with niv_g, replication-competent" in out
+    assert "4      niv_g    henipavirus-glycoprotein" in out
+    assert "locus unknown" not in out
 
 
 def test_check_accepts_the_canonical_chassis(capsys: pytest.CaptureFixture[str]) -> None:
@@ -242,11 +254,23 @@ def test_check_accepts_the_canonical_chassis(capsys: pytest.CaptureFixture[str])
     assert out.strip() == "vsv_indiana: ok"
 
 
-def test_check_reports_a_knowledge_gap_without_failing(capsys: pytest.CaptureFixture[str]) -> None:
-    status, out, err = run(capsys, "check", "data/designs/rvsv_niv_g")
+def test_check_reports_a_knowledge_gap_without_failing(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    architecture = canonical_chassis(identifier="gapped", name="gapped")
+    modules = tuple(
+        at_locus(module, None) if module.id == "LargePolymerase" else module
+        for module in architecture.modules
+    )
+    design = tmp_path / "gapped"
+    design.mkdir()
+    document = design_to_document(Design(replace(architecture, modules=modules)))
+    (design / "design.ttl").write_text(document.write_string(sbol3.TURTLE), encoding="utf-8")
+    status, out, err = run(capsys, "check", str(design))
     assert (status, err) == (0, "")
     assert out.splitlines()[0].split()[0] == "gap"
     assert "locus-unknown" in out
+    assert "LargePolymerase" in out
 
 
 def test_check_fails_a_structural_violation(

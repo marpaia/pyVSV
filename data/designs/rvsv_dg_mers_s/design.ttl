@@ -1,0 +1,205 @@
+@prefix ns1: <https://vsv.bio/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_mers_s__liu_2018_monkey_neutralization_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization .
+
+ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal .
+
+ns1:rvsv_dg_mers_s a sbol:Component ;
+    sbol:displayId "rvsv_dg_mers_s" ;
+    sbol:hasAttachment ns1:rvsv_dg_mers_s_citation_1 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_dg_mers_s/Constraint1>,
+        <https://vsv.bio/rvsv_dg_mers_s/Constraint2>,
+        <https://vsv.bio/rvsv_dg_mers_s/Constraint3>,
+        <https://vsv.bio/rvsv_dg_mers_s/Constraint4>,
+        <https://vsv.bio/rvsv_dg_mers_s/Constraint5>,
+        <https://vsv.bio/rvsv_dg_mers_s/Constraint6> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_dg_mers_s/Glycoprotein>,
+        <https://vsv.bio/rvsv_dg_mers_s/LargePolymerase>,
+        <https://vsv.bio/rvsv_dg_mers_s/MatrixProtein>,
+        <https://vsv.bio/rvsv_dg_mers_s/Nucleoprotein>,
+        <https://vsv.bio/rvsv_dg_mers_s/Phosphoprotein>,
+        <https://vsv.bio/rvsv_dg_mers_s/leader>,
+        <https://vsv.bio/rvsv_dg_mers_s/trailer> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "rVSV MERS-CoV spike" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_dg_mers_s_derivation ;
+    ns1:alias "VSVΔG-MERS" .
+
+<https://vsv.bio/rvsv_dg_mers_s/Constraint1> a sbol:Constraint ;
+    sbol:displayId "Constraint1" ;
+    sbol:object <https://vsv.bio/rvsv_dg_mers_s/Nucleoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_mers_s/leader> .
+
+<https://vsv.bio/rvsv_dg_mers_s/Constraint2> a sbol:Constraint ;
+    sbol:displayId "Constraint2" ;
+    sbol:object <https://vsv.bio/rvsv_dg_mers_s/Phosphoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_mers_s/Nucleoprotein> .
+
+<https://vsv.bio/rvsv_dg_mers_s/Constraint3> a sbol:Constraint ;
+    sbol:displayId "Constraint3" ;
+    sbol:object <https://vsv.bio/rvsv_dg_mers_s/MatrixProtein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_mers_s/Phosphoprotein> .
+
+<https://vsv.bio/rvsv_dg_mers_s/Constraint4> a sbol:Constraint ;
+    sbol:displayId "Constraint4" ;
+    sbol:object <https://vsv.bio/rvsv_dg_mers_s/Glycoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_mers_s/MatrixProtein> .
+
+<https://vsv.bio/rvsv_dg_mers_s/Constraint5> a sbol:Constraint ;
+    sbol:displayId "Constraint5" ;
+    sbol:object <https://vsv.bio/rvsv_dg_mers_s/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_mers_s/Glycoprotein> .
+
+<https://vsv.bio/rvsv_dg_mers_s/Constraint6> a sbol:Constraint ;
+    sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_dg_mers_s/trailer> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_mers_s/LargePolymerase> .
+
+ns1:rvsv_dg_mers_s__liu_2018_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_mers_s__liu_2018_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.antiviral.2017.12.007> .
+
+ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "Single-dose immunization, either by the intramuscular or intranasal route, induced high-level and lasting MERS-CoV-specific neutralizing antibodies and T-cell responses in rhesus monkeys." ;
+    sbol:displayId "rvsv_dg_mers_s__liu_2018_monkey_neutralization" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "liu-2018-monkey-neutralization" ;
+    sbol:type <https://vsv.bio/assay/neutralization>,
+        <https://vsv.bio/host/nonhuman-primate>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_mers_s__liu_2018_monkey_neutralization/Usage1> ;
+    ns1:index 0 .
+
+<https://vsv.bio/rvsv_dg_mers_s__liu_2018_monkey_neutralization/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_mers_s__liu_2018 .
+
+ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_mers_s__liu_2018_monkey_neutralization_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.antiviral.2017.12.007> .
+
+ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "Single-dose immunization, either by the intramuscular or intranasal route, induced high-level and lasting MERS-CoV-specific neutralizing antibodies and T-cell responses in rhesus monkeys." ;
+    sbol:displayId "rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "liu-2018-monkey-neutralization-intranasal" ;
+    sbol:type <https://vsv.bio/assay/neutralization>,
+        <https://vsv.bio/host/nonhuman-primate>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intranasal> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal/Usage1> ;
+    ns1:index 1 .
+
+<https://vsv.bio/rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_mers_s__liu_2018 .
+
+ns1:rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_mers_s__liu_2018_monkey_neutralization_intranasal_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.antiviral.2017.12.007> .
+
+ns1:rvsv_dg_mers_s_citation_1 a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_mers_s_citation_1" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.antiviral.2017.12.007> .
+
+ns1:rvsv_dg_mers_s_derivation a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "target=Glycoprotein;module=Glycoprotein;replication=replication-competent" ;
+    sbol:displayId "rvsv_dg_mers_s_derivation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:type <https://vsv.bio/activity/replace-module> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_mers_s_derivation/parent> .
+
+<https://vsv.bio/rvsv_dg_mers_s_derivation/parent> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "parent" ;
+    prov:entity ns1:vsv_indiana .
+
+<https://vsv.bio/rvsv_dg_mers_s/leader> a sbol:LocalSubComponent ;
+    sbol:displayId "leader" ;
+    sbol:name "leader" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/leader> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_mers_s/trailer> a sbol:LocalSubComponent ;
+    sbol:displayId "trailer" ;
+    sbol:name "trailer" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/trailer> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+ns1:rvsv_dg_mers_s__liu_2018 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_mers_s ;
+    sbol:description "VSVΔG-MERS and VSVΔG-eGFP-MERS were constructed and rescued based on the established VSV Indiana strain reverse genetics system (Wang et al., 2006) in which the VSV G gene was replaced by MERS-CoV S gene (an eGFP gene was inserted between the M and S gene of VSVΔG-MERS to construct VSVΔG-eGFP-MERS) as shown in Fig. 1 A." ;
+    sbol:displayId "rvsv_dg_mers_s__liu_2018" ;
+    sbol:hasAttachment ns1:rvsv_dg_mers_s__liu_2018_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "liu-2018" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 0 .
+
+<https://vsv.bio/rvsv_dg_mers_s/Glycoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Glycoprotein" ;
+    sbol:name "MERS-CoV spike" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/merbecovirus-spike> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_mers_s/LargePolymerase> a sbol:LocalSubComponent ;
+    sbol:displayId "LargePolymerase" ;
+    sbol:name "LargePolymerase" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_mers_s/MatrixProtein> a sbol:LocalSubComponent ;
+    sbol:displayId "MatrixProtein" ;
+    sbol:name "MatrixProtein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_mers_s/Nucleoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Nucleoprotein" ;
+    sbol:name "Nucleoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_mers_s/Phosphoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Phosphoprotein" ;
+    sbol:name "Phosphoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+

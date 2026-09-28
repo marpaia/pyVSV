@@ -19,12 +19,12 @@ from vsv import (
     read_plasmid,
     read_record,
 )
-from vsv.corpus.extract import _REPORTER_SLUGS, _SLUGS
 from vsv.design.document import architecture_of
 from vsv.design.edits import Insert, Replace
 from vsv.errors import InputError
 from vsv.genome.payload import AntigenFeature
 from vsv.genome.sequence import Nucleotides
+from vsv.literature.extract import _REPORTER_SLUGS, _SLUGS
 
 _REPLACE = "https://doi.org/10.1128/jvi.78.10.5458-5465.2004"
 _AFTER_G = "https://doi.org/10.1128/jvi.71.8.5982-5989.1997"
@@ -32,21 +32,32 @@ _AFTER_LEADER = "https://doi.org/10.1128/jvi.00019-14"
 _REPLACEMENTS = (
     "rvsv_cchf_gpc",
     "rvsv_chikv_e",
+    "rvsv_dg_bombali_gp",
     "rvsv_dg_filovirus_gp",
     "rvsv_dg_hiv_env",
     "rvsv_dg_marv_gp",
+    "rvsv_dg_mers_s",
+    "rvsv_dg_niv_f",
+    "rvsv_dg_niv_g",
     "rvsv_dg_sars_cov_2_s",
+    "rvsv_dg_sars_s",
+    "rvsv_dg_sudv_gp",
     "rvsv_hantavirus_gp",
     "rvsv_lasv_gpc",
     "rvsv_rabies_g",
 )
 _AFTER_GLYCOPROTEIN = (
     "rvsv_gfp",
+    "rvsv_gl_hev_g",
+    "rvsv_gl_hiv_gag",
+    "rvsv_gl_niv_f",
+    "rvsv_gl_niv_g",
+    "rvsv_hiv_env",
     "rvsv_influenza_ha",
     "rvsv_rsv_f",
     "rvsv_zika_e",
 )
-_UNPOSITIONED = ("rvsv_hiv_env", "rvsv_niv_f", "rvsv_niv_g", "vsv_indiana")
+_UNPOSITIONED = ("vsv_indiana",)
 
 
 def _payload(synthetic: SyntheticGenome, fasta: Path) -> tuple[AntigenFeature, str]:
@@ -210,8 +221,7 @@ def test_precedents_follow_the_precedence_chain(
     assert filo.observations
     assert filo.check()
     nipah = next(item for item in library if item.id == "rvsv_niv_g")
-    assert not nipah.check()
-    assert nipah.check().violations
+    assert nipah.check()
 
 
 def test_replace_rejects_a_glycoprotein_that_is_already_an_antigen(
@@ -329,9 +339,9 @@ def test_precedents_can_require_an_antigen_class_and_a_phenotype(
         antigen_class=AntigenClass.filovirus_glycoprotein,
         phenotype=Phenotype.PROTECTION,
     )
-    assert tuple(item.id for item in matched) == ("rvsv_dg_filovirus_gp",)
+    assert tuple(item.id for item in matched) == ("rvsv_dg_filovirus_gp", "rvsv_dg_sudv_gp")
     sudan = replaced.precedents(library, antigen_class=AntigenClass.sudan_ebolavirus_glycoprotein)
-    assert sudan == []
+    assert tuple(item.id for item in sudan) == ("rvsv_dg_sudv_gp",)
 
 
 def test_plan_of_a_sequenced_genome_has_no_sequence(synthetic_fasta: Path) -> None:

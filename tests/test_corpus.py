@@ -6,16 +6,16 @@ from pathlib import Path
 import pytest
 
 from vsv.cli import main
-from vsv.corpus.audit import audit_messages, stratified_pmids
-from vsv.corpus.classify import Kind, classify
-from vsv.corpus.cluster import clusters_from, write_design
-from vsv.corpus.extract import describe
-from vsv.corpus.fetch import clean_text, europepmc_records, methods_text
-from vsv.corpus.models import Paper
-from vsv.corpus.pipeline import coverage_report, ingest_corpus
-from vsv.corpus.query import mentions
-from vsv.corpus.store import load_ledger, load_papers
 from vsv.design.library import load_design
+from vsv.literature.audit import audit_messages, stratified_pmids
+from vsv.literature.classify import Kind, classify
+from vsv.literature.cluster import clusters_from, write_design
+from vsv.literature.extract import describe
+from vsv.literature.fetch import clean_text, europepmc_records, methods_text
+from vsv.literature.papers import load_ledger, load_papers
+from vsv.literature.pipeline import coverage_report, ingest_corpus
+from vsv.literature.query import mentions
+from vsv.literature.records import Paper
 
 
 def paper(

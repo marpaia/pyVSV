@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass
 from enum import StrEnum
 
-from vsv.corpus.models import Paper
+from vsv.literature.records import Paper
 
 _RECOMBINANT = re.compile(
     r"\brvsv\b|"

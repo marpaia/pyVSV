@@ -8,6 +8,8 @@ Keep downloaded sequence files in `data/raw/` and derived intermediate files in 
 
 `data/corpus/` is the PubMed VSV corpus: `papers.jsonl`, `extractions.jsonl`, and `ledger.json` are tracked. `fulltext/` is a local cache and is gitignored. See `data/corpus/README.md`.
 
+`data/census/` is the construction-paper bibliography. `index.json` lists the PMIDs cited by the index reviews, and `manifest.jsonl` records each download. Article XML is written into `data/corpus/fulltext/`. HTML, PDF, and section files under `data/census/` are a local cache and are gitignored. See `data/census/README.md`.
+
 For each dataset, add a small, tracked provenance document beside this README. Record its source URL or accession with version, retrieval date, checksum, local filename, and any usage or attribution requirements. Record the commands and parameters used for derived data, together with the input identifiers and code revision.
 
 Small synthetic test fixtures belong in `tests/fixtures/` when needed. Large datasets and generated outputs should use external storage appropriate to the project; this scaffold does not configure storage or download data.

@@ -95,8 +95,11 @@ ns1:rvsv_cchf_gpc__srep_2019_mouse_protection a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/mouse>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intraperitoneal> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_cchf_gpc__srep_2019_mouse_protection/Usage1> ;
+    ns1:challenge-dose "50 pfu" ;
+    ns1:challenge-virus "CCHFV strain Turkey2004" ;
     ns1:index 0 .
 
 <https://vsv.bio/rvsv_cchf_gpc__srep_2019_mouse_protection/Usage1> a sbol:Identified,

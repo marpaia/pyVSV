@@ -15,6 +15,12 @@ ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_neutralization_data a sbol:Expe
     sbol:hasNamespace <https://vsv.bio> ;
     prov:wasGeneratedBy ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_neutralization .
 
+ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection .
+
 <https://vsv.bio/rvsv_dg_sars_cov_2_s/Constraint1> a sbol:Constraint ;
     sbol:displayId "Constraint1" ;
     sbol:object <https://vsv.bio/rvsv_dg_sars_cov_2_s/Nucleoprotein> ;
@@ -75,7 +81,8 @@ ns1:rvsv_dg_sars_cov_2_s__brilife_2022_human_neutralization a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/neutralization>,
         <https://vsv.bio/host/human>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/immunogenicity> ;
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_dg_sars_cov_2_s__brilife_2022_human_neutralization/Usage1> ;
     ns1:index 1 .
 
@@ -88,16 +95,6 @@ ns1:rvsv_dg_sars_cov_2_s__brilife_2022_human_neutralization_citation a sbol:Atta
     sbol:displayId "rvsv_dg_sars_cov_2_s__brilife_2022_human_neutralization_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.3390/vaccines10020291> .
-
-ns1:rvsv_dg_sars_cov_2_s__natcommun_2020 a sbol:Implementation ;
-    sbol:built ns1:rvsv_dg_sars_cov_2_s ;
-    sbol:description "Replication-competent rVSV in which the VSV glycoprotein is replaced by the SARS-CoV-2 spike. A single dose induced neutralizing antibodies in golden Syrian hamsters." ;
-    sbol:displayId "rvsv_dg_sars_cov_2_s__natcommun_2020" ;
-    sbol:hasAttachment ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_citation ;
-    sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "natcommun-2020" ;
-    sbol:role <https://vsv.bio/stage/preclinical> ;
-    ns1:index 0 .
 
 ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_citation a sbol:Attachment ;
     sbol:displayId "rvsv_dg_sars_cov_2_s__natcommun_2020_citation" ;
@@ -113,7 +110,8 @@ ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_neutralization a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/neutralization>,
         <https://vsv.bio/host/hamster>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/immunogenicity> ;
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_neutralization/Usage1> ;
     ns1:index 0 .
 
@@ -124,6 +122,33 @@ ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_neutralization a sbol:TopLevel,
 
 ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_neutralization_citation a sbol:Attachment ;
     sbol:displayId "rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_neutralization_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1038/s41467-020-20228-7> .
+
+ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "vaccinated hamsters were challenged by i.n. instillation with 5 × 106 pfu of SARS-CoV-2 per animal" ;
+    sbol:displayId "rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "natcommun-2020-hamster-protection" ;
+    sbol:type <https://vsv.bio/assay/lethal-challenge>,
+        <https://vsv.bio/host/hamster>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection/Usage1> ;
+    ns1:challenge-dose "5 × 106 pfu" ;
+    ns1:challenge-route "intranasal" ;
+    ns1:challenge-virus "SARS-CoV-2" ;
+    ns1:index 2 .
+
+<https://vsv.bio/rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_sars_cov_2_s__natcommun_2020 .
+
+ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_sars_cov_2_s__natcommun_2020_hamster_protection_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1038/s41467-020-20228-7> .
 
@@ -191,6 +216,16 @@ ns1:rvsv_dg_sars_cov_2_s a sbol:Component ;
     sbol:role <https://identifiers.org/SO:0000001>,
         <https://vsv.bio/role/trailer> ;
     sbol:type <https://identifiers.org/SBO:0000251> .
+
+ns1:rvsv_dg_sars_cov_2_s__natcommun_2020 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_sars_cov_2_s ;
+    sbol:description "Replication-competent rVSV in which the VSV glycoprotein is replaced by the SARS-CoV-2 spike. A single dose induced neutralizing antibodies in golden Syrian hamsters." ;
+    sbol:displayId "rvsv_dg_sars_cov_2_s__natcommun_2020" ;
+    sbol:hasAttachment ns1:rvsv_dg_sars_cov_2_s__natcommun_2020_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "natcommun-2020" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 0 .
 
 <https://vsv.bio/rvsv_dg_sars_cov_2_s/Glycoprotein> a sbol:LocalSubComponent ;
     sbol:displayId "Glycoprotein" ;

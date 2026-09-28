@@ -1,0 +1,198 @@
+@prefix ns1: <https://vsv.bio/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:rvsv_dg_sudv_gp__geisbert_2008_postexposure_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_sudv_gp__geisbert_2008_postexposure_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_sudv_gp__geisbert_2008_postexposure_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_dg_sudv_gp__geisbert_2008_postexposure .
+
+ns1:rvsv_dg_sudv_gp__geisbert_2009 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_sudv_gp ;
+    sbol:description "The recombinant VSVs expressing the glycoprotein (GP) of ZEBOV (strain Mayinga) (VSVΔG/ZEBOVGP), the GP of SEBOV (strain Boniface) (VSVΔG/SEBOVGP), or the GP of MARV (strain Musoke) (VSVΔG/MARVGP) were generated using the infectious clone for the VSV Indiana serotype, as described recently (11, 15)." ;
+    sbol:displayId "rvsv_dg_sudv_gp__geisbert_2009" ;
+    sbol:hasAttachment ns1:rvsv_dg_sudv_gp__geisbert_2009_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "geisbert-2009" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 1 .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Constraint1> a sbol:Constraint ;
+    sbol:displayId "Constraint1" ;
+    sbol:object <https://vsv.bio/rvsv_dg_sudv_gp/Nucleoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_sudv_gp/leader> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Constraint2> a sbol:Constraint ;
+    sbol:displayId "Constraint2" ;
+    sbol:object <https://vsv.bio/rvsv_dg_sudv_gp/Phosphoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_sudv_gp/Nucleoprotein> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Constraint3> a sbol:Constraint ;
+    sbol:displayId "Constraint3" ;
+    sbol:object <https://vsv.bio/rvsv_dg_sudv_gp/MatrixProtein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_sudv_gp/Phosphoprotein> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Constraint4> a sbol:Constraint ;
+    sbol:displayId "Constraint4" ;
+    sbol:object <https://vsv.bio/rvsv_dg_sudv_gp/Glycoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_sudv_gp/MatrixProtein> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Constraint5> a sbol:Constraint ;
+    sbol:displayId "Constraint5" ;
+    sbol:object <https://vsv.bio/rvsv_dg_sudv_gp/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_sudv_gp/Glycoprotein> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Constraint6> a sbol:Constraint ;
+    sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_dg_sudv_gp/trailer> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_sudv_gp/LargePolymerase> .
+
+ns1:rvsv_dg_sudv_gp__geisbert_2008 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_sudv_gp ;
+    sbol:description "Here, we administered a VSV vector expressing the Sudan ebolavirus (SEBOV) glycoprotein to four rhesus macaques shortly after exposure to SEBOV." ;
+    sbol:displayId "rvsv_dg_sudv_gp__geisbert_2008" ;
+    sbol:hasAttachment ns1:rvsv_dg_sudv_gp__geisbert_2008_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "geisbert-2008" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 0 .
+
+ns1:rvsv_dg_sudv_gp__geisbert_2008_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_sudv_gp__geisbert_2008_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00456-08> .
+
+ns1:rvsv_dg_sudv_gp__geisbert_2008_postexposure a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "All four animals survived SEBOV challenge, while a control animal that received a nonspecific vector developed fulminant SEBOV hemorrhagic fever and succumbed." ;
+    sbol:displayId "rvsv_dg_sudv_gp__geisbert_2008_postexposure" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "geisbert-2008-postexposure" ;
+    sbol:type <https://vsv.bio/assay/lethal-challenge>,
+        <https://vsv.bio/host/nonhuman-primate>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_sudv_gp__geisbert_2008_postexposure/Usage1> ;
+    ns1:challenge-dose "1,000 PFU" ;
+    ns1:challenge-route "intramuscular" ;
+    ns1:challenge-virus "SEBOV" ;
+    ns1:index 0 .
+
+<https://vsv.bio/rvsv_dg_sudv_gp__geisbert_2008_postexposure/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_sudv_gp__geisbert_2008 .
+
+ns1:rvsv_dg_sudv_gp__geisbert_2008_postexposure_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_sudv_gp__geisbert_2008_postexposure_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00456-08> .
+
+ns1:rvsv_dg_sudv_gp__geisbert_2009_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_sudv_gp__geisbert_2009_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00561-09> .
+
+ns1:rvsv_dg_sudv_gp_citation_1 a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_sudv_gp_citation_1" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00561-09> .
+
+ns1:rvsv_dg_sudv_gp_citation_2 a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_sudv_gp_citation_2" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.00456-08> .
+
+ns1:rvsv_dg_sudv_gp_derivation a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "target=Glycoprotein;module=Glycoprotein;replication=replication-competent" ;
+    sbol:displayId "rvsv_dg_sudv_gp_derivation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:type <https://vsv.bio/activity/replace-module> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_sudv_gp_derivation/parent> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp_derivation/parent> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "parent" ;
+    prov:entity ns1:vsv_indiana .
+
+ns1:rvsv_dg_sudv_gp a sbol:Component ;
+    sbol:displayId "rvsv_dg_sudv_gp" ;
+    sbol:hasAttachment ns1:rvsv_dg_sudv_gp_citation_1,
+        ns1:rvsv_dg_sudv_gp_citation_2 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_dg_sudv_gp/Constraint1>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/Constraint2>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/Constraint3>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/Constraint4>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/Constraint5>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/Constraint6> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_dg_sudv_gp/Glycoprotein>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/LargePolymerase>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/MatrixProtein>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/Nucleoprotein>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/Phosphoprotein>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/leader>,
+        <https://vsv.bio/rvsv_dg_sudv_gp/trailer> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "rVSV Sudan ebolavirus glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_dg_sudv_gp_derivation ;
+    ns1:alias "VSVΔG/SEBOVGP" .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/leader> a sbol:LocalSubComponent ;
+    sbol:displayId "leader" ;
+    sbol:name "leader" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/leader> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/trailer> a sbol:LocalSubComponent ;
+    sbol:displayId "trailer" ;
+    sbol:name "trailer" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/trailer> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Glycoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Glycoprotein" ;
+    sbol:name "Sudan ebolavirus glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/sudan-ebolavirus-glycoprotein> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/LargePolymerase> a sbol:LocalSubComponent ;
+    sbol:displayId "LargePolymerase" ;
+    sbol:name "LargePolymerase" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/MatrixProtein> a sbol:LocalSubComponent ;
+    sbol:displayId "MatrixProtein" ;
+    sbol:name "MatrixProtein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Nucleoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Nucleoprotein" ;
+    sbol:name "Nucleoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_sudv_gp/Phosphoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Phosphoprotein" ;
+    sbol:name "Phosphoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+

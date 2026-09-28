@@ -14,6 +14,7 @@
 @prefix host: <https://vsv.bio/host/> .
 @prefix assay: <https://vsv.bio/assay/> .
 @prefix outcome: <https://vsv.bio/outcome/> .
+@prefix route: <https://vsv.bio/route/> .
 
 # Sequence feature classes are the Sequence Ontology. Design files write the same terms as
 # https://identifiers.org/SO:{id}. This ontology does not redefine them.
@@ -66,6 +67,10 @@
 :Outcome a owl:Class ;
     rdfs:label "outcome" ;
     rdfs:comment "Whether the cited paper reports the phenotype, does not report it, or reports harm." .
+
+:Route a owl:Class ;
+    rdfs:label "route" ;
+    rdfs:comment "The immunization route named by an observation, when a paper states one." .
 
 # Replication. A plan carries one of these roles when the source states it.
 
@@ -184,6 +189,14 @@ antigen:taiforest-ebolavirus-glycoprotein a owl:Class ;
     rdfs:label "Taï Forest ebolavirus glycoprotein" ;
     rdfs:subClassOf antigen:filovirus-glycoprotein .
 
+antigen:bombali-ebolavirus-glycoprotein a owl:Class ;
+    rdfs:label "Bombali ebolavirus glycoprotein" ;
+    rdfs:subClassOf antigen:filovirus-glycoprotein .
+
+antigen:hiv-gag a owl:Class ;
+    rdfs:label "HIV Gag" ;
+    rdfs:subClassOf :AntigenClass .
+
 antigen:marburgvirus-glycoprotein a owl:Class ;
     rdfs:label "Marburg virus glycoprotein" ;
     rdfs:subClassOf :AntigenClass .
@@ -202,6 +215,10 @@ antigen:henipavirus-glycoprotein a owl:Class ;
 
 antigen:sarbecovirus-spike a owl:Class ;
     rdfs:label "sarbecovirus spike" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:merbecovirus-spike a owl:Class ;
+    rdfs:label "merbecovirus spike" ;
     rdfs:subClassOf :AntigenClass .
 
 antigen:influenza-hemagglutinin a owl:Class ;
@@ -289,6 +306,42 @@ host:human a owl:Class ;
 host:other a owl:Class ;
     rdfs:label "other host" ;
     rdfs:subClassOf :HostContext .
+
+route:unknown a owl:Class ;
+    rdfs:label "unknown route" ;
+    rdfs:subClassOf :Route .
+
+route:intramuscular a owl:Class ;
+    rdfs:label "intramuscular" ;
+    rdfs:subClassOf :Route .
+
+route:intravenous a owl:Class ;
+    rdfs:label "intravenous" ;
+    rdfs:subClassOf :Route .
+
+route:intranasal a owl:Class ;
+    rdfs:label "intranasal" ;
+    rdfs:subClassOf :Route .
+
+route:oral a owl:Class ;
+    rdfs:label "oral" ;
+    rdfs:subClassOf :Route .
+
+route:intraperitoneal a owl:Class ;
+    rdfs:label "intraperitoneal" ;
+    rdfs:subClassOf :Route .
+
+route:subcutaneous a owl:Class ;
+    rdfs:label "subcutaneous" ;
+    rdfs:subClassOf :Route .
+
+route:intradermal a owl:Class ;
+    rdfs:label "intradermal" ;
+    rdfs:subClassOf :Route .
+
+route:other a owl:Class ;
+    rdfs:label "other route" ;
+    rdfs:subClassOf :Route .
 
 assay:lethal-challenge a owl:Class ;
     rdfs:label "lethal challenge" ;

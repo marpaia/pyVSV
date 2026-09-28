@@ -22,9 +22,9 @@ try:
 except ImportError:  # a system trust store is enough when certifi is not installed
     certifi = None  # type: ignore[assignment]
 
-from vsv.corpus.query import EUROPEPMC_FULLTEXT, EUROPEPMC_SEARCH, PUBMED_SEARCH
 from vsv.errors import InputError
 from vsv.ingest import redact
+from vsv.literature.query import EUROPEPMC_FULLTEXT, EUROPEPMC_SEARCH, PUBMED_SEARCH
 
 Fetch = Callable[[str, bytes | None], dict[str, object]]
 FetchText = Callable[[str], str]

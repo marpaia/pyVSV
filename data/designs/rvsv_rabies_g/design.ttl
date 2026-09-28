@@ -9,6 +9,18 @@ ns1:rvsv_rabies_g__ymthe_2025_dog_neutralization_data a sbol:ExperimentalData ;
     sbol:hasNamespace <https://vsv.bio> ;
     prov:wasGeneratedBy ns1:rvsv_rabies_g__ymthe_2025_dog_neutralization .
 
+ns1:rvsv_rabies_g__ymthe_2025_mouse_intramuscular_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_rabies_g__ymthe_2025_mouse_intramuscular_data" ;
+    sbol:hasAttachment ns1:rvsv_rabies_g__ymthe_2025_mouse_intramuscular_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_rabies_g__ymthe_2025_mouse_intramuscular .
+
+ns1:rvsv_rabies_g__ymthe_2025_mouse_intranasal_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_rabies_g__ymthe_2025_mouse_intranasal_data" ;
+    sbol:hasAttachment ns1:rvsv_rabies_g__ymthe_2025_mouse_intranasal_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_rabies_g__ymthe_2025_mouse_intranasal .
+
 ns1:rvsv_rabies_g__ymthe_2025_mouse_protection_data a sbol:ExperimentalData ;
     sbol:displayId "rvsv_rabies_g__ymthe_2025_mouse_protection_data" ;
     sbol:hasAttachment ns1:rvsv_rabies_g__ymthe_2025_mouse_protection_citation ;
@@ -92,7 +104,7 @@ ns1:rvsv_rabies_g__ymthe_2025_dog_neutralization a sbol:TopLevel,
         <https://vsv.bio/outcome/reported>,
         <https://vsv.bio/phenotype/immunogenicity> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_rabies_g__ymthe_2025_dog_neutralization/Usage1> ;
-    ns1:index 1 .
+    ns1:index 3 .
 
 <https://vsv.bio/rvsv_rabies_g__ymthe_2025_dog_neutralization/Usage1> a sbol:Identified,
         prov:Usage ;
@@ -104,17 +116,75 @@ ns1:rvsv_rabies_g__ymthe_2025_dog_neutralization_citation a sbol:Attachment ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1016/j.ymthe.2025.02.038> .
 
+ns1:rvsv_rabies_g__ymthe_2025_mouse_intramuscular a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "in the OR, IM, and IN immunization groups, rVSVΔG-ERA G conferred a protective effect of 100%, 83.3%, and 66.7%, respectively." ;
+    sbol:displayId "rvsv_rabies_g__ymthe_2025_mouse_intramuscular" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "ymthe-2025-mouse-intramuscular" ;
+    sbol:type <https://vsv.bio/assay/lethal-challenge>,
+        <https://vsv.bio/host/mouse>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_rabies_g__ymthe_2025_mouse_intramuscular/Usage1> ;
+    ns1:challenge-dose "100 LD50" ;
+    ns1:challenge-route "intracranial" ;
+    ns1:challenge-virus "RABV-CVS24" ;
+    ns1:index 1 .
+
+<https://vsv.bio/rvsv_rabies_g__ymthe_2025_mouse_intramuscular/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_rabies_g__ymthe_2025 .
+
+ns1:rvsv_rabies_g__ymthe_2025_mouse_intramuscular_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_rabies_g__ymthe_2025_mouse_intramuscular_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.ymthe.2025.02.038> .
+
+ns1:rvsv_rabies_g__ymthe_2025_mouse_intranasal a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "in the OR, IM, and IN immunization groups, rVSVΔG-ERA G conferred a protective effect of 100%, 83.3%, and 66.7%, respectively." ;
+    sbol:displayId "rvsv_rabies_g__ymthe_2025_mouse_intranasal" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "ymthe-2025-mouse-intranasal" ;
+    sbol:type <https://vsv.bio/assay/lethal-challenge>,
+        <https://vsv.bio/host/mouse>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intranasal> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_rabies_g__ymthe_2025_mouse_intranasal/Usage1> ;
+    ns1:challenge-dose "100 LD50" ;
+    ns1:challenge-route "intracranial" ;
+    ns1:challenge-virus "RABV-CVS24" ;
+    ns1:index 2 .
+
+<https://vsv.bio/rvsv_rabies_g__ymthe_2025_mouse_intranasal/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_rabies_g__ymthe_2025 .
+
+ns1:rvsv_rabies_g__ymthe_2025_mouse_intranasal_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_rabies_g__ymthe_2025_mouse_intranasal_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.ymthe.2025.02.038> .
+
 ns1:rvsv_rabies_g__ymthe_2025_mouse_protection a sbol:TopLevel,
         prov:Activity ;
-    sbol:description "Oral rVSVΔG-ERA-G protected 100% of mice challenged intracranially with 100 LD50 of rabies virus CVS-24." ;
+    sbol:description "in the OR, IM, and IN immunization groups, rVSVΔG-ERA G conferred a protective effect of 100%, 83.3%, and 66.7%, respectively." ;
     sbol:displayId "rvsv_rabies_g__ymthe_2025_mouse_protection" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:name "ymthe-2025-mouse-protection" ;
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/mouse>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/oral> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_rabies_g__ymthe_2025_mouse_protection/Usage1> ;
+    ns1:challenge-dose "100 LD50" ;
+    ns1:challenge-route "intracranial" ;
+    ns1:challenge-virus "RABV-CVS24" ;
     ns1:index 0 .
 
 <https://vsv.bio/rvsv_rabies_g__ymthe_2025_mouse_protection/Usage1> a sbol:Identified,
@@ -159,16 +229,6 @@ ns1:rvsv_rabies_g_derivation a sbol:TopLevel,
         <https://vsv.bio/role/trailer> ;
     sbol:type <https://identifiers.org/SBO:0000251> .
 
-ns1:rvsv_rabies_g__ymthe_2025 a sbol:Implementation ;
-    sbol:built ns1:rvsv_rabies_g ;
-    sbol:description "The VSV Indiana glycoprotein coding sequence is replaced by rabies ERA G. Oral vaccination protected 100% of mice from a 100 LD50 intracranial rabies challenge. Dogs, cats, foxes, and raccoon dogs developed neutralizing antibody." ;
-    sbol:displayId "rvsv_rabies_g__ymthe_2025" ;
-    sbol:hasAttachment ns1:rvsv_rabies_g__ymthe_2025_citation ;
-    sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "ymthe-2025" ;
-    sbol:role <https://vsv.bio/stage/preclinical> ;
-    ns1:index 0 .
-
 <https://vsv.bio/rvsv_rabies_g/Glycoprotein> a sbol:LocalSubComponent ;
     sbol:displayId "Glycoprotein" ;
     sbol:name "rabies glycoprotein" ;
@@ -199,4 +259,14 @@ ns1:rvsv_rabies_g__ymthe_2025 a sbol:Implementation ;
     sbol:name "Phosphoprotein" ;
     sbol:role <https://identifiers.org/SO:0000704> ;
     sbol:type <https://identifiers.org/SBO:0000251> .
+
+ns1:rvsv_rabies_g__ymthe_2025 a sbol:Implementation ;
+    sbol:built ns1:rvsv_rabies_g ;
+    sbol:description "The VSV Indiana glycoprotein coding sequence is replaced by rabies ERA G. Oral vaccination protected 100% of mice from a 100 LD50 intracranial rabies challenge. Dogs, cats, foxes, and raccoon dogs developed neutralizing antibody." ;
+    sbol:displayId "rvsv_rabies_g__ymthe_2025" ;
+    sbol:hasAttachment ns1:rvsv_rabies_g__ymthe_2025_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "ymthe-2025" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 0 .
 

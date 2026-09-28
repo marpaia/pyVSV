@@ -5,10 +5,10 @@ from pathlib import Path
 import rdflib
 from rdflib import OWL, RDF, RDFS, URIRef
 
-from vsv.corpus.extract import _REPORTER_SLUGS, _SLUGS
-from vsv.design.evidence import Assay, Host, Outcome, Phenotype, Stage
+from vsv.design.evidence import Assay, Host, Outcome, Phenotype, Route, Stage
 from vsv.design.query import antigen_matches
 from vsv.genes import Gene
+from vsv.literature.extract import _REPORTER_SLUGS, _SLUGS
 
 _ROOT = Path(__file__).resolve().parents[1]
 _ONTOLOGY = _ROOT / "ontology" / "synthetic-virology.ttl"
@@ -39,13 +39,14 @@ def test_antigen_classes_and_evidence_labels_are_classes() -> None:
     slugs = {slug for _pattern, slug, _name in _SLUGS if slug not in _REPORTER_SLUGS}
     for slug in slugs:
         assert _is_class(graph, f"{_NS}antigen-class/{slug}"), slug
-    for value in (*Host, *Phenotype, *Assay, *Outcome, *Stage):
+    for value in (*Host, *Phenotype, *Assay, *Outcome, *Stage, *Route):
         prefix = {
             Host: "host",
             Phenotype: "phenotype",
             Assay: "assay",
             Outcome: "outcome",
             Stage: "stage",
+            Route: "route",
         }[type(value)]
         assert _is_class(graph, f"{_NS}{prefix}/{value.value}")
     for gene in Gene:

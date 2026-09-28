@@ -5,7 +5,7 @@
 
 ns1:rvsv_luc__jvi_2014 a sbol:Implementation ;
     sbol:built ns1:rvsv_luc ;
-    sbol:description "rVSV-Luc carries firefly luciferase at the gene junction between the leader and the nucleoprotein gene. VSV G remains." ;
+    sbol:description "rVSV-Luc contains the firefly luciferase (Luc) gene at the VSV gene junction between the leader sequence and the N gene." ;
     sbol:displayId "rvsv_luc__jvi_2014" ;
     sbol:hasAttachment ns1:rvsv_luc__jvi_2014_citation ;
     sbol:hasNamespace <https://vsv.bio> ;

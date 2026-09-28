@@ -26,6 +26,7 @@ from vsv.design.evidence import (
     Observation,
     Outcome,
     Phenotype,
+    Route,
     Stage,
     Unmodeled,
 )
@@ -72,6 +73,10 @@ _PHENOTYPE = f"{NAMESPACE}/phenotype"
 _HOST = f"{NAMESPACE}/host"
 _ASSAY = f"{NAMESPACE}/assay"
 _OUTCOME = f"{NAMESPACE}/outcome"
+_ROUTE = f"{NAMESPACE}/route"
+_CHALLENGE_VIRUS = f"{NAMESPACE}/challenge-virus"
+_CHALLENGE_ROUTE = f"{NAMESPACE}/challenge-route"
+_CHALLENGE_DOSE = f"{NAMESPACE}/challenge-dose"
 _ACCESSION = f"{NAMESPACE}/accession"
 _ALIAS = f"{NAMESPACE}/alias"
 _UNMODELED_VALUE = f"{NAMESPACE}/unmodeled/value/"
@@ -493,6 +498,20 @@ def _attachment_sources(document: sbol3.Document, owner: sbol3.TopLevel) -> tupl
     return tuple(sources)
 
 
+def _optional_suffix(values: list[str], namespace: str, default: str) -> str:
+    matched = [value[len(namespace) + 1 :] for value in values if value.startswith(f"{namespace}/")]
+    if len(matched) > 1:
+        raise InputError(f"Expected at most one {namespace}.")
+    return matched[0] if matched else default
+
+
+def _text_value(obj: sbol3.SBOLObject, predicate: str) -> str:
+    values = _values(obj, predicate)
+    if len(values) > 1:
+        raise InputError(f"{obj.display_id}: expected one {predicate}.")
+    return values[0] if values else ""
+
+
 def _suffixed(values: list[str], namespace: str, label: str) -> str:
     matched = [value[len(namespace) + 1 :] for value in values if value.startswith(f"{namespace}/")]
     if len(matched) != 1:
@@ -631,11 +650,28 @@ def _write_observation(
             f"{_HOST}/{observation.host.value}",
             f"{_ASSAY}/{observation.assay.value}",
             f"{_OUTCOME}/{observation.outcome.value}",
+            *(
+                [f"{_ROUTE}/{observation.route.value}"]
+                if observation.route is not Route.UNKNOWN
+                else []
+            ),
         ],
         name=observation.id,
         description=observation.note or None,
         usage=[sbol3.Usage(implementation.identity)],
     )
+    if observation.challenge_virus:
+        sbol3.TextProperty(
+            activity, _CHALLENGE_VIRUS, 1, 1, initial_value=observation.challenge_virus
+        )
+    if observation.challenge_route:
+        sbol3.TextProperty(
+            activity, _CHALLENGE_ROUTE, 1, 1, initial_value=observation.challenge_route
+        )
+    if observation.challenge_dose:
+        sbol3.TextProperty(
+            activity, _CHALLENGE_DOSE, 1, 1, initial_value=observation.challenge_dose
+        )
     _set_index(activity, index)
     document.add(activity)
     data = sbol3.ExperimentalData(f"{architecture_id}__{local}_data", generated_by=[activity])
@@ -687,6 +723,10 @@ def _observations(
                     Outcome(_suffixed(terms, _OUTCOME, "outcome")),
                     citations[0],
                     str(activity.description or ""),
+                    Route(_optional_suffix(terms, _ROUTE, Route.UNKNOWN.value)),
+                    _text_value(activity, _CHALLENGE_VIRUS),
+                    _text_value(activity, _CHALLENGE_ROUTE),
+                    _text_value(activity, _CHALLENGE_DOSE),
                 ),
             )
         )

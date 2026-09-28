@@ -9,15 +9,23 @@ ns1:rvsv_dg_filovirus_gp__garbutt_2004_mouse_protection_data a sbol:Experimental
     sbol:hasNamespace <https://vsv.bio> ;
     prov:wasGeneratedBy ns1:rvsv_dg_filovirus_gp__garbutt_2004_mouse_protection .
 
-ns1:rvsv_dg_filovirus_gp__nejm_2017 a sbol:Implementation ;
-    sbol:built ns1:rvsv_dg_filovirus_gp ;
-    sbol:description "Two phase 1 trials of an attenuated, replication-competent rVSV vaccine expressing the glycoprotein of a Zaire strain of Ebola virus." ;
-    sbol:displayId "rvsv_dg_filovirus_gp__nejm_2017" ;
-    sbol:hasAttachment ns1:rvsv_dg_filovirus_gp__nejm_2017_citation ;
+ns1:rvsv_dg_filovirus_gp__huttner_2016_antibody_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_filovirus_gp__huttner_2016_antibody_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_filovirus_gp__huttner_2016_antibody_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "nejm-2017" ;
-    sbol:role <https://vsv.bio/stage/clinical> ;
-    ns1:index 2 .
+    prov:wasGeneratedBy ns1:rvsv_dg_filovirus_gp__huttner_2016_antibody .
+
+ns1:rvsv_dg_filovirus_gp__huttner_2016_reactogenicity_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_filovirus_gp__huttner_2016_reactogenicity_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_filovirus_gp__huttner_2016_reactogenicity_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_dg_filovirus_gp__huttner_2016_reactogenicity .
+
+ns1:rvsv_dg_filovirus_gp__nejm_2017_adverse_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_filovirus_gp__nejm_2017_adverse_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_filovirus_gp__nejm_2017_adverse_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    prov:wasGeneratedBy ns1:rvsv_dg_filovirus_gp__nejm_2017_adverse .
 
 ns1:rvsv_dg_filovirus_gp__nm_2005_nhp_protection_data a sbol:ExperimentalData ;
     sbol:displayId "rvsv_dg_filovirus_gp__nm_2005_nhp_protection_data" ;
@@ -87,6 +95,9 @@ ns1:rvsv_dg_filovirus_gp__garbutt_2004_mouse_protection a sbol:TopLevel,
         <https://vsv.bio/outcome/reported>,
         <https://vsv.bio/phenotype/protection> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_dg_filovirus_gp__garbutt_2004_mouse_protection/Usage1> ;
+    ns1:challenge-dose "1,000 LD50" ;
+    ns1:challenge-route "intraperitoneal" ;
+    ns1:challenge-virus "mouse-adapted Zaire Ebola virus" ;
     ns1:index 0 .
 
 <https://vsv.bio/rvsv_dg_filovirus_gp__garbutt_2004_mouse_protection/Usage1> a sbol:Identified,
@@ -98,6 +109,92 @@ ns1:rvsv_dg_filovirus_gp__garbutt_2004_mouse_protection_citation a sbol:Attachme
     sbol:displayId "rvsv_dg_filovirus_gp__garbutt_2004_mouse_protection_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1128/jvi.78.10.5458-5465.2004> .
+
+ns1:rvsv_dg_filovirus_gp__huttner_2016_antibody a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "Although seropositivity rates remained similarly high (48 [94%] of 51), day-28 EBOV-glycoprotein-binding and neutralising antibody titres were lower in low-dose versus high-dose vaccinees." ;
+    sbol:displayId "rvsv_dg_filovirus_gp__huttner_2016_antibody" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "huttner-2016-antibody" ;
+    sbol:type <https://vsv.bio/assay/neutralization>,
+        <https://vsv.bio/host/human>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_filovirus_gp__huttner_2016_antibody/Usage1> ;
+    ns1:index 3 .
+
+<https://vsv.bio/rvsv_dg_filovirus_gp__huttner_2016_antibody/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_filovirus_gp__huttner_2016 .
+
+ns1:rvsv_dg_filovirus_gp__huttner_2016_antibody_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_filovirus_gp__huttner_2016_antibody_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/s1473-3099(15)00154-1> .
+
+ns1:rvsv_dg_filovirus_gp__huttner_2016_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_filovirus_gp__huttner_2016_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/s1473-3099(15)00154-1> .
+
+ns1:rvsv_dg_filovirus_gp__huttner_2016_reactogenicity a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "At 3 × 105 pfu, early-onset reactogenicity remained frequent (45 [88%] of 51 compared with 50 [98%] of 51 high dose and two [15%] of 13 placebo recipients), but mild." ;
+    sbol:displayId "rvsv_dg_filovirus_gp__huttner_2016_reactogenicity" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "huttner-2016-reactogenicity" ;
+    sbol:type <https://vsv.bio/assay/reactogenicity>,
+        <https://vsv.bio/host/human>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/safety>,
+        <https://vsv.bio/route/intramuscular> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_filovirus_gp__huttner_2016_reactogenicity/Usage1> ;
+    ns1:index 2 .
+
+<https://vsv.bio/rvsv_dg_filovirus_gp__huttner_2016_reactogenicity/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_filovirus_gp__huttner_2016 .
+
+ns1:rvsv_dg_filovirus_gp__huttner_2016_reactogenicity_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_filovirus_gp__huttner_2016_reactogenicity_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/s1473-3099(15)00154-1> .
+
+ns1:rvsv_dg_filovirus_gp__nejm_2017 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_filovirus_gp ;
+    sbol:description "Two phase 1 trials of an attenuated, replication-competent rVSV vaccine expressing the glycoprotein of a Zaire strain of Ebola virus." ;
+    sbol:displayId "rvsv_dg_filovirus_gp__nejm_2017" ;
+    sbol:hasAttachment ns1:rvsv_dg_filovirus_gp__nejm_2017_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "nejm-2017" ;
+    sbol:role <https://vsv.bio/stage/clinical> ;
+    ns1:index 2 .
+
+ns1:rvsv_dg_filovirus_gp__nejm_2017_adverse a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "The most common adverse events were injection-site pain, fatigue, myalgia, and headache." ;
+    sbol:displayId "rvsv_dg_filovirus_gp__nejm_2017_adverse" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "nejm-2017-adverse" ;
+    sbol:type <https://vsv.bio/assay/reactogenicity>,
+        <https://vsv.bio/host/human>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/safety> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_filovirus_gp__nejm_2017_adverse/Usage1> ;
+    ns1:index 4 .
+
+<https://vsv.bio/rvsv_dg_filovirus_gp__nejm_2017_adverse/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_filovirus_gp__nejm_2017 .
+
+ns1:rvsv_dg_filovirus_gp__nejm_2017_adverse_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_filovirus_gp__nejm_2017_adverse_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1056/nejmoa1414216> .
 
 ns1:rvsv_dg_filovirus_gp__nejm_2017_citation a sbol:Attachment ;
     sbol:displayId "rvsv_dg_filovirus_gp__nejm_2017_citation" ;
@@ -128,8 +225,10 @@ ns1:rvsv_dg_filovirus_gp__nm_2005_nhp_protection a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/nonhuman-primate>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_dg_filovirus_gp__nm_2005_nhp_protection/Usage1> ;
+    ns1:challenge-virus "EBOV" ;
     ns1:index 1 .
 
 <https://vsv.bio/rvsv_dg_filovirus_gp__nm_2005_nhp_protection/Usage1> a sbol:Identified,
@@ -184,37 +283,15 @@ ns1:rvsv_dg_filovirus_gp_derivation a sbol:TopLevel,
         <https://vsv.bio/role/trailer> ;
     sbol:type <https://identifiers.org/SBO:0000251> .
 
-ns1:rvsv_dg_filovirus_gp a sbol:Component ;
-    sbol:displayId "rvsv_dg_filovirus_gp" ;
-    sbol:hasAttachment ns1:rvsv_dg_filovirus_gp_citation_1,
-        ns1:rvsv_dg_filovirus_gp_citation_2,
-        ns1:rvsv_dg_filovirus_gp_citation_3 ;
-    sbol:hasConstraint <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint1>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint2>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint3>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint4>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint5>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint6> ;
-    sbol:hasFeature <https://vsv.bio/rvsv_dg_filovirus_gp/Glycoprotein>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/LargePolymerase>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/MatrixProtein>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/Nucleoprotein>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/Phosphoprotein>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/leader>,
-        <https://vsv.bio/rvsv_dg_filovirus_gp/trailer> ;
+ns1:rvsv_dg_filovirus_gp__huttner_2016 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_filovirus_gp ;
+    sbol:description "Injections were given intramuscularly over 30 s into the deltoid." ;
+    sbol:displayId "rvsv_dg_filovirus_gp__huttner_2016" ;
+    sbol:hasAttachment ns1:rvsv_dg_filovirus_gp__huttner_2016_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "rVSV filovirus glycoprotein" ;
-    sbol:role <https://identifiers.org/SO:0001041>,
-        <https://vsv.bio/backbone/VSV-Indiana>,
-        <https://vsv.bio/role/replication-competent> ;
-    sbol:type <https://identifiers.org/SBO:0000251> ;
-    prov:wasDerivedFrom ns1:vsv_indiana ;
-    prov:wasGeneratedBy ns1:rvsv_dg_filovirus_gp_derivation ;
-    ns1:alias "Ervebo",
-        "V920",
-        "VSV-EBOV",
-        "rVSV-ZEBOV",
-        "rVSVΔG-ZEBOV-GP" .
+    sbol:name "huttner-2016" ;
+    sbol:role <https://vsv.bio/stage/clinical> ;
+    ns1:index 3 .
 
 <https://vsv.bio/rvsv_dg_filovirus_gp/Glycoprotein> a sbol:LocalSubComponent ;
     sbol:displayId "Glycoprotein" ;
@@ -246,4 +323,36 @@ ns1:rvsv_dg_filovirus_gp a sbol:Component ;
     sbol:name "Phosphoprotein" ;
     sbol:role <https://identifiers.org/SO:0000704> ;
     sbol:type <https://identifiers.org/SBO:0000251> .
+
+ns1:rvsv_dg_filovirus_gp a sbol:Component ;
+    sbol:displayId "rvsv_dg_filovirus_gp" ;
+    sbol:hasAttachment ns1:rvsv_dg_filovirus_gp_citation_1,
+        ns1:rvsv_dg_filovirus_gp_citation_2,
+        ns1:rvsv_dg_filovirus_gp_citation_3 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint1>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint2>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint3>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint4>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint5>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/Constraint6> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_dg_filovirus_gp/Glycoprotein>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/LargePolymerase>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/MatrixProtein>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/Nucleoprotein>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/Phosphoprotein>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/leader>,
+        <https://vsv.bio/rvsv_dg_filovirus_gp/trailer> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "rVSV filovirus glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_dg_filovirus_gp_derivation ;
+    ns1:alias "Ervebo",
+        "V920",
+        "VSV-EBOV",
+        "rVSV-ZEBOV",
+        "rVSVΔG-ZEBOV-GP" .
 

@@ -81,7 +81,8 @@ ns1:rvsv_rsv_f__jvi_2001_mouse_neutralization a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/neutralization>,
         <https://vsv.bio/host/mouse>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/immunogenicity> ;
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intranasal> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_rsv_f__jvi_2001_mouse_neutralization/Usage1> ;
     ns1:index 0 .
 
@@ -104,8 +105,12 @@ ns1:rvsv_rsv_f__jvi_2001_mouse_protection a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/mouse>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intranasal> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_rsv_f__jvi_2001_mouse_protection/Usage1> ;
+    ns1:challenge-dose "1.2 × 105 PFU" ;
+    ns1:challenge-route "intranasal" ;
+    ns1:challenge-virus "RSV" ;
     ns1:index 1 .
 
 <https://vsv.bio/rvsv_rsv_f__jvi_2001_mouse_protection/Usage1> a sbol:Identified,

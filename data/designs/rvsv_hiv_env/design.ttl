@@ -5,7 +5,7 @@
 
 ns1:rvsv_hiv_env__jvi_1997 a sbol:Implementation ;
     sbol:built ns1:rvsv_hiv_env ;
-    sbol:description "Replication-competent rVSV expressing HIV-1 envelope from an extra transcription unit. The abstract does not state the genomic position of the added gene." ;
+    sbol:description "The PCR product was cloned through the XhoI and XbaI sites into pVSV-XN1 (26) that had been digested with XhoI and NheI." ;
     sbol:displayId "rvsv_hiv_env__jvi_1997" ;
     sbol:hasAttachment ns1:rvsv_hiv_env__jvi_1997_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
@@ -21,7 +21,8 @@ ns1:rvsv_hiv_env a sbol:Component ;
         <https://vsv.bio/rvsv_hiv_env/Constraint3>,
         <https://vsv.bio/rvsv_hiv_env/Constraint4>,
         <https://vsv.bio/rvsv_hiv_env/Constraint5>,
-        <https://vsv.bio/rvsv_hiv_env/Constraint6> ;
+        <https://vsv.bio/rvsv_hiv_env/Constraint6>,
+        <https://vsv.bio/rvsv_hiv_env/Constraint7> ;
     sbol:hasFeature <https://vsv.bio/rvsv_hiv_env/Glycoprotein>,
         <https://vsv.bio/rvsv_hiv_env/LargePolymerase>,
         <https://vsv.bio/rvsv_hiv_env/MatrixProtein>,
@@ -36,7 +37,8 @@ ns1:rvsv_hiv_env a sbol:Component ;
         <https://vsv.bio/backbone/VSV-Indiana>,
         <https://vsv.bio/role/replication-competent> ;
     sbol:type <https://identifiers.org/SBO:0000251> ;
-    prov:wasDerivedFrom ns1:vsv_indiana .
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_hiv_env_derivation .
 
 <https://vsv.bio/rvsv_hiv_env/Constraint1> a sbol:Constraint ;
     sbol:displayId "Constraint1" ;
@@ -64,22 +66,21 @@ ns1:rvsv_hiv_env a sbol:Component ;
 
 <https://vsv.bio/rvsv_hiv_env/Constraint5> a sbol:Constraint ;
     sbol:displayId "Constraint5" ;
-    sbol:object <https://vsv.bio/rvsv_hiv_env/LargePolymerase> ;
+    sbol:object <https://vsv.bio/rvsv_hiv_env/hiv_env> ;
     sbol:restriction sbol:strictlyPrecedes ;
     sbol:subject <https://vsv.bio/rvsv_hiv_env/Glycoprotein> .
 
 <https://vsv.bio/rvsv_hiv_env/Constraint6> a sbol:Constraint ;
     sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_hiv_env/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_hiv_env/hiv_env> .
+
+<https://vsv.bio/rvsv_hiv_env/Constraint7> a sbol:Constraint ;
+    sbol:displayId "Constraint7" ;
     sbol:object <https://vsv.bio/rvsv_hiv_env/trailer> ;
     sbol:restriction sbol:strictlyPrecedes ;
     sbol:subject <https://vsv.bio/rvsv_hiv_env/LargePolymerase> .
-
-<https://vsv.bio/rvsv_hiv_env/hiv_env> a sbol:LocalSubComponent ;
-    sbol:displayId "hiv_env" ;
-    sbol:name "HIV envelope" ;
-    sbol:role <https://identifiers.org/SO:0000704>,
-        <https://vsv.bio/antigen-class/hiv-envelope> ;
-    sbol:type <https://identifiers.org/SBO:0000251> .
 
 ns1:rvsv_hiv_env__jvi_1997_citation a sbol:Attachment ;
     sbol:displayId "rvsv_hiv_env__jvi_1997_citation" ;
@@ -90,6 +91,19 @@ ns1:rvsv_hiv_env_citation_1 a sbol:Attachment ;
     sbol:displayId "rvsv_hiv_env_citation_1" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1128/jvi.71.7.5060-5068.1997> .
+
+ns1:rvsv_hiv_env_derivation a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "target=Glycoprotein;module=hiv_env;replication=replication-competent" ;
+    sbol:displayId "rvsv_hiv_env_derivation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:type <https://vsv.bio/activity/insert-module> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_hiv_env_derivation/parent> .
+
+<https://vsv.bio/rvsv_hiv_env_derivation/parent> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "parent" ;
+    prov:entity ns1:vsv_indiana .
 
 <https://vsv.bio/rvsv_hiv_env/leader> a sbol:LocalSubComponent ;
     sbol:displayId "leader" ;
@@ -133,5 +147,12 @@ ns1:rvsv_hiv_env_citation_1 a sbol:Attachment ;
     sbol:displayId "Phosphoprotein" ;
     sbol:name "Phosphoprotein" ;
     sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_hiv_env/hiv_env> a sbol:LocalSubComponent ;
+    sbol:displayId "hiv_env" ;
+    sbol:name "HIV envelope" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/hiv-envelope> ;
     sbol:type <https://identifiers.org/SBO:0000251> .
 

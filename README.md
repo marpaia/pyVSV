@@ -13,7 +13,8 @@
 
 ```python
 import vsv
-from lab.protocols import Assembly, AssemblyRequest, BSAI, ProtocolCompiler
+from lab.compiler import compile
+from lab.experiments.cloning import Assembly, AssemblyRequest, BSAI, build_assembly
 from lab.targets import Manual
 from vsv import AntigenClass, Gene, Replication
 
@@ -30,20 +31,22 @@ vaccine = chassis.replace(
 )
 plasmid = vaccine.plasmid()
 
-compiled = ProtocolCompiler().compile(
-    AssemblyRequest(
-        id=vaccine.id,
-        assemblies=(
-            Assembly(
-                id=f"{vaccine.id}-assembly",
-                product=plasmid.product,
-                backbone=plasmid.backbone,
-                parts=[plasmid.insert],
-                restriction_enzyme=BSAI,
+compiled = compile(
+    build_assembly(
+        AssemblyRequest(
+            id=vaccine.id,
+            assemblies=(
+                Assembly(
+                    id=f"{vaccine.id}-assembly",
+                    product=plasmid.product,
+                    backbone=plasmid.backbone,
+                    parts=[plasmid.insert],
+                    restriction_enzyme=BSAI,
+                ),
             ),
-        ),
+        )
     ),
-    hardware=Manual(),
+    Manual(),
 )
 compiled.write("build/plasmid/assembly")
 ```

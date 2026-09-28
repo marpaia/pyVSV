@@ -23,7 +23,8 @@ ns1:rvsv_niv_f a sbol:Component ;
         <https://vsv.bio/rvsv_niv_f/Constraint3>,
         <https://vsv.bio/rvsv_niv_f/Constraint4>,
         <https://vsv.bio/rvsv_niv_f/Constraint5>,
-        <https://vsv.bio/rvsv_niv_f/Constraint6> ;
+        <https://vsv.bio/rvsv_niv_f/Constraint6>,
+        <https://vsv.bio/rvsv_niv_f/Constraint7> ;
     sbol:hasFeature <https://vsv.bio/rvsv_niv_f/Glycoprotein>,
         <https://vsv.bio/rvsv_niv_f/LargePolymerase>,
         <https://vsv.bio/rvsv_niv_f/MatrixProtein>,
@@ -38,7 +39,8 @@ ns1:rvsv_niv_f a sbol:Component ;
         <https://vsv.bio/backbone/VSV-Indiana>,
         <https://vsv.bio/role/replication-competent> ;
     sbol:type <https://identifiers.org/SBO:0000251> ;
-    prov:wasDerivedFrom ns1:rvsv_dg_filovirus_gp .
+    prov:wasDerivedFrom ns1:rvsv_dg_filovirus_gp ;
+    prov:wasGeneratedBy ns1:rvsv_niv_f_derivation .
 
 <https://vsv.bio/rvsv_niv_f/Constraint1> a sbol:Constraint ;
     sbol:displayId "Constraint1" ;
@@ -66,22 +68,21 @@ ns1:rvsv_niv_f a sbol:Component ;
 
 <https://vsv.bio/rvsv_niv_f/Constraint5> a sbol:Constraint ;
     sbol:displayId "Constraint5" ;
-    sbol:object <https://vsv.bio/rvsv_niv_f/LargePolymerase> ;
+    sbol:object <https://vsv.bio/rvsv_niv_f/niv_f> ;
     sbol:restriction sbol:strictlyPrecedes ;
     sbol:subject <https://vsv.bio/rvsv_niv_f/Glycoprotein> .
 
 <https://vsv.bio/rvsv_niv_f/Constraint6> a sbol:Constraint ;
     sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_niv_f/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_niv_f/niv_f> .
+
+<https://vsv.bio/rvsv_niv_f/Constraint7> a sbol:Constraint ;
+    sbol:displayId "Constraint7" ;
     sbol:object <https://vsv.bio/rvsv_niv_f/trailer> ;
     sbol:restriction sbol:strictlyPrecedes ;
     sbol:subject <https://vsv.bio/rvsv_niv_f/LargePolymerase> .
-
-<https://vsv.bio/rvsv_niv_f/niv_f> a sbol:LocalSubComponent ;
-    sbol:displayId "niv_f" ;
-    sbol:name "Nipah fusion protein" ;
-    sbol:role <https://identifiers.org/SO:0000704>,
-        <https://vsv.bio/antigen-class/henipavirus-fusion> ;
-    sbol:type <https://identifiers.org/SBO:0000251> .
 
 ns1:rvsv_niv_f__dewit_2023_citation a sbol:Attachment ;
     sbol:displayId "rvsv_niv_f__dewit_2023_citation" ;
@@ -97,8 +98,12 @@ ns1:rvsv_niv_f__dewit_2023_nivf_neutralization a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/neutralization>,
         <https://vsv.bio/host/nonhuman-primate>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/immunogenicity> ;
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_niv_f__dewit_2023_nivf_neutralization/Usage1> ;
+    ns1:challenge-dose "10^5 TCID50" ;
+    ns1:challenge-route "intranasal and intratracheal" ;
+    ns1:challenge-virus "NiVB or NiVM" ;
     ns1:index 0 .
 
 <https://vsv.bio/rvsv_niv_f__dewit_2023_nivf_neutralization/Usage1> a sbol:Identified,
@@ -120,8 +125,12 @@ ns1:rvsv_niv_f__dewit_2023_nivf_protection a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/nonhuman-primate>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_niv_f__dewit_2023_nivf_protection/Usage1> ;
+    ns1:challenge-dose "10^5 TCID50" ;
+    ns1:challenge-route "intranasal and intratracheal" ;
+    ns1:challenge-virus "NiVB or NiVM" ;
     ns1:index 1 .
 
 <https://vsv.bio/rvsv_niv_f__dewit_2023_nivf_protection/Usage1> a sbol:Identified,
@@ -139,6 +148,19 @@ ns1:rvsv_niv_f_citation_1 a sbol:Attachment ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1016/j.ebiom.2022.104405> .
 
+ns1:rvsv_niv_f_derivation a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "target=Glycoprotein;module=niv_f;replication=replication-competent" ;
+    sbol:displayId "rvsv_niv_f_derivation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:type <https://vsv.bio/activity/insert-module> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_niv_f_derivation/parent> .
+
+<https://vsv.bio/rvsv_niv_f_derivation/parent> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "parent" ;
+    prov:entity ns1:rvsv_dg_filovirus_gp .
+
 <https://vsv.bio/rvsv_niv_f/leader> a sbol:LocalSubComponent ;
     sbol:displayId "leader" ;
     sbol:name "leader" ;
@@ -155,7 +177,7 @@ ns1:rvsv_niv_f_citation_1 a sbol:Attachment ;
 
 ns1:rvsv_niv_f__dewit_2023 a sbol:Implementation ;
     sbol:built ns1:rvsv_niv_f ;
-    sbol:description "VSV-EBOV vaccine expressing Nipah virus fusion protein F. The abstract does not state the genomic position of the added gene." ;
+    sbol:description "The entire open reading frames of the NiVB G or F were then cloned into pVSVXN2ΔG-EBOVKik GP downstream of EBOVKik GP after duplication of the VSV intergenic regions" ;
     sbol:displayId "rvsv_niv_f__dewit_2023" ;
     sbol:hasAttachment ns1:rvsv_niv_f__dewit_2023_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
@@ -192,5 +214,12 @@ ns1:rvsv_niv_f__dewit_2023 a sbol:Implementation ;
     sbol:displayId "Phosphoprotein" ;
     sbol:name "Phosphoprotein" ;
     sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_niv_f/niv_f> a sbol:LocalSubComponent ;
+    sbol:displayId "niv_f" ;
+    sbol:name "Nipah fusion protein" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/henipavirus-fusion> ;
     sbol:type <https://identifiers.org/SBO:0000251> .
 

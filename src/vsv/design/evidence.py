@@ -34,6 +34,20 @@ class Host(StrEnum):
     OTHER = "other"
 
 
+class Route(StrEnum):
+    """The route of immunization, when the paper states one."""
+
+    UNKNOWN = "unknown"
+    INTRAMUSCULAR = "intramuscular"
+    INTRAVENOUS = "intravenous"
+    INTRANASAL = "intranasal"
+    ORAL = "oral"
+    INTRAPERITONEAL = "intraperitoneal"
+    SUBCUTANEOUS = "subcutaneous"
+    INTRADERMAL = "intradermal"
+    OTHER = "other"
+
+
 class Phenotype(StrEnum):
     """A kind of result an experiment can report."""
 
@@ -137,6 +151,10 @@ class Observation:
     outcome: Outcome
     citation: str
     note: str = ""
+    route: Route = Route.UNKNOWN
+    challenge_virus: str = ""
+    challenge_route: str = ""
+    challenge_dose: str = ""
 
     def __post_init__(self) -> None:
         if not self.id or not self.implementation_id:

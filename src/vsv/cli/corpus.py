@@ -7,13 +7,14 @@ from pathlib import Path
 import click
 
 from vsv.cli.render import cli_name, wrap
-from vsv.corpus.cluster import Cluster, clusters_from, write_design
-from vsv.corpus.models import Extraction
-from vsv.corpus.pipeline import coverage_report, extract_corpus
-from vsv.corpus.query import CORPUS_ROOT, VECTOR_KINDS, mentions
-from vsv.corpus.store import load_extractions, load_papers
 from vsv.design.library import load_library
 from vsv.errors import InputError
+from vsv.literature.cluster import Cluster, clusters_from, write_design
+from vsv.literature.papers import load_extractions, load_papers
+from vsv.literature.pipeline import coverage_report, extract_corpus
+from vsv.literature.query import CORPUS_ROOT
+from vsv.literature.records import Extraction, Paper
+from vsv.literature.search import matching_papers
 
 
 def cluster_edit(cluster: Cluster) -> str:
@@ -67,6 +68,20 @@ def format_cluster(cluster: Cluster, extractions: list[Extraction]) -> str:
     if len(cluster.pmids) > 30:
         lines.append(f"  and {len(cluster.pmids) - 30} more")
     return "\n".join(lines)
+
+
+def echo_papers(rows: list[tuple[Paper, str]], limit: int) -> None:
+    """Print paper rows in the corpus table. ``limit`` of 0 prints every row."""
+    total = len(rows)
+    shown = rows[:limit] if limit > 0 else rows
+    if not shown:
+        click.echo("no papers match")
+        return
+    width = max(len(label) for _, label in shown)
+    for paper, label in shown:
+        click.echo(f"{paper.year or '-'}  {paper.pmid}  {label.ljust(width)}  {paper.title}")
+    if limit > 0 and total > limit:
+        click.echo(f"showing {len(shown)} of {total}")
 
 
 def resolve_cluster(identifier: str) -> str | None:
@@ -150,59 +165,28 @@ def papers(
     root = CORPUS_ROOT if dest is None else dest
     aliases: tuple[str, ...] = ()
     if plan is not None:
-        matched = [record for record in load_library() if record.architecture.id == plan]
-        if len(matched) != 1:
+        found = [record for record in load_library() if record.architecture.id == plan]
+        if len(found) != 1:
             raise InputError(f"{plan}: design not found.")
-        aliases = matched[0].aliases
+        aliases = found[0].aliases
     records = load_papers(root)
-    extractions: dict[str, Extraction] = {}
-    if kind or unresolved or unclustered or antigen:
-        extractions = {item.pmid: item for item in load_extractions(root)}
-    placed: set[str] = set()
-    if unclustered:
-        placed = {
-            pmid for cluster in clusters_from(list(extractions.values())) for pmid in cluster.pmids
-        }
-    rows = []
-    for paper in records:
-        item = extractions.get(paper.pmid)
-        if kind is not None and (item is None or item.kind != kind):
-            continue
-        if unresolved and (item is None or item.status != "unresolved"):
-            continue
-        if unclustered and (item is None or item.kind not in VECTOR_KINDS or paper.pmid in placed):
-            continue
-        if year is not None and paper.year != year:
-            continue
-        if mesh is not None and not any(mesh.casefold() in term.casefold() for term in paper.mesh):
-            continue
-        if (
-            text is not None
-            and text.casefold() not in f"{paper.title}\n{paper.abstract}".casefold()
-        ):
-            continue
-        if plan is not None and not mentions(f"{paper.title}\n{paper.abstract}", aliases):
-            continue
-        if antigen is not None:
-            if item is None:
-                continue
-            blob = f"{item.antigen_name.value}\n{item.antigen_slug.value}"
-            if antigen.casefold() not in blob.casefold():
-                continue
-        label = item.kind if item is not None else "-"
-        rows.append((paper.year or "-", paper.pmid, label, paper.title))
-    rows.sort(key=lambda row: (row[0], int(row[1])), reverse=True)
-    total = len(rows)
-    if limit > 0:
-        rows = rows[:limit]
-    if not rows:
-        click.echo("no papers match")
-        return
-    width = max(len(row[2]) for row in rows)
-    for row_year, pmid, label, title in rows:
-        click.echo(f"{row_year}  {pmid}  {label.ljust(width)}  {title}")
-    if limit > 0 and total > limit:
-        click.echo(f"showing {len(rows)} of {total}")
+    show_kind = bool(kind or unresolved or unclustered or antigen)
+    extractions = load_extractions(root) if show_kind else None
+    matched = matching_papers(
+        records,
+        extractions,
+        year=year,
+        mesh=mesh,
+        text=text,
+        kind=kind,
+        antigen=antigen,
+        unresolved=unresolved,
+        unclustered=unclustered,
+        aliases=aliases,
+        use_aliases=plan is not None,
+        show_kind=show_kind,
+    )
+    echo_papers(matched, limit)
 
 
 @click.command()

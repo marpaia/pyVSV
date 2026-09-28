@@ -119,8 +119,12 @@ ns1:rvsv_zika_e__natcommun_2018_mouse_protection a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/mouse>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intranasal> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_zika_e__natcommun_2018_mouse_protection/Usage1> ;
+    ns1:challenge-dose "1 × 106 PFU" ;
+    ns1:challenge-route "intravenous" ;
+    ns1:challenge-virus "ZIKV Cambodian strain FSS13025" ;
     ns1:index 1 .
 
 <https://vsv.bio/rvsv_zika_e__natcommun_2018_mouse_protection/Usage1> a sbol:Identified,
