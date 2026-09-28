@@ -12,13 +12,14 @@ from vsv.literature.analysis.classify import classify
 from vsv.literature.analysis.evaluate import audit_messages, stratified_pmids
 from vsv.literature.analysis.extract import describe
 from vsv.literature.analysis.records import PaperKind
+from vsv.literature.analysis.workflow import extract_corpus
 from vsv.literature.checks import coverage_report
 from vsv.literature.discovery.pubmed import europepmc_records, ingest_corpus
 from vsv.literature.documents.jats import methods_text
 from vsv.literature.documents.text import clean_text
 from vsv.literature.records import Paper
 from vsv.literature.search import mentions
-from vsv.literature.storage.corpus import load_ledger, load_papers
+from vsv.literature.storage.corpus import load_extractions, load_ledger, load_papers, write_papers
 
 
 def paper(
@@ -86,6 +87,53 @@ def test_extraction_quotes_a_replacement_and_redacts_nucleotides() -> None:
     assert item.claims[0].phenotype == "protection"
     assert "ACGTACGT" not in item.edit_activity.quote
     assert "[sequence omitted]" in item.edit_activity.quote
+
+
+def test_a_g_l_expression_site_inserts_zika_envelope_after_glycoprotein() -> None:
+    item = describe(
+        paper(
+            title="rVSV Zika vaccine",
+            abstract=(
+                "Controls were included. rVSV constructs were successfully generated using "
+                "the G-L foreign gene expression site. The viruses express ZIKV envelope "
+                "protein and are fully "
+                "replication competent. Mice were protected from lethal challenge. "
+                "It warrants further evaluation in phase I trials in human subjects."
+            ),
+        )
+    )
+    assert item.edit_activity.value == "insert-module"
+    assert item.edit_target.value == "Glycoprotein"
+    assert item.antigen_slug.value == "zika-envelope"
+    assert item.replication.value == "replication-competent"
+    assert item.stage.value == "preclinical"
+    assert item.edit_activity.quote.startswith("rVSV constructs")
+
+
+def test_a_saved_article_supplies_the_architecture_fields(tmp_path: Path) -> None:
+    record = paper(
+        pmid="28289159",
+        title="rVSV Zika vaccine",
+        abstract="Recombinant VSV expressing a Zika protein was tested in mice.",
+    )
+    corpus = tmp_path / "corpus"
+    write_papers([record], corpus)
+    acquired = tmp_path / "census" / "acquired"
+    acquired.mkdir(parents=True)
+    body = (
+        "rVSV constructs were successfully generated using the G-L foreign gene "
+        "expression site.\n\n"
+        "The viruses express ZIKV envelope protein and are fully replication competent.\n\n"
+    )
+    (acquired / "28289159.txt").write_text(body + ("Noted. " * 400), encoding="utf-8")
+    report = extract_corpus(corpus)
+    stored = load_extractions(corpus)
+    assert report.fulltext == 1
+    assert stored[0].edit_activity.value == "insert-module"
+    assert stored[0].edit_target.value == "Glycoprotein"
+    assert stored[0].antigen_slug.value == "zika-envelope"
+    assert stored[0].text_source == "fulltext"
+    assert stored[0].edit_activity.quote.startswith("rVSV constructs")
 
 
 def test_species_glycoproteins_keep_their_own_classes() -> None:

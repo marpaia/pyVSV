@@ -38,7 +38,9 @@ def extract_corpus(
 ) -> ExtractionReport:
     """Classify every local paper and extract fields for vector papers.
 
-    With ``fulltext``, open-access methods are read from the local cache or fetched once.
+    A saved article next to the corpus, at ``census/acquired/{pmid}.txt``, is used when
+    its text is long enough to be a body. With ``fulltext``, open-access methods are
+    read from the local cache or fetched once for vector papers that have no saved article.
     """
     say = log or _silent
     papers = load_papers(root)
@@ -46,7 +48,13 @@ def extract_corpus(
     fetched = 0
     for index, paper in enumerate(papers, start=1):
         methods = ""
-        if fulltext and paper.open_access and paper.pmcid:
+        article = _saved_article(root, paper.pmid)
+        if article:
+            preview = describe(paper)
+            if preview.kind in VECTOR_KINDS:
+                methods = article
+                fetched += 1
+        elif fulltext and paper.open_access and paper.pmcid:
             preview = describe(paper)
             if preview.kind in VECTOR_KINDS:
                 methods = _methods(root, paper.pmcid, fetch_text)
@@ -64,6 +72,17 @@ def extract_corpus(
         len(unclustered_pmids(extractions, clusters)),
         fetched,
     )
+
+
+def _saved_article(root: Path, pmid: str) -> str:
+    """Plain text of a saved article for ``pmid``. Empty when the file is missing or short."""
+    path = root.parent / "census" / "acquired" / f"{pmid}.txt"
+    if not path.is_file():
+        return ""
+    text = path.read_text(encoding="utf-8")
+    if len(" ".join(text.split())) < 2000:
+        return ""
+    return text
 
 
 def _methods(root: Path, pmcid: str, fetch_text: FetchText) -> str:

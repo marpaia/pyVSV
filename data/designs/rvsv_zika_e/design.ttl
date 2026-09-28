@@ -59,7 +59,7 @@ ns1:rvsv_zika_e__natcommun_2018_mouse_protection_data a sbol:ExperimentalData ;
 
 ns1:rvsv_zika_e__jimmunol_2017 a sbol:Implementation ;
     sbol:built ns1:rvsv_zika_e ;
-    sbol:description "Wild-type rVSV and a matrix-mutant rVSV expressing Zika envelope, or premembrane plus envelope. Vaccinated female mice conferred protection to challenged newborn mice. The full text of this paper was not available, so its genomic position is not established here." ;
+    sbol:description "Wild-type rVSV and a matrix-mutant rVSV, with matrix residues 52–54 changed from DTY to AAA, express Zika envelope (ZENV) or premembrane plus envelope (ZprME) from the G-L foreign-gene expression site. The inserts were ligated at the XhoI and NheI sites. The viruses remain replication competent and still express VSV glycoprotein." ;
     sbol:displayId "rvsv_zika_e__jimmunol_2017" ;
     sbol:hasAttachment ns1:rvsv_zika_e__jimmunol_2017_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
@@ -74,15 +74,19 @@ ns1:rvsv_zika_e__jimmunol_2017_citation a sbol:Attachment ;
 
 ns1:rvsv_zika_e__jimmunol_2017_mouse_protection a sbol:TopLevel,
         prov:Activity ;
-    sbol:description "Female mice vaccinated with a matrix-mutant rVSV expressing Zika envelope conferred protection to their challenged newborn mice." ;
+    sbol:description "Newborn mice of female C57BL/6 mice vaccinated intravenously with 2 × 10^6 PFU of VSVm-ZprME, and boosted with the same dose, were protected from intraperitoneal challenge at 7 days of age with 7 × 10^5 PFU of ZIKV MR766. Newborns of naive females died by day 10." ;
     sbol:displayId "rvsv_zika_e__jimmunol_2017_mouse_protection" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:name "jimmunol-2017-mouse-protection" ;
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/mouse>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intravenous> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_zika_e__jimmunol_2017_mouse_protection/Usage1> ;
+    ns1:challenge-dose "7 × 10^5 PFU" ;
+    ns1:challenge-route "intraperitoneal" ;
+    ns1:challenge-virus "ZIKV MR766" ;
     ns1:index 0 .
 
 <https://vsv.bio/rvsv_zika_e__jimmunol_2017_mouse_protection/Usage1> a sbol:Identified,

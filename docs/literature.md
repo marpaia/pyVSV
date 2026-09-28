@@ -111,7 +111,7 @@ The file is `census/sections/{PMID}.json`. It has `pmid`, `blocks`, and `sha256`
 
 A paper that matches no rule is `other` and `unresolved`. Any other class is `classified`. A publication type of review sets the review flag. The class stays the subject class when one matches. A title that names vesicular stomatitis and matches no other rule is `basic-virology`. A review that matches neither is the class `review`.
 
-With `--fulltext`, open-access methods XML is read from the local cache, or fetched once, for papers classed `vaccine-vector`, `oncolytic`, or `reporter`. Methods text can fill architecture fields. It leaves the class unchanged.
+A saved article at `census/acquired/{PMID}.txt` is read for papers classed `vaccine-vector`, `oncolytic`, or `reporter` when its text is at least 2,000 characters. With `--fulltext`, open-access methods XML is read from the local cache, or fetched once, for those papers that have no saved article. That text can fill architecture fields. It leaves the class unchanged.
 
 Every corpus paper gets an extraction. Architecture fields are read for those three vector classes. On every other class the fields are `unknown`.
 

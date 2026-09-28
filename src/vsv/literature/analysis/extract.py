@@ -22,7 +22,7 @@ from vsv.literature.analysis.records import (
 from vsv.literature.documents.text import clean_text
 from vsv.literature.records import Paper
 
-_SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z\"(])")
+_SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z\"(]|r[A-Z])")
 _DELTA_G = re.compile(
     r"vsv(?:\W{0,3})?(?:Δ|∆|delta)\W{0,3}g\b|\bg-deleted\b|glycoprotein-deleted",
     re.IGNORECASE,
@@ -74,6 +74,14 @@ _INSERT_BETWEEN = (
         ),
         "Glycoprotein",
     ),
+    (
+        re.compile(
+            r"\bg\s*-\s*l\b.{0,50}foreign gene expression site|"
+            r"foreign gene expression site.{0,50}\bg\s*-\s*l\b",
+            re.IGNORECASE,
+        ),
+        "Glycoprotein",
+    ),
 )
 _AFTER = re.compile(
     r"(?:after|downstream of) the "
@@ -105,6 +113,7 @@ _CLINICAL = re.compile(
     r"phase (?:1|i|2|ii|3|iii)\b|clinical trial|healthy adults",
     re.IGNORECASE,
 )
+_PROSPECTIVE = re.compile(r"\bwarrants?\b", re.IGNORECASE)
 _NEGATION = re.compile(r"\b(?:no|not|without|failed to|did not)\b", re.IGNORECASE)
 _CHALLENGE = re.compile(
     r"\b(?:lethal challenge|challenged|protected from|survival)\b", re.IGNORECASE
@@ -227,7 +236,9 @@ _SLUGS: tuple[tuple[re.Pattern[str], str, str], ...] = (
     ),
     (
         re.compile(
-            r"\bzika\b.{0,40}\b(?:envelope|e protein)\b|\benvelope\b.{0,40}\bzika\b",
+            r"\b(?:zika|zikv)\b.{0,40}\b(?:envelope|e protein|zenv)\b|"
+            r"\b(?:envelope|zenv)\b.{0,40}\b(?:zika|zikv)\b|"
+            r"\bzprme\b",
             re.IGNORECASE,
         ),
         "zika-envelope",
@@ -272,11 +283,18 @@ _REPORTER_SLUGS = frozenset({"reporter-gfp", "reporter-luciferase"})
 
 
 def sentences(text: str) -> list[str]:
-    """Split ``text`` into sentences. Short fragments are kept."""
-    cleaned = clean_text(text)
-    if not cleaned:
-        return []
-    return [part.strip() for part in _SENTENCE.split(cleaned) if part.strip()]
+    """Split ``text`` into sentences. Short fragments are kept.
+
+    A blank line starts a new paragraph, so a section name stays apart from the
+    sentence that follows it.
+    """
+    found: list[str] = []
+    for paragraph in re.split(r"\n\s*\n", text):
+        cleaned = clean_text(paragraph)
+        if not cleaned:
+            continue
+        found.extend(part.strip() for part in _SENTENCE.split(cleaned) if part.strip())
+    return found
 
 
 def describe(paper: Paper, methods: str = "") -> PaperExtraction:
@@ -521,7 +539,7 @@ def _phenotype(sentence: str) -> tuple[str, str, str] | None:
 
 def _stage(body: list[str], claims: list[ExtractedClaim]) -> QuotedValue:
     for sentence in body:
-        if _CLINICAL.search(sentence):
+        if _CLINICAL.search(sentence) and _PROSPECTIVE.search(sentence) is None:
             return QuotedValue(Stage.CLINICAL.value, sentence)
     for claim in claims:
         if claim.host in _ANIMAL and claim.outcome == Outcome.REPORTED.value:
