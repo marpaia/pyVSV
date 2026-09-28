@@ -30,14 +30,15 @@ from vsv.design import (
 )
 from vsv.design import check as check_design
 from vsv.design.edits import Delete, Edit, Insert, Replace
+from vsv.design.literature import clusters_from
 from vsv.errors import InputError
 from vsv.genome.payload import AntigenClass
 from vsv.ingest import DEFAULT_QUERY, INGEST_ROOT
 from vsv.ingest import ingest as fetch_papers
-from vsv.literature.cluster import Cluster, clusters_from
-from vsv.literature.papers import load_extractions
-from vsv.literature.pipeline import ingest_corpus
-from vsv.literature.query import CORPUS_ROOT
+from vsv.literature.analysis.records import PaperCluster
+from vsv.literature.discovery.pubmed import ingest_corpus
+from vsv.literature.storage.corpus import load_extractions
+from vsv.literature.storage.paths import CORPUS_ROOT
 
 _EVIDENCE = {
     "none": EvidenceLevel.NONE,
@@ -74,7 +75,7 @@ def _host(value: str | None) -> Host | None:
     return None if value is None else Host(value)
 
 
-def _design_rows(records: Sequence[Design], clusters: Sequence[Cluster]) -> str:
+def _design_rows(records: Sequence[Design], clusters: Sequence[PaperCluster]) -> str:
     rows: list[list[str]] = []
     for record in records:
         card = record.card
@@ -119,7 +120,7 @@ def _clusters(
     phenotype: str | None,
     host: str | None,
     evidence: EvidenceLevel | None,
-) -> list[Cluster]:
+) -> list[PaperCluster]:
     try:
         extractions = load_extractions()
     except InputError:

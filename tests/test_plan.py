@@ -24,7 +24,7 @@ from vsv.design.edits import Insert, Replace
 from vsv.errors import InputError
 from vsv.genome.payload import AntigenFeature
 from vsv.genome.sequence import Nucleotides
-from vsv.literature.extract import _REPORTER_SLUGS, _SLUGS
+from vsv.literature.analysis.extract import _REPORTER_SLUGS, _SLUGS
 
 _REPLACE = "https://doi.org/10.1128/jvi.78.10.5458-5465.2004"
 _AFTER_G = "https://doi.org/10.1128/jvi.71.8.5982-5989.1997"

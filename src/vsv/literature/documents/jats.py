@@ -1,24 +1,64 @@
-"""Split an article into the blocks a reading is allowed to quote."""
+"""Article XML: body checks, license text, section blocks, and methods text."""
 
 from __future__ import annotations
 
-import json
-import re
 import xml.etree.ElementTree as ET
-from pathlib import Path
 
 from vsv.errors import InputError
-from vsv.ingest import redact
-from vsv.literature.records import Block
-from vsv.literature.xmlbody import local_name
+from vsv.literature.documents.text import clean_text, text_blocks
+from vsv.literature.records import TextBlock
+
+BODY_MIN = 2000
 
 _SKIP = frozenset({"ref-list", "ack", "funding-group", "author-notes", "fn-group"})
 _ACK = frozenset({"acknowledgements", "acknowledgments", "funding"})
-_HEADING = re.compile(r".{1,80}[^\.?!]\Z")
-_COLUMNS = re.compile(r"\s{2,}|\t")
 
 
-def section_xml(xml: str) -> tuple[Block, ...]:
+def local_name(tag: str) -> str:
+    """The element name without an XML namespace."""
+    return tag.rsplit("}", 1)[-1]
+
+
+def body_characters(xml: str) -> int | None:
+    """Characters of article body text, or ``None`` when ``xml`` is not an article.
+
+    Zero means the document parsed and has no body text. A count of ``BODY_MIN`` or
+    more is a usable article.
+    """
+    try:
+        root = ET.fromstring(xml)
+    except ET.ParseError:
+        return None
+    if not _is_article(root):
+        return None
+    found = False
+    total = 0
+    for element in root.iter():
+        if local_name(element.tag) != "body":
+            continue
+        found = True
+        total += len(" ".join("".join(element.itertext()).split()))
+    if not found:
+        return 0
+    return total
+
+
+def license_sentence(xml: str) -> str:
+    """The first license statement in ``xml``, or an empty string."""
+    try:
+        root = ET.fromstring(xml)
+    except ET.ParseError:
+        return ""
+    for element in root.iter():
+        if local_name(element.tag) != "license":
+            continue
+        text = " ".join("".join(element.itertext()).split())
+        if text:
+            return text[:240]
+    return ""
+
+
+def section_xml(xml: str) -> tuple[TextBlock, ...]:
     """Blocks from a JATS article, in document order.
 
     Reference lists, acknowledgements, funding statements, and author notes are omitted.
@@ -30,65 +70,40 @@ def section_xml(xml: str) -> tuple[Block, ...]:
         raise InputError(f"Article XML could not be parsed: {error}") from error
     found: list[tuple[str, str, str]] = []
     _walk(root, (), found)
-    return _blocks(found)
+    return text_blocks(found)
 
 
-def section_text(text: str) -> tuple[Block, ...]:
-    """Blocks from plain article text.
+def methods_text(xml: str) -> str:
+    """The methods section of a JATS full-text document, with nucleotide runs removed.
 
-    A short line that does not end a sentence becomes the section name. A run of
-    lines with two or more columns becomes one table row per line. Other paragraphs
-    stay paragraphs.
+    The longest matching section is kept. Nested method sections are shorter than their parent.
     """
-    found: list[tuple[str, str, str]] = []
-    section = "text"
-    for chunk in re.split(r"\n\s*\n", text):
-        lines = [line.strip() for line in chunk.splitlines() if line.strip()]
-        if not lines:
-            continue
-        if len(lines) == 1 and _HEADING.fullmatch(lines[0]):
-            section = lines[0]
-            continue
-        if len(lines) > 1 and all(_COLUMNS.search(line) for line in lines):
-            for line in lines:
-                cells = [cell.strip() for cell in _COLUMNS.split(line) if cell.strip()]
-                found.append((section, "table-row", " | ".join(cells)))
-            continue
-        found.append((section, "paragraph", " ".join(lines)))
-    return _blocks(found)
+    try:
+        root = ET.fromstring(xml)
+    except ET.ParseError:
+        return ""
+    texts = ["".join(element.itertext()) for element in root.iter() if _is_methods(element)]
+    if not texts:
+        return ""
+    return clean_text(max(texts, key=len))
 
 
-def write_sections(
-    path: Path,
-    pmid: str,
-    blocks: tuple[Block, ...],
-    sha256: str = "",
-) -> None:
-    """Write the blocks for ``pmid``. The file is the article text.
-
-    ``sha256`` names the document version that produced the blocks.
-    """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload: dict[str, object] = {
-        "pmid": pmid,
-        "blocks": [
-            {"id": block.id, "section": block.section, "kind": block.kind, "text": block.text}
-            for block in blocks
-        ],
-    }
-    if sha256:
-        payload["sha256"] = sha256
-    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+def _is_article(root: ET.Element) -> bool:
+    if local_name(root.tag) in {"article", "pmc-articleset"}:
+        return True
+    return any(local_name(element.tag) == "article" for element in root.iter())
 
 
-def _blocks(found: list[tuple[str, str, str]]) -> tuple[Block, ...]:
-    blocks: list[Block] = []
-    for section, kind, text in found:
-        cleaned = redact(" ".join(text.split()))
-        if not cleaned:
-            continue
-        blocks.append(Block(f"b{len(blocks) + 1:04d}", section or "article", kind, cleaned))
-    return tuple(blocks)
+def _is_methods(element: ET.Element) -> bool:
+    if not str(element.tag).endswith("sec"):
+        return False
+    title = ""
+    for child in list(element):
+        if str(child.tag).endswith("title"):
+            title = "".join(child.itertext())
+            break
+    label = f"{element.attrib.get('sec-type', '')} {title}".casefold()
+    return "method" in label or "material" in label
 
 
 def _walk(element: ET.Element, section: tuple[str, ...], found: list[tuple[str, str, str]]) -> None:

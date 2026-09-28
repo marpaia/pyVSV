@@ -1,21 +1,37 @@
-"""Read and write the corpus JSONL files and the coverage ledger."""
+"""Paper records, the PubMed snapshot, extraction records, and audit labels."""
 
 from __future__ import annotations
 
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 from vsv.errors import InputError
-from vsv.literature.query import (
+from vsv.literature.analysis.records import ExtractedClaim, PaperExtraction, QuotedValue
+from vsv.literature.records import Paper
+from vsv.literature.storage.paths import (
     AUDIT_NAME,
     CORPUS_ROOT,
     EXTRACTIONS_NAME,
     LEDGER_NAME,
     PAPERS_NAME,
 )
-from vsv.literature.records import Claim, Extraction, Ledger, Paper, Quoted
+
+
+@dataclass(frozen=True, slots=True)
+class PubMedSnapshot:
+    """The PubMed result set that ``papers.jsonl`` is expected to hold."""
+
+    query: str
+    residual_query: str
+    retrieved: str
+    pubmed_count: int
+    residual_count: int
+    pmids: tuple[str, ...]
+    europepmc_misses: tuple[str, ...]
+    digest: str
 
 
 def digest_pmids(pmids: Sequence[str]) -> str:
@@ -58,13 +74,13 @@ def load_papers(root: Path | None = None) -> list[Paper]:
     return [_paper(row, path) for row in _read_jsonl(path)]
 
 
-def write_extractions(extractions: Sequence[Extraction], root: Path | None = None) -> None:
+def write_extractions(extractions: Sequence[PaperExtraction], root: Path | None = None) -> None:
     """Replace the extraction JSONL with ``extractions``, in PMID order."""
     ordered = sorted(extractions, key=lambda item: int(item.pmid))
     _write_jsonl(extractions_path(root), [_extraction_json(item) for item in ordered])
 
 
-def load_extractions(root: Path | None = None) -> list[Extraction]:
+def load_extractions(root: Path | None = None) -> list[PaperExtraction]:
     """Load the extraction JSONL."""
     path = extractions_path(root)
     if not path.is_file():
@@ -72,7 +88,7 @@ def load_extractions(root: Path | None = None) -> list[Extraction]:
     return [_extraction(row, path) for row in _read_jsonl(path)]
 
 
-def write_ledger(ledger: Ledger, root: Path | None = None) -> None:
+def write_ledger(ledger: PubMedSnapshot, root: Path | None = None) -> None:
     """Replace the coverage ledger."""
     path = ledger_path(root)
     payload = {
@@ -88,7 +104,7 @@ def write_ledger(ledger: Ledger, root: Path | None = None) -> None:
     _replace(path, json.dumps(payload, indent=2) + "\n")
 
 
-def load_ledger(root: Path | None = None) -> Ledger:
+def load_ledger(root: Path | None = None) -> PubMedSnapshot:
     """Load the coverage ledger."""
     path = ledger_path(root)
     if not path.is_file():
@@ -96,7 +112,7 @@ def load_ledger(root: Path | None = None) -> Ledger:
     raw = _object(_load(path), path)
     pmids = _strings(raw.get("pmids"), path, "pmids")
     misses = _strings(raw.get("europepmc_misses"), path, "europepmc_misses")
-    return Ledger(
+    return PubMedSnapshot(
         _text(raw, "query", path),
         _text(raw, "residual_query", path),
         _text(raw, "retrieved", path),
@@ -148,11 +164,11 @@ def _paper_json(paper: Paper) -> dict[str, object]:
     }
 
 
-def _quoted_json(quoted: Quoted) -> dict[str, str]:
+def _quoted_json(quoted: QuotedValue) -> dict[str, str]:
     return {"value": quoted.value, "quote": quoted.quote}
 
 
-def _extraction_json(item: Extraction) -> dict[str, object]:
+def _extraction_json(item: PaperExtraction) -> dict[str, object]:
     return {
         "pmid": item.pmid,
         "kind": item.kind,
@@ -198,12 +214,12 @@ def _paper(raw: Mapping[str, object], path: Path) -> Paper:
     )
 
 
-def _quoted(value: object, path: Path, field: str) -> Quoted:
+def _quoted(value: object, path: Path, field: str) -> QuotedValue:
     raw = _object(value, path, field)
-    return Quoted(_text(raw, "value", path), _text(raw, "quote", path))
+    return QuotedValue(_text(raw, "value", path), _text(raw, "quote", path))
 
 
-def _extraction(raw: Mapping[str, object], path: Path) -> Extraction:
+def _extraction(raw: Mapping[str, object], path: Path) -> PaperExtraction:
     claims_raw = raw.get("claims")
     if not isinstance(claims_raw, list):
         raise InputError(f"{path}: claims must be a list.")
@@ -211,7 +227,7 @@ def _extraction(raw: Mapping[str, object], path: Path) -> Extraction:
     for item in claims_raw:
         claim = _object(item, path, "claim")
         claims.append(
-            Claim(
+            ExtractedClaim(
                 _text(claim, "phenotype", path),
                 _text(claim, "host", path),
                 _text(claim, "assay", path),
@@ -219,7 +235,7 @@ def _extraction(raw: Mapping[str, object], path: Path) -> Extraction:
                 _text(claim, "quote", path),
             )
         )
-    return Extraction(
+    return PaperExtraction(
         _text(raw, "pmid", path),
         _text(raw, "kind", path),
         _flag(raw, "review", path),

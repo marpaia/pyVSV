@@ -14,15 +14,17 @@ import click
 from vsv.cli.corpus import echo_papers
 from vsv.design.library import load_library
 from vsv.errors import InputError
-from vsv.literature.audit import check_workspace
-from vsv.literature.collections import sync_pubmed, sync_review_references
-from vsv.literature.documents import fetch_collection
-from vsv.literature.papers import load_extractions
+from vsv.literature.catalog import Catalog, load_catalog
+from vsv.literature.checks import check_workspace
+from vsv.literature.discovery.pubmed import sync_pubmed
+from vsv.literature.discovery.references import sync_review_references
+from vsv.literature.documents.acquire import fetch_collection
+from vsv.literature.documents.parse import parse_collection
+from vsv.literature.http import live_fetch, live_fetch_text
 from vsv.literature.records import PUBMED, REVIEW_REFERENCES, Document, Paper
 from vsv.literature.search import matching_papers
-from vsv.literature.sources import live_fetch, live_fetch_text
-from vsv.literature.store import Catalog, corpus_dir, default_root, load_catalog
-from vsv.literature.text import parse_collection
+from vsv.literature.storage.corpus import load_extractions
+from vsv.literature.storage.paths import corpus_dir, default_root
 
 _STATUS_ORDER = (
     "xml-body",

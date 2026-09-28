@@ -7,15 +7,18 @@ import pytest
 
 from vsv.cli import main
 from vsv.design.library import load_design
-from vsv.literature.audit import audit_messages, stratified_pmids
-from vsv.literature.classify import Kind, classify
-from vsv.literature.cluster import clusters_from, write_design
-from vsv.literature.extract import describe
-from vsv.literature.fetch import clean_text, europepmc_records, methods_text
-from vsv.literature.papers import load_ledger, load_papers
-from vsv.literature.pipeline import coverage_report, ingest_corpus
-from vsv.literature.query import mentions
+from vsv.design.literature import clusters_from, write_design
+from vsv.literature.analysis.classify import classify
+from vsv.literature.analysis.evaluate import audit_messages, stratified_pmids
+from vsv.literature.analysis.extract import describe
+from vsv.literature.analysis.records import PaperKind
+from vsv.literature.checks import coverage_report
+from vsv.literature.discovery.pubmed import europepmc_records, ingest_corpus
+from vsv.literature.documents.jats import methods_text
+from vsv.literature.documents.text import clean_text
 from vsv.literature.records import Paper
+from vsv.literature.search import mentions
+from vsv.literature.storage.corpus import load_ledger, load_papers
 
 
 def paper(
@@ -50,18 +53,22 @@ def test_classifier_keeps_vector_reviews_and_pseudotypes() -> None:
             pub_types=("Review", "Journal Article"),
         )
     )
-    assert (vector.kind, vector.review, vector.status) == (Kind.VACCINE_VECTOR, True, "classified")
+    assert (vector.kind, vector.review, vector.status) == (
+        PaperKind.VACCINE_VECTOR,
+        True,
+        "classified",
+    )
     pseudo = classify(paper(title="A lentiviral vector pseudotyped with VSV-G"))
-    assert pseudo.kind is Kind.PSEUDOTYPE
+    assert pseudo.kind is PaperKind.PSEUDOTYPE
     blank = classify(paper(title="Notes"))
-    assert (blank.kind, blank.status) == (Kind.OTHER, "unresolved")
+    assert (blank.kind, blank.status) == (PaperKind.OTHER, "unresolved")
     baculovirus = classify(
         paper(
             title="The VSV nucleocapsid protein expressed by recombinant baculovirus",
             abstract="A vaccine preparation expressing the nucleoprotein was used in an ELISA.",
         )
     )
-    assert baculovirus.kind is not Kind.VACCINE_VECTOR
+    assert baculovirus.kind is not PaperKind.VACCINE_VECTOR
 
 
 def test_extraction_quotes_a_replacement_and_redacts_nucleotides() -> None:

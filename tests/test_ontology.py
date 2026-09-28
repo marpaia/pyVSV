@@ -8,7 +8,7 @@ from rdflib import OWL, RDF, RDFS, URIRef
 from vsv.design.evidence import Assay, Host, Outcome, Phenotype, Route, Stage
 from vsv.design.query import antigen_matches
 from vsv.genes import Gene
-from vsv.literature.extract import _REPORTER_SLUGS, _SLUGS
+from vsv.literature.analysis.extract import _REPORTER_SLUGS, _SLUGS
 
 _ROOT = Path(__file__).resolve().parents[1]
 _ONTOLOGY = _ROOT / "ontology" / "synthetic-virology.ttl"

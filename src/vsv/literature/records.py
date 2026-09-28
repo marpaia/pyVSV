@@ -1,4 +1,8 @@
-"""Records stored for one VSV paper and the design facts extracted from it."""
+"""Shared bibliographic, collection, and document records.
+
+One paper has one bibliographic identity. Collection membership, an acquired
+file, and the text parsed from that file are separate records.
+"""
 
 from __future__ import annotations
 
@@ -63,7 +67,7 @@ class Citation:
 
 
 @dataclass(frozen=True, slots=True)
-class Acquisition:
+class AcquisitionAttempt:
     """One attempt to obtain a file."""
 
     retrieved: str
@@ -89,11 +93,11 @@ class Document:
     body_characters: int
     method: str
     detail: str
-    history: tuple[Acquisition, ...]
+    history: tuple[AcquisitionAttempt, ...]
 
 
 @dataclass(frozen=True, slots=True)
-class Block:
+class TextBlock:
     """One quotable span of an article."""
 
     id: str
@@ -103,79 +107,13 @@ class Block:
 
 
 @dataclass(frozen=True, slots=True)
-class Reading:
+class DocumentText:
     """Parsed blocks tied to one document version.
 
     ``document`` is the SHA-256 of the file that was parsed, or empty when the
-    stored reading does not name a version.
+    stored text does not name a version.
     """
 
     pmid: str
     document: str
-    blocks: tuple[Block, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class Ledger:
-    """The PubMed result set that ``papers.jsonl`` is expected to hold."""
-
-    query: str
-    residual_query: str
-    retrieved: str
-    pubmed_count: int
-    residual_count: int
-    pmids: tuple[str, ...]
-    europepmc_misses: tuple[str, ...]
-    digest: str
-
-
-@dataclass(frozen=True, slots=True)
-class Quoted:
-    """A value taken from one sentence, or ``unknown`` when the text does not state it."""
-
-    value: str
-    quote: str
-
-    @property
-    def known(self) -> bool:
-        """Whether the text stated a value."""
-        return self.value != "unknown"
-
-
-UNKNOWN = Quoted("unknown", "")
-
-
-@dataclass(frozen=True, slots=True)
-class Claim:
-    """One result sentence: phenotype, host, assay, and outcome."""
-
-    phenotype: str
-    host: str
-    assay: str
-    outcome: str
-    quote: str
-
-
-@dataclass(frozen=True, slots=True)
-class Extraction:
-    """Classification and architecture fields for one paper.
-
-    A field is ``unknown`` when no sentence states it. ``conflicts`` names fields whose
-    sentences disagree. Those fields are ``unknown`` too.
-    """
-
-    pmid: str
-    kind: str
-    review: bool
-    status: str
-    backbone: Quoted
-    replication: Quoted
-    edit_activity: Quoted
-    edit_target: Quoted
-    antigen_name: Quoted
-    antigen_slug: Quoted
-    locus: Quoted
-    stage: Quoted
-    claims: tuple[Claim, ...]
-    conflicts: tuple[str, ...]
-    text_source: str
+    blocks: tuple[TextBlock, ...]

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from vsv.literature.section import section_text, section_xml
+from vsv.literature.documents.jats import section_xml
+from vsv.literature.documents.text import section_text
 
 _ARTICLE = """
 <article>

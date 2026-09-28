@@ -1,32 +1,35 @@
-"""Build the construction-paper index from review reference lists and PubMed."""
+"""Synchronize the collection built from review bibliographies."""
 
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import quote
 
 from vsv.errors import InputError
-from vsv.literature.catalog import CensusIndex, CitedPaper
-from vsv.literature.fetch import fulltext_url
+from vsv.literature.discovery.reviews import REVIEWS, SeedReview
+from vsv.literature.documents.jats import local_name
+from vsv.literature.http import FetchJson, FetchText
 from vsv.literature.records import Paper
-from vsv.literature.reviews import REVIEWS, Review
-from vsv.literature.xmlbody import local_name
-
-FetchJson = Callable[[str], Mapping[str, object]]
-FetchText = Callable[[str], str]
+from vsv.literature.storage.corpus import load_papers
+from vsv.literature.storage.paths import census_dir, corpus_dir
+from vsv.literature.storage.references import (
+    CitedPaper,
+    ReferenceSnapshot,
+    write_index,
+)
 
 EUROPEPMC = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 IDCONV = "https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/"
 EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
-OAI = "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/"
 _PAGE = 1000
 _ID_BATCH = 200
 _PUBMED_BATCH = 100
 
 
-def references_url(review: Review, page: int) -> str:
+def references_url(review: SeedReview, page: int) -> str:
     """Europe PMC reference-list URL for one index review."""
     if review.pmcid:
         kind, identifier = "PMC", review.pmcid
@@ -50,22 +53,40 @@ def pubmed_url(pmids: Sequence[str], email: str) -> str:
     )
 
 
-def efetch_pmc_url(pmcid: str, email: str) -> str:
-    """E-utilities efetch URL for one PMC article."""
-    numeric = pmcid.removeprefix("PMC")
-    return f"{EFETCH}?db=pmc&id={numeric}&retmode=xml&tool=vsv&email={quote(email)}"
+def sync_review_references(
+    root: Path,
+    fetch_json: FetchJson,
+    fetch_text: FetchText,
+    email: str,
+    retrieved: str,
+    papers: dict[str, Paper] | None = None,
+) -> ReferenceSnapshot:
+    """Refresh review-reference membership from the review bibliographies.
+
+    A PMID that is absent from ``papers`` still receives a bibliographic record.
+    Whether it also belongs to the pubmed collection is recorded separately.
+    """
+    known = papers
+    if known is None:
+        try:
+            known = {paper.pmid: paper for paper in load_papers(corpus_dir(root))}
+        except InputError:
+            known = {}
+    return make_index(census_dir(root), known, fetch_json, fetch_text, email, retrieved)
 
 
-def oai_url(pmcid: str) -> str:
-    """PMC OAI-PMH URL for one article. Used when efetch does not return XML."""
-    numeric = pmcid.removeprefix("PMC")
-    identifier = f"oai:pubmedcentral.nih.gov:{numeric}"
-    return f"{OAI}?verb=GetRecord&identifier={quote(identifier)}&metadataPrefix=pmc"
-
-
-def europepmc_fulltext_url(pmcid: str) -> str:
-    """Europe PMC open-access XML URL."""
-    return fulltext_url(pmcid)
+def make_index(
+    dest: Path,
+    papers: Mapping[str, Paper],
+    fetch_json: FetchJson,
+    fetch_text: FetchText,
+    email: str,
+    retrieved: str,
+) -> ReferenceSnapshot:
+    """Write ``dest/index.json`` and return the snapshot."""
+    index = build_index(fetch_json, fetch_text, papers, email, retrieved)
+    write_index(dest, index)
+    return index
 
 
 def build_index(
@@ -74,7 +95,7 @@ def build_index(
     papers: Mapping[str, Paper],
     email: str,
     retrieved: str,
-) -> CensusIndex:
+) -> ReferenceSnapshot:
     """Cited PMIDs, confirmed against the PMC id converter.
 
     A PMID already in ``papers`` keeps that record's title, year, DOI, and open-access
@@ -107,7 +128,7 @@ def build_index(
                 tuple(sorted(cited[pmid], key=int)),
             )
         )
-    return CensusIndex(retrieved, tuple(records))
+    return ReferenceSnapshot(retrieved, tuple(records))
 
 
 def _cited(fetch_json: FetchJson) -> dict[str, set[str]]:

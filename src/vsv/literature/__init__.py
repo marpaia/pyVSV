@@ -1,20 +1,21 @@
-"""Bibliographic records, collections, documents, and readings.
+"""Bibliographic records, collections, documents, and parsed text.
 
 Design promotion stays with the design library. This package records where a paper
 came from and which files were saved for it.
 """
 
+from vsv.literature.catalog import Catalog, load_catalog
 from vsv.literature.records import (
     PUBMED,
     REVIEW_REFERENCES,
     Citation,
     Collection,
     Document,
+    DocumentText,
     Membership,
     Paper,
-    Reading,
 )
-from vsv.literature.store import Catalog, default_root, load_catalog
+from vsv.literature.storage.paths import default_root
 
 __all__ = [
     "PUBMED",
@@ -23,9 +24,9 @@ __all__ = [
     "Citation",
     "Collection",
     "Document",
+    "DocumentText",
     "Membership",
     "Paper",
-    "Reading",
     "default_root",
     "load_catalog",
 ]

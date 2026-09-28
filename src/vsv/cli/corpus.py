@@ -8,16 +8,18 @@ import click
 
 from vsv.cli.render import cli_name, wrap
 from vsv.design.library import load_library
+from vsv.design.literature import clusters_from, write_design
 from vsv.errors import InputError
-from vsv.literature.cluster import Cluster, clusters_from, write_design
-from vsv.literature.papers import load_extractions, load_papers
-from vsv.literature.pipeline import coverage_report, extract_corpus
-from vsv.literature.query import CORPUS_ROOT
-from vsv.literature.records import Extraction, Paper
+from vsv.literature.analysis.records import PaperCluster, PaperExtraction
+from vsv.literature.analysis.workflow import extract_corpus
+from vsv.literature.checks import coverage_report
+from vsv.literature.records import Paper
 from vsv.literature.search import matching_papers
+from vsv.literature.storage.corpus import load_extractions, load_papers
+from vsv.literature.storage.paths import CORPUS_ROOT
 
 
-def cluster_edit(cluster: Cluster) -> str:
+def cluster_edit(cluster: PaperCluster) -> str:
     """The edit as shown on the design list."""
     target = cli_name(cluster.edit_target)
     if cluster.edit_activity == "replace-module":
@@ -29,7 +31,7 @@ def cluster_edit(cluster: Cluster) -> str:
     return "-"
 
 
-def format_cluster(cluster: Cluster, extractions: list[Extraction]) -> str:
+def format_cluster(cluster: PaperCluster, extractions: list[PaperExtraction]) -> str:
     """One extracted architecture, its quotes, and its PMIDs."""
     by_pmid = {item.pmid: item for item in extractions}
     status = f"confirmed {cluster.match}" if cluster.match else "extracted"

@@ -1,22 +1,25 @@
-"""Parse local documents into readings."""
+"""Choose a document for each paper and store the parsed text."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
 from vsv.errors import InputError
-from vsv.literature.records import PUBMED, REVIEW_REFERENCES, Block, Document
-from vsv.literature.section import section_text, section_xml, write_sections
-from vsv.literature.store import acquired_dir, load_catalog, sections_dir
+from vsv.literature.catalog import load_catalog
+from vsv.literature.documents.jats import section_xml
+from vsv.literature.documents.text import section_text
+from vsv.literature.records import PUBMED, REVIEW_REFERENCES, Document, TextBlock
+from vsv.literature.storage.paths import acquired_dir, sections_dir
+from vsv.literature.storage.text import write_sections
 
 _FORMAT_RANK = {"xml": 0, "html": 1, "pdf": 2}
 
 
 def parse_collection(root: Path, collection: str) -> int:
-    """Write a reading for each available document in ``collection``.
+    """Write parsed text for each available document in ``collection``.
 
-    XML is parsed from the stored article. HTML and PDF readings use the plain
-    text saved beside the file. One reading is kept per paper, preferring XML.
+    XML is parsed from the stored article. HTML and PDF text uses the plain
+    text saved beside the file. One text file is kept per paper, preferring XML.
     """
     if collection not in {PUBMED, REVIEW_REFERENCES}:
         raise InputError(f"{collection}: unknown collection.")
@@ -44,7 +47,7 @@ def parse_collection(root: Path, collection: str) -> int:
     return written
 
 
-def _blocks(root: Path, document: Document) -> tuple[Block, ...]:
+def _blocks(root: Path, document: Document) -> tuple[TextBlock, ...]:
     if document.format == "xml" and document.location:
         path = root / document.location
         if not path.is_file():

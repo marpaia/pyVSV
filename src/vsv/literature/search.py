@@ -1,17 +1,23 @@
-"""Local queries over the catalog."""
+"""Local filtering and sorting over papers and extraction records."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
-from vsv.literature.cluster import clusters_from
-from vsv.literature.query import VECTOR_KINDS, mentions
-from vsv.literature.records import Extraction, Paper
+from vsv.literature.analysis.cluster import clusters_from
+from vsv.literature.analysis.records import VECTOR_KINDS, PaperExtraction
+from vsv.literature.records import Paper
+
+
+def mentions(text: str, aliases: tuple[str, ...] | list[str]) -> bool:
+    """Whether ``text`` contains one of ``aliases``, ignoring case."""
+    folded = text.casefold()
+    return any(alias.casefold() in folded for alias in aliases if alias)
 
 
 def matching_papers(
     papers: Sequence[Paper],
-    extractions: Sequence[Extraction] | None = None,
+    extractions: Sequence[PaperExtraction] | None = None,
     *,
     members: set[str] | None = None,
     year: str | None = None,
@@ -30,12 +36,12 @@ def matching_papers(
     ``members`` restricts the result to one collection. ``None`` searches every paper
     that was passed in. The label is the extraction class when ``show_kind`` is set.
     """
-    by_pmid: Mapping[str, Extraction] = {}
+    by_pmid: Mapping[str, PaperExtraction] = {}
     if extractions is not None:
         by_pmid = {item.pmid: item for item in extractions}
     placed: set[str] = set()
     if unclustered and extractions is not None:
-        placed = {pmid for cluster in clusters_from(list(extractions)) for pmid in cluster.pmids}
+        placed = {pmid for cluster in clusters_from(extractions) for pmid in cluster.pmids}
     matched: list[tuple[Paper, str]] = []
     for paper in papers:
         if members is not None and paper.pmid not in members:

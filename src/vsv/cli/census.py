@@ -9,12 +9,14 @@ from pathlib import Path
 import click
 
 from vsv.errors import InputError
-from vsv.literature.fetch import live_fetch, live_fetch_text
-from vsv.literature.index import CENSUS_ROOT, read_manifest
-from vsv.literature.papers import load_papers
-from vsv.literature.query import CORPUS_ROOT, FULLTEXT_NAME
-from vsv.literature.run import download_xml, make_index
-from vsv.literature.section import section_xml, write_sections
+from vsv.literature.discovery.references import make_index
+from vsv.literature.documents.acquire import download_xml
+from vsv.literature.documents.jats import section_xml
+from vsv.literature.http import live_fetch, live_fetch_text
+from vsv.literature.storage.corpus import load_papers
+from vsv.literature.storage.documents import read_manifest
+from vsv.literature.storage.paths import CENSUS_ROOT, CORPUS_ROOT, FULLTEXT_NAME
+from vsv.literature.storage.text import write_sections
 
 
 def _live_json(url: str) -> dict[str, object]:

@@ -11,10 +11,16 @@ import re
 from collections.abc import Callable, Iterable
 
 from vsv.design.evidence import Assay, Host, Outcome, Phenotype, Stage
-from vsv.literature.classify import classify
-from vsv.literature.fetch import clean_text
-from vsv.literature.query import VECTOR_KINDS
-from vsv.literature.records import UNKNOWN, Claim, Extraction, Paper, Quoted
+from vsv.literature.analysis.classify import classify
+from vsv.literature.analysis.records import (
+    UNKNOWN,
+    VECTOR_KINDS,
+    ExtractedClaim,
+    PaperExtraction,
+    QuotedValue,
+)
+from vsv.literature.documents.text import clean_text
+from vsv.literature.records import Paper
 
 _SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z\"(])")
 _DELTA_G = re.compile(
@@ -273,7 +279,7 @@ def sentences(text: str) -> list[str]:
     return [part.strip() for part in _SENTENCE.split(cleaned) if part.strip()]
 
 
-def describe(paper: Paper, methods: str = "") -> Extraction:
+def describe(paper: Paper, methods: str = "") -> PaperExtraction:
     """Classify ``paper`` and extract architecture fields.
 
     ``methods`` is open-access methods text. It affects fields, not the class. The class is
@@ -300,7 +306,7 @@ def describe(paper: Paper, methods: str = "") -> Extraction:
     locus = _exclusive(body, _locus, "locus", conflicts)
     claims = _claims(body)
     stage = _stage(body, claims)
-    return Extraction(
+    return PaperExtraction(
         paper.pmid,
         classification.kind,
         classification.review,
@@ -319,8 +325,8 @@ def describe(paper: Paper, methods: str = "") -> Extraction:
     )
 
 
-def _empty(pmid: str, kind: str, review: bool, status: str, source: str) -> Extraction:
-    return Extraction(
+def _empty(pmid: str, kind: str, review: bool, status: str, source: str) -> PaperExtraction:
+    return PaperExtraction(
         pmid,
         kind,
         review,
@@ -341,17 +347,17 @@ def _empty(pmid: str, kind: str, review: bool, status: str, source: str) -> Extr
 
 def _exclusive(
     body: list[str],
-    reader: Callable[[str], Quoted | None],
+    reader: Callable[[str], QuotedValue | None],
     field: str,
     conflicts: list[str],
-) -> Quoted:
+) -> QuotedValue:
     found = [
         quoted for sentence in body if (quoted := reader(sentence)) is not None and quoted.known
     ]
     return _agree(found, field, conflicts)
 
 
-def _agree(found: list[Quoted], field: str, conflicts: list[str]) -> Quoted:
+def _agree(found: list[QuotedValue], field: str, conflicts: list[str]) -> QuotedValue:
     values = {item.value for item in found}
     if not values:
         return UNKNOWN
@@ -361,31 +367,31 @@ def _agree(found: list[Quoted], field: str, conflicts: list[str]) -> Quoted:
     return found[0]
 
 
-def _backbone(sentence: str) -> Quoted | None:
+def _backbone(sentence: str) -> QuotedValue | None:
     indiana = _INDIANA.search(sentence) is not None
     jersey = _NEW_JERSEY.search(sentence) is not None
     if indiana and jersey:
         return None
     if indiana:
-        return Quoted("indiana", sentence)
+        return QuotedValue("indiana", sentence)
     if jersey:
-        return Quoted("new-jersey", sentence)
+        return QuotedValue("new-jersey", sentence)
     return None
 
 
-def _replication(sentence: str) -> Quoted | None:
+def _replication(sentence: str) -> QuotedValue | None:
     single = _SINGLE.search(sentence) is not None
     competent = _COMPETENT.search(sentence) is not None
     if single and competent:
         return None
     if single:
-        return Quoted("single-cycle", sentence)
+        return QuotedValue("single-cycle", sentence)
     if competent:
-        return Quoted("replication-competent", sentence)
+        return QuotedValue("replication-competent", sentence)
     return None
 
 
-def _edit(body: list[str], conflicts: list[str]) -> tuple[Quoted, Quoted]:
+def _edit(body: list[str], conflicts: list[str]) -> tuple[QuotedValue, QuotedValue]:
     found: list[tuple[str, str, str]] = []
     for sentence in body:
         decision = _edit_sentence(sentence)
@@ -403,7 +409,7 @@ def _edit(body: list[str], conflicts: list[str]) -> tuple[Quoted, Quoted]:
     if not found:
         return UNKNOWN, UNKNOWN
     activity, target, sentence = found[0]
-    return Quoted(activity, sentence), Quoted(target, sentence)
+    return QuotedValue(activity, sentence), QuotedValue(target, sentence)
 
 
 def _edit_sentence(sentence: str) -> tuple[str, str, str] | None:
@@ -430,18 +436,18 @@ def _insert_target(sentence: str) -> str | None:
     return _AFTER_GENE.get(match.group(1).lower())
 
 
-def _locus(sentence: str) -> Quoted | None:
+def _locus(sentence: str) -> QuotedValue | None:
     if _POSITION_CONTEXT.search(sentence) is None and _PROXIMAL.search(sentence) is None:
         return None
     if _PROXIMAL.search(sentence):
-        return Quoted("0", sentence)
+        return QuotedValue("0", sentence)
     match = _POSITION.search(sentence)
     if match is None:
         return None
-    return Quoted(str(int(match.group(1)) - 1), sentence)
+    return QuotedValue(str(int(match.group(1)) - 1), sentence)
 
 
-def _antigen(body: list[str], conflicts: list[str]) -> tuple[Quoted, Quoted]:
+def _antigen(body: list[str], conflicts: list[str]) -> tuple[QuotedValue, QuotedValue]:
     slugs: list[tuple[str, str, str]] = []
     names: list[tuple[str, str]] = []
     for sentence in body:
@@ -459,14 +465,14 @@ def _antigen(body: list[str], conflicts: list[str]) -> tuple[Quoted, Quoted]:
         return UNKNOWN, UNKNOWN
     if chosen:
         slug, name, sentence = chosen[0]
-        return Quoted(name, sentence), Quoted(slug, sentence)
+        return QuotedValue(name, sentence), QuotedValue(slug, sentence)
     unique_names = {item[0] for item in names}
     if len(unique_names) > 1:
         conflicts.append("antigen")
         return UNKNOWN, UNKNOWN
     if names:
         name, sentence = names[0]
-        return Quoted(name, sentence), UNKNOWN
+        return QuotedValue(name, sentence), UNKNOWN
     return UNKNOWN, UNKNOWN
 
 
@@ -476,8 +482,8 @@ def _payload(sentence: str) -> bool:
     return any(pattern.search(sentence) for pattern, _name in _PATHOGENS)
 
 
-def _claims(body: Iterable[str]) -> list[Claim]:
-    claims: list[Claim] = []
+def _claims(body: Iterable[str]) -> list[ExtractedClaim]:
+    claims: list[ExtractedClaim] = []
     seen: set[tuple[str, str, str]] = set()
     for sentence in body:
         phenotype = _phenotype(sentence)
@@ -491,7 +497,7 @@ def _claims(body: Iterable[str]) -> list[Claim]:
             if key in seen:
                 continue
             seen.add(key)
-            claims.append(Claim(kind, host, assay, outcome, sentence))
+            claims.append(ExtractedClaim(kind, host, assay, outcome, sentence))
     return claims
 
 
@@ -513,11 +519,11 @@ def _phenotype(sentence: str) -> tuple[str, str, str] | None:
     return None
 
 
-def _stage(body: list[str], claims: list[Claim]) -> Quoted:
+def _stage(body: list[str], claims: list[ExtractedClaim]) -> QuotedValue:
     for sentence in body:
         if _CLINICAL.search(sentence):
-            return Quoted(Stage.CLINICAL.value, sentence)
+            return QuotedValue(Stage.CLINICAL.value, sentence)
     for claim in claims:
         if claim.host in _ANIMAL and claim.outcome == Outcome.REPORTED.value:
-            return Quoted(Stage.PRECLINICAL.value, claim.quote)
+            return QuotedValue(Stage.PRECLINICAL.value, claim.quote)
     return UNKNOWN

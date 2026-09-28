@@ -10,19 +10,25 @@ from pathlib import Path
 import pytest
 
 from vsv.cli import main
-from vsv.literature.catalog import CensusIndex, CitedPaper, ManifestRow
-from vsv.literature.documents import download_xml, fetch_collection
-from vsv.literature.index import read_manifest, write_index, write_manifest
-from vsv.literature.papers import digest_pmids, load_ledger, write_ledger, write_papers
-from vsv.literature.records import PUBMED, REVIEW_REFERENCES, Ledger, Paper
-from vsv.literature.store import (
-    census_dir,
-    corpus_dir,
-    document_from_row,
-    fulltext_dir,
-    load_catalog,
+from vsv.literature.catalog import load_catalog
+from vsv.literature.documents.acquire import download_xml, fetch_collection
+from vsv.literature.documents.parse import parse_collection
+from vsv.literature.records import PUBMED, REVIEW_REFERENCES, Paper
+from vsv.literature.storage.corpus import (
+    PubMedSnapshot,
+    digest_pmids,
+    load_ledger,
+    write_ledger,
+    write_papers,
 )
-from vsv.literature.text import parse_collection
+from vsv.literature.storage.documents import (
+    ManifestRow,
+    document_from_row,
+    read_manifest,
+    write_manifest,
+)
+from vsv.literature.storage.paths import census_dir, corpus_dir, fulltext_dir
+from vsv.literature.storage.references import CitedPaper, ReferenceSnapshot, write_index
 
 _BODY = "<article><body><p>" + ("word " * 500) + "</p></body></article>"
 _TEXT = "Results\n\nMice were protected.\n"
@@ -280,7 +286,9 @@ def _write_overlap(root: Path) -> None:
     )
     pmids = ("222", "333")
     write_ledger(
-        Ledger("the pubmed query", "residual", "2026-09-21", 2, 0, pmids, (), digest_pmids(pmids)),
+        PubMedSnapshot(
+            "the pubmed query", "residual", "2026-09-21", 2, 0, pmids, (), digest_pmids(pmids)
+        ),
         corpus,
     )
     write_index(
@@ -336,8 +344,8 @@ def _write_manifest(root: Path) -> Path:
     return census
 
 
-def _index(papers: tuple[CitedPaper, ...]) -> CensusIndex:
-    return CensusIndex("2026-09-26", papers)
+def _index(papers: tuple[CitedPaper, ...]) -> ReferenceSnapshot:
+    return ReferenceSnapshot("2026-09-26", papers)
 
 
 def _paper(

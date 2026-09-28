@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
-from enum import StrEnum
 
+from vsv.literature.analysis.records import Classification, PaperKind
 from vsv.literature.records import Paper
 
 _RECOMBINANT = re.compile(
@@ -54,29 +53,6 @@ _VIROLOGY = re.compile(
 )
 
 
-class Kind(StrEnum):
-    """What a corpus paper is about."""
-
-    VACCINE_VECTOR = "vaccine-vector"
-    ONCOLYTIC = "oncolytic"
-    REPORTER = "reporter"
-    BASIC_VIROLOGY = "basic-virology"
-    STRUCTURE = "structure"
-    EPIDEMIOLOGY = "epidemiology"
-    PSEUDOTYPE = "pseudotype-reagent"
-    REVIEW = "review"
-    OTHER = "other"
-
-
-@dataclass(frozen=True, slots=True)
-class Classification:
-    """The class of one paper. ``review`` is also set when the publication type says so."""
-
-    kind: Kind
-    review: bool
-    status: str
-
-
 def classify(paper: Paper) -> Classification:
     """Classify ``paper`` from its title, abstract, publication types, and MeSH terms.
 
@@ -86,38 +62,38 @@ def classify(paper: Paper) -> Classification:
     text = f"{paper.title}\n{paper.abstract}"
     review = any(item.casefold() == "review" for item in paper.pub_types)
     kind = _kind(text)
-    if kind is Kind.OTHER and _TITLE_SUBJECT.search(paper.title):
-        kind = Kind.BASIC_VIROLOGY
-    if kind is Kind.OTHER and review:
-        kind = Kind.REVIEW
-    status = "unresolved" if kind is Kind.OTHER else "classified"
+    if kind is PaperKind.OTHER and _TITLE_SUBJECT.search(paper.title):
+        kind = PaperKind.BASIC_VIROLOGY
+    if kind is PaperKind.OTHER and review:
+        kind = PaperKind.REVIEW
+    status = "unresolved" if kind is PaperKind.OTHER else "classified"
     return Classification(kind, review, status)
 
 
-def _kind(text: str) -> Kind:
+def _kind(text: str) -> PaperKind:
     if not text.strip():
-        return Kind.OTHER
+        return PaperKind.OTHER
     recombinant = _recombinant(text)
     pathogen = _PATHOGEN.search(text) is not None
     if recombinant and pathogen:
-        return Kind.VACCINE_VECTOR
+        return PaperKind.VACCINE_VECTOR
     if recombinant and _ONCOLYTIC.search(text):
-        return Kind.ONCOLYTIC
+        return PaperKind.ONCOLYTIC
     if recombinant and _REPORTER.search(text):
-        return Kind.REPORTER
+        return PaperKind.REPORTER
     if recombinant:
-        return Kind.VACCINE_VECTOR
+        return PaperKind.VACCINE_VECTOR
     if _PSEUDOTYPE.search(text):
-        return Kind.PSEUDOTYPE
+        return PaperKind.PSEUDOTYPE
     if _ONCOLYTIC.search(text):
-        return Kind.ONCOLYTIC
+        return PaperKind.ONCOLYTIC
     if _EPIDEMIOLOGY.search(text):
-        return Kind.EPIDEMIOLOGY
+        return PaperKind.EPIDEMIOLOGY
     if _STRUCTURE.search(text):
-        return Kind.STRUCTURE
+        return PaperKind.STRUCTURE
     if _VIROLOGY.search(text):
-        return Kind.BASIC_VIROLOGY
-    return Kind.OTHER
+        return PaperKind.BASIC_VIROLOGY
+    return PaperKind.OTHER
 
 
 def _recombinant(text: str) -> bool:

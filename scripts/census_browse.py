@@ -22,9 +22,10 @@ from playwright.sync_api import Page, sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
 
 from vsv.ingest import redact
-from vsv.literature.catalog import ManifestRow
-from vsv.literature.index import CENSUS_ROOT, read_manifest, write_manifest
-from vsv.literature.section import section_text, write_sections
+from vsv.literature.documents.text import section_text
+from vsv.literature.storage.documents import ManifestRow, read_manifest, write_manifest
+from vsv.literature.storage.paths import CENSUS_ROOT
+from vsv.literature.storage.text import write_sections
 
 CDP = "http://127.0.0.1:9222"
 QUEUE = frozenset({"no-pmc", "front-matter-only", "error", "needs-login"})

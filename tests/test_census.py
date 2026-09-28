@@ -9,13 +9,11 @@ import pytest
 
 from vsv.cli import main
 from vsv.errors import InputError
-from vsv.literature.acquire import acquire
-from vsv.literature.bibliography import build_index
-from vsv.literature.catalog import CitedPaper
-from vsv.literature.index import read_index
+from vsv.literature.discovery.references import build_index, make_index
+from vsv.literature.documents.acquire import acquire, download_xml
+from vsv.literature.documents.jats import BODY_MIN, body_characters
 from vsv.literature.records import Paper
-from vsv.literature.run import download_xml, make_index
-from vsv.literature.xmlbody import BODY_MIN, body_characters
+from vsv.literature.storage.references import CitedPaper, read_index
 
 _BODY = "<article><body><p>" + ("word " * 500) + "</p></body></article>"
 _FRONT = (

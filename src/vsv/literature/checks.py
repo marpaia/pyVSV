@@ -1,76 +1,21 @@
-"""Hand-labeled sample used to measure classification misses, and workspace checks."""
+"""Workspace integrity: membership, snapshot completeness, files, and citations."""
 
 from __future__ import annotations
 
 import hashlib
-import random
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from vsv.errors import InputError
-from vsv.literature.papers import digest_pmids, ledger_path, load_ledger
-from vsv.literature.query import AUDIT_SEED, AUDIT_SIZE, VECTOR_KINDS
-from vsv.literature.records import PUBMED, Extraction, Paper
-from vsv.literature.store import Catalog, corpus_dir, load_catalog
-
-
-def stratified_pmids(
-    papers: Sequence[Paper],
-    *,
-    size: int = AUDIT_SIZE,
-    seed: int = AUDIT_SEED,
-) -> list[str]:
-    """``size`` PMIDs spread across decades of publication.
-
-    The draw is deterministic for a seed. Papers with no year share one bucket.
-    """
-    buckets: dict[str, list[str]] = {}
-    for paper in papers:
-        decade = (
-            f"{paper.year[:3]}0" if len(paper.year) >= 3 and paper.year[:3].isdigit() else "unknown"
-        )
-        buckets.setdefault(decade, []).append(paper.pmid)
-    rng = random.Random(seed)
-    for pmids in buckets.values():
-        rng.shuffle(pmids)
-    order = sorted(buckets)
-    chosen: list[str] = []
-    while len(chosen) < size and any(buckets.values()):
-        for decade in order:
-            pending = buckets[decade]
-            if not pending or len(chosen) >= size:
-                continue
-            chosen.append(pending.pop())
-    return chosen
-
-
-def audit_messages(
-    extractions: Sequence[Extraction],
-    labels: Sequence[Mapping[str, object]],
-) -> list[str]:
-    """Kind mismatches and vector papers the classifier missed."""
-    by_pmid = {item.pmid: item for item in extractions}
-    messages: list[str] = []
-    for label in labels:
-        pmid = label.get("pmid")
-        kind = label.get("kind")
-        vector = label.get("vector")
-        if not isinstance(pmid, str) or not isinstance(kind, str) or not isinstance(vector, bool):
-            raise InputError("An audit label needs pmid, kind, and vector.")
-        found = by_pmid.get(pmid)
-        if found is None:
-            messages.append(f"{pmid}: labeled paper is not in the extractions.")
-            continue
-        if found.kind != kind:
-            messages.append(f"{pmid}: labeled {kind}, classified {found.kind}.")
-        if vector and found.kind not in VECTOR_KINDS:
-            messages.append(f"{pmid}: labeled vector, classified {found.kind}.")
-    return messages
+from vsv.literature.analysis.evaluate import extraction_coverage
+from vsv.literature.catalog import Catalog, load_catalog
+from vsv.literature.records import PUBMED
+from vsv.literature.storage.corpus import digest_pmids, ledger_path, load_ledger, load_papers
+from vsv.literature.storage.paths import corpus_dir
 
 
 @dataclass(frozen=True, slots=True)
-class Consistency:
+class CheckReport:
     """Problems found in one workspace. An empty list is a consistent catalog."""
 
     messages: tuple[str, ...]
@@ -81,7 +26,7 @@ class Consistency:
         return not self.messages
 
 
-def check_workspace(root: Path) -> Consistency:
+def check_workspace(root: Path) -> CheckReport:
     """Compare snapshots, files, and citations in ``root``.
 
     A paper that belongs to one collection and not another is consistent.
@@ -107,7 +52,47 @@ def check_workspace(root: Path) -> Consistency:
     for reading in catalog.readings:
         if reading.pmid not in known:
             messages.append(f"reading {reading.pmid}: no paper")
-    return Consistency(tuple(messages))
+    return CheckReport(tuple(messages))
+
+
+def coverage_report(root: Path) -> tuple[str, bool]:
+    """Text of the coverage ledger and whether every PMID is stored."""
+    ledger = load_ledger(root)
+    papers = load_papers(root)
+    stored = {paper.pmid for paper in papers}
+    expected = set(ledger.pmids)
+    missing = sorted(expected - stored, key=int)
+    extra = sorted(stored - expected, key=int)
+    digest_ok = digest_pmids(ledger.pmids) == ledger.digest
+    lines = [
+        f"query  {ledger.query}",
+        f"retrieved  {ledger.retrieved}",
+        f"pubmed  {ledger.pubmed_count}",
+        f"stored  {len(stored)}",
+        f"europepmc misses  {len(ledger.europepmc_misses)}",
+        f"open access  {sum(1 for paper in papers if paper.open_access)}",
+        f"residual  {ledger.residual_count}",
+        f"digest  {'ok' if digest_ok else 'mismatch'}",
+    ]
+    ok = (
+        digest_ok
+        and not missing
+        and not extra
+        and len(stored) == ledger.pubmed_count
+        and len(ledger.pmids) == ledger.pubmed_count
+    )
+    if missing:
+        lines.append("missing  " + ", ".join(missing[:20]))
+        ok = False
+    if extra:
+        lines.append("extra  " + ", ".join(extra[:20]))
+        ok = False
+    analysis, analysis_ok = extraction_coverage(root, stored)
+    if analysis is None:
+        lines.append("extractions  absent")
+        return "\n".join(lines), ok
+    lines.extend(analysis)
+    return "\n".join(lines), ok and analysis_ok
 
 
 def _pubmed(root: Path, catalog: Catalog) -> list[str]:
