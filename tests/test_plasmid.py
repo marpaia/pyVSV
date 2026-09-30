@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from lab.compiler import compile as compile_protocol
-from lab.experiments.cloning import BSAI, Assembly, AssemblyRequest, build_assembly
+from lab import compile as compile_protocol
+from lab.experiments.cloning import BSAI, Assembly
 from lab.part import Part
 from lab.targets import Manual
 
@@ -156,21 +156,15 @@ def test_the_compiler_names_the_plasmid_parts(
     assert isinstance(plasmid.backbone, Part)
     assert isinstance(plasmid.insert, Part)
     compiled = compile_protocol(
-        build_assembly(
-            AssemblyRequest(
-                id=vaccine.id,
-                assemblies=(
-                    Assembly(
-                        id=f"{vaccine.id}-assembly",
-                        product=plasmid.product,
-                        backbone=plasmid.backbone,
-                        parts=[plasmid.insert],
-                        restriction_enzyme=BSAI,
-                    ),
-                ),
-            )
+        Assembly(
+            id=vaccine.id,
+            product=plasmid.product,
+            backbone=plasmid.backbone,
+            parts=[plasmid.insert],
+            restriction_enzyme=BSAI,
         ),
         Manual(),
+        to=None,
     )
     text = "\n".join(compiled.files.values())
     assert "pvsv-dg" in text

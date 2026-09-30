@@ -13,9 +13,9 @@
 
 ```python
 import vsv
-from lab.compiler import compile
-from lab.experiments.cloning import Assembly, AssemblyRequest, BSAI, build_assembly
-from lab.targets import Manual
+from lab import compile
+from lab.experiments.cloning import Assembly, BSAI, assembly_deck
+from lab.targets import LiquidHandler
 from vsv import AntigenClass, Gene, Replication
 
 virus = vsv.read_record("outbreak.gb")  # FASTA, GenBank, or SBOL3
@@ -31,24 +31,17 @@ vaccine = chassis.replace(
 )
 plasmid = vaccine.plasmid()
 
-compiled = compile(
-    build_assembly(
-        AssemblyRequest(
-            id=vaccine.id,
-            assemblies=(
-                Assembly(
-                    id=f"{vaccine.id}-assembly",
-                    product=plasmid.product,
-                    backbone=plasmid.backbone,
-                    parts=[plasmid.insert],
-                    restriction_enzyme=BSAI,
-                ),
-            ),
-        )
+compile(
+    Assembly(
+        id=vaccine.id,
+        product=plasmid.product,
+        backbone=plasmid.backbone,
+        parts=[plasmid.insert],
+        restriction_enzyme=BSAI,
     ),
-    Manual(),
+    deck=assembly_deck(),
+    liquid_handler=LiquidHandler.FLEX,
 )
-compiled.write("build/plasmid/assembly")
 ```
 
 `mark` records the antigen class and the coding sequence. A class the library has not named yet is `AntigenClass("paramyxovirus-glycoprotein")`. A FASTA record has no features, so pass `virus.add_cds("GP", start, end)` to `mark`. Spans are zero-based and half-open.
@@ -57,7 +50,7 @@ compiled.write("build/plasmid/assembly")
 
 `check` is true when the plan passes. Failures are on `check().violations`. `precedents` returns published plans with this arrangement, and the antigen class includes its subclasses. `vaccine.observations` is empty. `vaccine.write` stores the plan without the coding sequence.
 
-`plasmid.sequence` is the transcription unit: the Indiana G gene-start, the marked coding sequence, and the gene-end. The backbone is the Indiana antigenome NC_001560.1, and the slot is the span that unit replaces. `plasmid.check()` fails an unclosed reading frame, a gene-end inside the unit, or a replication-competent glycoprotein replacement with no hydrophobic anchor in its last 60 residues. `plasmid.write` stores the unit and that antigenome. The assembly compiles the part identities onto the bought backbone.
+`plasmid.sequence` is the transcription unit: the Indiana G gene-start, the marked coding sequence, and the gene-end. The backbone is the Indiana antigenome NC_001560.1, and the slot is the span that unit replaces. `plasmid.check()` fails an unclosed reading frame, a gene-end inside the unit, or a replication-competent glycoprotein replacement with no hydrophobic anchor in its last 60 residues. `plasmid.write` stores the unit and that antigenome. The assembly compiles the part identities onto the bought backbone for a Flex and writes the bundle to `~/.lab/rvsv_dg_outbreak_gp/Flex/`. `assembly_deck()` places the reagent block on the temperature module and the product plate on the thermocycler.
 
 ## Command line
 
