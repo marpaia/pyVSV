@@ -253,6 +253,64 @@ antigen:rabies-glycoprotein a owl:Class ;
     rdfs:label "rabies glycoprotein" ;
     rdfs:subClassOf :AntigenClass .
 
+antigen:bandavirus-glycoprotein a owl:Class ;
+    rdfs:label "bandavirus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass ;
+    rdfs:comment "Gn/Gc of a bandavirus, including SFTSV and Heartland virus." .
+
+antigen:herpesvirus-glycoprotein a owl:Class ;
+    rdfs:label "herpesvirus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:papillomavirus-capsid a owl:Class ;
+    rdfs:label "papillomavirus capsid" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:dengue-envelope a owl:Class ;
+    rdfs:label "dengue envelope" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:gm-csf a owl:Class ;
+    rdfs:label "GM-CSF" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:interferon-beta a owl:Class ;
+    rdfs:label "interferon beta" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:interleukin-4 a owl:Class ;
+    rdfs:label "interleukin-4" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:thymidine-kinase a owl:Class ;
+    rdfs:label "thymidine kinase" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:hepacivirus-glycoprotein a owl:Class ;
+    rdfs:label "hepacivirus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:hepacivirus-structural a owl:Class ;
+    rdfs:label "hepacivirus structural proteins" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:west-nile-envelope a owl:Class ;
+    rdfs:label "West Nile virus envelope" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:yersinia-lcrv a owl:Class ;
+    rdfs:label "Yersinia pestis LcrV" ;
+    rdfs:subClassOf :AntigenClass .
+
+antigen:vesiculovirus-glycoprotein a owl:Class ;
+    rdfs:label "vesiculovirus glycoprotein" ;
+    rdfs:subClassOf :AntigenClass ;
+    rdfs:comment "A vesiculovirus G protein other than Indiana VSV G, encoded in the genome." .
+
+antigen:henipavirus-nucleoprotein a owl:Class ;
+    rdfs:label "henipavirus nucleoprotein" ;
+    rdfs:subClassOf :AntigenClass .
+
 # Development stage, phenotype, host, assay, and outcome. Leaf IRIs are the values stored on a plan.
 
 stage:preclinical a owl:Class ;

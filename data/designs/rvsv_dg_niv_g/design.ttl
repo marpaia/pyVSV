@@ -9,31 +9,11 @@ ns1:rvsv_dg_niv_g__chattopadhyay_2011_mouse_neutralization_data a sbol:Experimen
     sbol:hasNamespace <https://vsv.bio> ;
     prov:wasGeneratedBy ns1:rvsv_dg_niv_g__chattopadhyay_2011_mouse_neutralization .
 
-ns1:rvsv_dg_niv_g a sbol:Component ;
-    sbol:displayId "rvsv_dg_niv_g" ;
-    sbol:hasAttachment ns1:rvsv_dg_niv_g_citation_1 ;
-    sbol:hasConstraint <https://vsv.bio/rvsv_dg_niv_g/Constraint1>,
-        <https://vsv.bio/rvsv_dg_niv_g/Constraint2>,
-        <https://vsv.bio/rvsv_dg_niv_g/Constraint3>,
-        <https://vsv.bio/rvsv_dg_niv_g/Constraint4>,
-        <https://vsv.bio/rvsv_dg_niv_g/Constraint5>,
-        <https://vsv.bio/rvsv_dg_niv_g/Constraint6> ;
-    sbol:hasFeature <https://vsv.bio/rvsv_dg_niv_g/Glycoprotein>,
-        <https://vsv.bio/rvsv_dg_niv_g/LargePolymerase>,
-        <https://vsv.bio/rvsv_dg_niv_g/MatrixProtein>,
-        <https://vsv.bio/rvsv_dg_niv_g/Nucleoprotein>,
-        <https://vsv.bio/rvsv_dg_niv_g/Phosphoprotein>,
-        <https://vsv.bio/rvsv_dg_niv_g/leader>,
-        <https://vsv.bio/rvsv_dg_niv_g/trailer> ;
+ns1:rvsv_dg_niv_g__pmid_24184127_hamster_protection_data a sbol:ExperimentalData ;
+    sbol:displayId "rvsv_dg_niv_g__pmid_24184127_hamster_protection_data" ;
+    sbol:hasAttachment ns1:rvsv_dg_niv_g__pmid_24184127_hamster_protection_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "single-cycle rVSV Nipah virus glycoprotein" ;
-    sbol:role <https://identifiers.org/SO:0001041>,
-        <https://vsv.bio/backbone/VSV-Indiana>,
-        <https://vsv.bio/role/single-cycle> ;
-    sbol:type <https://identifiers.org/SBO:0000251> ;
-    prov:wasDerivedFrom ns1:vsv_indiana ;
-    prov:wasGeneratedBy ns1:rvsv_dg_niv_g_derivation ;
-    ns1:alias "VSVΔG-G(NiV)" .
+    prov:wasGeneratedBy ns1:rvsv_dg_niv_g__pmid_24184127_hamster_protection .
 
 <https://vsv.bio/rvsv_dg_niv_g/Constraint1> a sbol:Constraint ;
     sbol:displayId "Constraint1" ;
@@ -95,7 +75,8 @@ ns1:rvsv_dg_niv_g__chattopadhyay_2011_mouse_neutralization a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/neutralization>,
         <https://vsv.bio/host/mouse>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/immunogenicity> ;
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_dg_niv_g__chattopadhyay_2011_mouse_neutralization/Usage1> ;
     ns1:index 0 .
 
@@ -108,6 +89,47 @@ ns1:rvsv_dg_niv_g__chattopadhyay_2011_mouse_neutralization_citation a sbol:Attac
     sbol:displayId "rvsv_dg_niv_g__chattopadhyay_2011_mouse_neutralization_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1128/jvi.01852-10> .
+
+ns1:rvsv_dg_niv_g__pmid_24184127 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_niv_g ;
+    sbol:displayId "rvsv_dg_niv_g__pmid_24184127" ;
+    sbol:hasAttachment ns1:rvsv_dg_niv_g__pmid_24184127_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "pmid-24184127" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 1 .
+
+ns1:rvsv_dg_niv_g__pmid_24184127_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_niv_g__pmid_24184127_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.antiviral.2013.10.012> .
+
+ns1:rvsv_dg_niv_g__pmid_24184127_hamster_protection a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "hamsters vaccinated with VSV-ΔG-NiVG or VSV-ΔG-NiVF did not develop any clinical illness nor weight loss" ;
+    sbol:displayId "rvsv_dg_niv_g__pmid_24184127_hamster_protection" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "pmid-24184127-hamster-protection" ;
+    sbol:type <https://vsv.bio/assay/lethal-challenge>,
+        <https://vsv.bio/host/hamster>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_niv_g__pmid_24184127_hamster_protection/Usage1> ;
+    ns1:challenge-dose "105 TCID50/hamster, >1000 times LD50" ;
+    ns1:challenge-route "intraperitoneal" ;
+    ns1:challenge-virus "NiV Malaysia" ;
+    ns1:index 1 .
+
+<https://vsv.bio/rvsv_dg_niv_g__pmid_24184127_hamster_protection/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_niv_g__pmid_24184127 .
+
+ns1:rvsv_dg_niv_g__pmid_24184127_hamster_protection_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_niv_g__pmid_24184127_hamster_protection_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.antiviral.2013.10.012> .
 
 ns1:rvsv_dg_niv_g_citation_1 a sbol:Attachment ;
     sbol:displayId "rvsv_dg_niv_g_citation_1" ;
@@ -126,6 +148,32 @@ ns1:rvsv_dg_niv_g_derivation a sbol:TopLevel,
         prov:Usage ;
     sbol:displayId "parent" ;
     prov:entity ns1:vsv_indiana .
+
+ns1:rvsv_dg_niv_g a sbol:Component ;
+    sbol:displayId "rvsv_dg_niv_g" ;
+    sbol:hasAttachment ns1:rvsv_dg_niv_g_citation_1 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_dg_niv_g/Constraint1>,
+        <https://vsv.bio/rvsv_dg_niv_g/Constraint2>,
+        <https://vsv.bio/rvsv_dg_niv_g/Constraint3>,
+        <https://vsv.bio/rvsv_dg_niv_g/Constraint4>,
+        <https://vsv.bio/rvsv_dg_niv_g/Constraint5>,
+        <https://vsv.bio/rvsv_dg_niv_g/Constraint6> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_dg_niv_g/Glycoprotein>,
+        <https://vsv.bio/rvsv_dg_niv_g/LargePolymerase>,
+        <https://vsv.bio/rvsv_dg_niv_g/MatrixProtein>,
+        <https://vsv.bio/rvsv_dg_niv_g/Nucleoprotein>,
+        <https://vsv.bio/rvsv_dg_niv_g/Phosphoprotein>,
+        <https://vsv.bio/rvsv_dg_niv_g/leader>,
+        <https://vsv.bio/rvsv_dg_niv_g/trailer> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "single-cycle rVSV Nipah virus glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/single-cycle> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_dg_niv_g_derivation ;
+    ns1:alias "VSVΔG-G(NiV)" .
 
 <https://vsv.bio/rvsv_dg_niv_g/leader> a sbol:LocalSubComponent ;
     sbol:displayId "leader" ;

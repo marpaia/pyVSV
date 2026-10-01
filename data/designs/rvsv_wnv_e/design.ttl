@@ -1,0 +1,140 @@
+@prefix ns1: <https://vsv.bio/> .
+@prefix ns2: <https://vsv.bio/unmodeled-source/> .
+@prefix ns3: <https://vsv.bio/unmodeled/value/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:rvsv_wnv_e__pmid_19070640 a sbol:Implementation ;
+    sbol:built ns1:rvsv_wnv_e ;
+    sbol:displayId "rvsv_wnv_e__pmid_19070640" ;
+    sbol:hasAttachment ns1:rvsv_wnv_e__pmid_19070640_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "pmid-19070640" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 0 .
+
+ns1:rvsv_wnv_e a sbol:Component ;
+    sbol:displayId "rvsv_wnv_e" ;
+    sbol:hasAttachment ns1:rvsv_wnv_e_citation_1 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_wnv_e/Constraint1>,
+        <https://vsv.bio/rvsv_wnv_e/Constraint2>,
+        <https://vsv.bio/rvsv_wnv_e/Constraint3>,
+        <https://vsv.bio/rvsv_wnv_e/Constraint4>,
+        <https://vsv.bio/rvsv_wnv_e/Constraint5>,
+        <https://vsv.bio/rvsv_wnv_e/Constraint6> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_wnv_e/Glycoprotein>,
+        <https://vsv.bio/rvsv_wnv_e/LargePolymerase>,
+        <https://vsv.bio/rvsv_wnv_e/MatrixProtein>,
+        <https://vsv.bio/rvsv_wnv_e/Nucleoprotein>,
+        <https://vsv.bio/rvsv_wnv_e/Phosphoprotein>,
+        <https://vsv.bio/rvsv_wnv_e/leader>,
+        <https://vsv.bio/rvsv_wnv_e/trailer>,
+        <https://vsv.bio/rvsv_wnv_e/wnv_e> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "rVSV West Nile envelope" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    ns2:prime-boost "Mice were intranasally vaccinated using a prime (Indiana)-boost (Chandipura) immunization approach and challenged with the virulent WNV-LSU-AR01. Ninety-percent (9 of 10) of the vaccinated mice survived as compared to 10% of the mock-vaccinated mice after WNV lethal challenge." ;
+    ns3:prime-boost "Indiana prime and Chandipura boost." .
+
+<https://vsv.bio/rvsv_wnv_e/Constraint1> a sbol:Constraint ;
+    sbol:displayId "Constraint1" ;
+    sbol:object <https://vsv.bio/rvsv_wnv_e/Nucleoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_wnv_e/leader> .
+
+<https://vsv.bio/rvsv_wnv_e/Constraint2> a sbol:Constraint ;
+    sbol:displayId "Constraint2" ;
+    sbol:object <https://vsv.bio/rvsv_wnv_e/Phosphoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_wnv_e/Nucleoprotein> .
+
+<https://vsv.bio/rvsv_wnv_e/Constraint3> a sbol:Constraint ;
+    sbol:displayId "Constraint3" ;
+    sbol:object <https://vsv.bio/rvsv_wnv_e/MatrixProtein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_wnv_e/Phosphoprotein> .
+
+<https://vsv.bio/rvsv_wnv_e/Constraint4> a sbol:Constraint ;
+    sbol:displayId "Constraint4" ;
+    sbol:object <https://vsv.bio/rvsv_wnv_e/Glycoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_wnv_e/MatrixProtein> .
+
+<https://vsv.bio/rvsv_wnv_e/Constraint5> a sbol:Constraint ;
+    sbol:displayId "Constraint5" ;
+    sbol:object <https://vsv.bio/rvsv_wnv_e/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_wnv_e/Glycoprotein> .
+
+<https://vsv.bio/rvsv_wnv_e/Constraint6> a sbol:Constraint ;
+    sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_wnv_e/trailer> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_wnv_e/LargePolymerase> .
+
+<https://vsv.bio/rvsv_wnv_e/wnv_e> a sbol:LocalSubComponent ;
+    sbol:displayId "wnv_e" ;
+    sbol:name "West Nile envelope" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/west-nile-envelope> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+ns1:rvsv_wnv_e__pmid_19070640_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_wnv_e__pmid_19070640_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.vaccine.2008.11.087> .
+
+ns1:rvsv_wnv_e_citation_1 a sbol:Attachment ;
+    sbol:displayId "rvsv_wnv_e_citation_1" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/j.vaccine.2008.11.087> .
+
+<https://vsv.bio/rvsv_wnv_e/leader> a sbol:LocalSubComponent ;
+    sbol:displayId "leader" ;
+    sbol:name "leader" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/leader> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_wnv_e/trailer> a sbol:LocalSubComponent ;
+    sbol:displayId "trailer" ;
+    sbol:name "trailer" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/trailer> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_wnv_e/Glycoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Glycoprotein" ;
+    sbol:name "Glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_wnv_e/LargePolymerase> a sbol:LocalSubComponent ;
+    sbol:displayId "LargePolymerase" ;
+    sbol:name "LargePolymerase" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_wnv_e/MatrixProtein> a sbol:LocalSubComponent ;
+    sbol:displayId "MatrixProtein" ;
+    sbol:name "MatrixProtein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_wnv_e/Nucleoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Nucleoprotein" ;
+    sbol:name "Nucleoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_wnv_e/Phosphoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Phosphoprotein" ;
+    sbol:name "Phosphoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+

@@ -1,5 +1,7 @@
 # Literature
 
+Command order for the whole program is in [cli.md](cli.md).
+
 `vsv.literature` keeps a workspace of VSV papers. For a PMID it stores any combination of a bibliographic identity, a collection membership, a saved article or the reason none was saved, text parsed from that article, and a quote-backed extraction. `load_catalog()` reads the workspace into one `Catalog`.
 
 A curated genome plan is a design. `vsv promote` writes one from an extraction cluster, and does not change the literature files.

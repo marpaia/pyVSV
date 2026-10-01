@@ -41,16 +41,20 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
     records = {record.architecture.id: record for record in load_library()}
     assert set(records) == {
         "vsv_indiana",
+        "rvsv_dg_bdbv_gp",
         "rvsv_dg_bombali_gp",
         "rvsv_dg_filovirus_gp",
+        "rvsv_dg_hcv_e",
         "rvsv_dg_marv_gp",
         "rvsv_dg_mers_s",
         "rvsv_dg_niv_f",
         "rvsv_dg_niv_g",
         "rvsv_dg_sars_s",
+        "rvsv_dg_sftsv_gp",
         "rvsv_dg_sudv_gp",
         "rvsv_niv_g",
         "rvsv_niv_f",
+        "rvsv_niv_n",
         "rvsv_lasv_gpc",
         "rvsv_dg_sars_cov_2_s",
         "rvsv_hiv_env",
@@ -60,6 +64,7 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
         "rvsv_gl_hiv_gag",
         "rvsv_gl_niv_f",
         "rvsv_gl_niv_g",
+        "rvsv_gl_sars_s",
         "rvsv_gfp",
         "rvsv_luc",
         "rvsv_zika_e",
@@ -68,6 +73,25 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
         "rvsv_hantavirus_gp",
         "rvsv_chikv_e",
         "rvsv_rabies_g",
+        "rvsv_cat",
+        "rvsv_ch_hiv_gag",
+        "rvsv_ch_hsv2_gd",
+        "rvsv_ch_wnv_e",
+        "rvsv_gl_chikv_e",
+        "rvsv_gl_crpv_l1",
+        "rvsv_gl_denv2_pre",
+        "rvsv_gl_hsv2_gd",
+        "rvsv_gl_ifnb",
+        "rvsv_gl_il4",
+        "rvsv_gl_lcrv",
+        "rvsv_gl_tk",
+        "rvsv_gmcsf",
+        "rvsv_hcv_ce1e2",
+        "rvsv_leader_gfp",
+        "rvsv_leader_lcrv",
+        "rvsv_n_zika_prme",
+        "rvsv_nj_lcrv",
+        "rvsv_wnv_e",
     }
     indiana = records["vsv_indiana"]
     assert indiana.realization == "NC_001560"
@@ -112,8 +136,12 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
     assert [(item.id, item.stage) for item in lassa.implementations] == [
         ("garbutt-2004", Stage.PRECLINICAL),
         ("malkin-2025", Stage.CLINICAL),
+        ("pmid-30774999", Stage.PRECLINICAL),
     ]
-    assert {item.implementation_id for item in lassa.observations} == {"malkin-2025"}
+    assert {item.implementation_id for item in lassa.observations} == {
+        "malkin-2025",
+        "pmid-30774999",
+    }
     assert lassa.card.evidence_level is EvidenceLevel.HUMAN
 
     marburg = records["rvsv_dg_marv_gp"]
@@ -127,7 +155,7 @@ def test_seed_designs_match_their_recorded_transformations() -> None:
     sudan = records["rvsv_dg_sudv_gp"]
     assert sudan.architecture.antigen_classes == ("sudan-ebolavirus-glycoprotein",)
     assert sudan.observations[0].challenge_virus == "SEBOV"
-    assert sudan.observations[0].route.value == "unknown"
+    assert sudan.observations[0].route.value == "intramuscular"
     hendra = records["rvsv_gl_hev_g"]
     assert hendra.architecture.edit is not None
     assert hendra.observations[0].route.value == "intranasal"
@@ -152,6 +180,7 @@ def test_queries_separate_antigen_class_and_evidence() -> None:
     ]
     protected = select(records, phenotype=Phenotype.PROTECTION, host=Host.NONHUMAN_PRIMATE)
     assert [record.architecture.id for record in protected] == [
+        "rvsv_dg_bdbv_gp",
         "rvsv_dg_filovirus_gp",
         "rvsv_dg_marv_gp",
         "rvsv_dg_sudv_gp",

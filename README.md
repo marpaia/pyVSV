@@ -64,7 +64,7 @@ vsv precedents rvsv_dg_outbreak_gp.ttl --antigen-class filovirus-glycoprotein --
 vsv plasmid rvsv_dg_outbreak_gp_plasmid.ttl
 ```
 
-On the command line the genes are `n`, `p`, `m`, `g`, and `l`. `vsv extract` writes gene, cds, or protein sequence. `vsv designs` lists the curated library. `vsv check` prints structural violations and knowledge gaps and exits 1 when a structural rule fails. `vsv precedents` lists published plans with the same arrangement. `vsv plasmid` prints the backbone, slot, and insert in a plasmid file.
+The commands, their filters, and what an empty `precedents` answer means are in [docs/cli.md](docs/cli.md). On the command line the genes are `n`, `p`, `m`, `g`, and `l`.
 
 `data/designs/` holds one directory per published architecture: `design.ttl` and `PROVENANCE.md`. The plan stores no insert sequence. `vsv.plans()` reads that library.
 

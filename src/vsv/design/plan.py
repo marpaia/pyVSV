@@ -169,10 +169,11 @@ class Plan:
 
         A glycoprotein replacement returns the curated replacements, an insert after G returns
         the curated inserts after G, and an insert after the leader returns the curated insert
-        there. ``antigen_class`` keeps plans whose antigen is that class or a subclass of it.
-        ``phenotype`` and ``host`` keep plans with a matching observation. Each result is that
-        published plan, observations included. This candidate keeps its own empty observation
-        list.
+        there. A plan with an unknown transcribed locus, or with any number of non-viral genes
+        other than one, is not compared. ``antigen_class`` keeps plans whose antigen is that
+        class or a subclass of it. ``phenotype`` and ``host`` keep plans with a matching
+        observation. Each result is that published plan, observations included. This candidate
+        keeps its own empty observation list.
         """
         shape = _shape(self)
         if shape is None:

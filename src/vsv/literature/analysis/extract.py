@@ -262,6 +262,85 @@ _SLUGS: tuple[tuple[re.Pattern[str], str, str], ...] = (
         "rabies-glycoprotein",
         "rabies glycoprotein",
     ),
+    (
+        re.compile(r"\bsftsv\b.{0,30}\bgn/gc\b|\bhrtv\b.{0,20}\bgn/gc\b", re.IGNORECASE),
+        "bandavirus-glycoprotein",
+        "bandavirus glycoprotein",
+    ),
+    (
+        re.compile(
+            r"\bhsv-2\b.{0,30}\bgd\b|\bglycoprotein d\b.{0,40}\bhsv-2\b",
+            re.IGNORECASE,
+        ),
+        "herpesvirus-glycoprotein",
+        "herpesvirus glycoprotein D",
+    ),
+    (
+        re.compile(
+            r"\bcrpv\b.{0,80}\bl1\b|\bcottontail rabbit papillomavirus\b.{0,40}\bl1\b",
+            re.IGNORECASE,
+        ),
+        "papillomavirus-capsid",
+        "papillomavirus capsid",
+    ),
+    (
+        re.compile(r"\bprm/e\b|\b(?:denv-2|dengue-2)\b.{0,30}\benvelope\b", re.IGNORECASE),
+        "dengue-envelope",
+        "dengue envelope",
+    ),
+    (
+        re.compile(r"\bgm-csf\b", re.IGNORECASE),
+        "gm-csf",
+        "GM-CSF",
+    ),
+    (
+        re.compile(r"\bvsv-ifn-?β\b|\bmouse ifn-β\b", re.IGNORECASE),
+        "interferon-beta",
+        "interferon beta",
+    ),
+    (
+        re.compile(r"\bvsv-il-4\b", re.IGNORECASE),
+        "interleukin-4",
+        "interleukin-4",
+    ),
+    (
+        re.compile(r"\bvsv-tk\b", re.IGNORECASE),
+        "thymidine-kinase",
+        "thymidine kinase",
+    ),
+    (
+        re.compile(r"\be1g\b|\be2g\b", re.IGNORECASE),
+        "hepacivirus-glycoprotein",
+        "hepacivirus glycoprotein",
+    ),
+    (
+        re.compile(r"\bvsv-hcv-c/e1/e2\b|\bcore, e1, and e2\b", re.IGNORECASE),
+        "hepacivirus-structural",
+        "hepacivirus structural proteins",
+    ),
+    (
+        re.compile(r"\bwest nile virus \(wnv\) envelope\b", re.IGNORECASE),
+        "west-nile-envelope",
+        "West Nile virus envelope",
+    ),
+    (
+        re.compile(r"\byersinia pestis lcrv\b|\blcrv gene\b", re.IGNORECASE),
+        "yersinia-lcrv",
+        "Yersinia pestis LcrV",
+    ),
+    (
+        re.compile(
+            r"\bchandipura\b.{0,40}\b(?:g glycoprotein|g protein|serotype)\b",
+            re.IGNORECASE,
+        ),
+        "vesiculovirus-glycoprotein",
+        "vesiculovirus glycoprotein",
+    ),
+    (
+        re.compile(r"\bniv n\b|\bnipah virus n\b", re.IGNORECASE),
+        "henipavirus-nucleoprotein",
+        "Nipah nucleoprotein",
+    ),
     (re.compile(r"\b(?:egfp|gfp)\b", re.IGNORECASE), "reporter-gfp", "GFP"),
     (re.compile(r"\bluciferase\b", re.IGNORECASE), "reporter-luciferase", "luciferase"),
 )

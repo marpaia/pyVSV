@@ -79,7 +79,8 @@ ns1:rvsv_dg_sudv_gp__geisbert_2008_postexposure a sbol:TopLevel,
     sbol:type <https://vsv.bio/assay/lethal-challenge>,
         <https://vsv.bio/host/nonhuman-primate>,
         <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection> ;
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular> ;
     prov:qualifiedUsage <https://vsv.bio/rvsv_dg_sudv_gp__geisbert_2008_postexposure/Usage1> ;
     ns1:challenge-dose "1,000 PFU" ;
     ns1:challenge-route "intramuscular" ;

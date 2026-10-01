@@ -32,8 +32,10 @@ _AFTER_LEADER = "https://doi.org/10.1128/jvi.00019-14"
 _REPLACEMENTS = (
     "rvsv_cchf_gpc",
     "rvsv_chikv_e",
+    "rvsv_dg_bdbv_gp",
     "rvsv_dg_bombali_gp",
     "rvsv_dg_filovirus_gp",
+    "rvsv_dg_hcv_e",
     "rvsv_dg_hiv_env",
     "rvsv_dg_marv_gp",
     "rvsv_dg_mers_s",
@@ -41,17 +43,28 @@ _REPLACEMENTS = (
     "rvsv_dg_niv_g",
     "rvsv_dg_sars_cov_2_s",
     "rvsv_dg_sars_s",
+    "rvsv_dg_sftsv_gp",
     "rvsv_dg_sudv_gp",
     "rvsv_hantavirus_gp",
     "rvsv_lasv_gpc",
     "rvsv_rabies_g",
 )
 _AFTER_GLYCOPROTEIN = (
+    "rvsv_cat",
     "rvsv_gfp",
+    "rvsv_gl_chikv_e",
+    "rvsv_gl_crpv_l1",
+    "rvsv_gl_denv2_pre",
     "rvsv_gl_hev_g",
     "rvsv_gl_hiv_gag",
+    "rvsv_gl_hsv2_gd",
+    "rvsv_gl_ifnb",
+    "rvsv_gl_il4",
+    "rvsv_gl_lcrv",
     "rvsv_gl_niv_f",
     "rvsv_gl_niv_g",
+    "rvsv_gl_sars_s",
+    "rvsv_gl_tk",
     "rvsv_hiv_env",
     "rvsv_influenza_ha",
     "rvsv_rsv_f",
@@ -214,7 +227,12 @@ def test_precedents_follow_the_precedence_chain(
     )
     assert tuple(item.id for item in replaced.precedents(library)) == _REPLACEMENTS
     assert tuple(item.id for item in inserted.precedents(library)) == _AFTER_GLYCOPROTEIN
-    assert tuple(item.id for item in leading.precedents(library)) == ("rvsv_luc",)
+    assert tuple(item.id for item in leading.precedents(library)) == (
+        "rvsv_gmcsf",
+        "rvsv_leader_gfp",
+        "rvsv_leader_lcrv",
+        "rvsv_luc",
+    )
     for omitted in _UNPOSITIONED:
         assert omitted not in {item.id for item in replaced.precedents(library)}
     filo = next(item for item in library if item.id == "rvsv_dg_filovirus_gp")
@@ -339,7 +357,11 @@ def test_precedents_can_require_an_antigen_class_and_a_phenotype(
         antigen_class=AntigenClass.filovirus_glycoprotein,
         phenotype=Phenotype.PROTECTION,
     )
-    assert tuple(item.id for item in matched) == ("rvsv_dg_filovirus_gp", "rvsv_dg_sudv_gp")
+    assert tuple(item.id for item in matched) == (
+        "rvsv_dg_bdbv_gp",
+        "rvsv_dg_filovirus_gp",
+        "rvsv_dg_sudv_gp",
+    )
     sudan = replaced.precedents(library, antigen_class=AntigenClass.sudan_ebolavirus_glycoprotein)
     assert tuple(item.id for item in sudan) == ("rvsv_dg_sudv_gp",)
 

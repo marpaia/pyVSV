@@ -1,0 +1,162 @@
+@prefix ns1: <https://vsv.bio/> .
+@prefix ns2: <https://vsv.bio/unmodeled/value/> .
+@prefix ns3: <https://vsv.bio/unmodeled-source/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:rvsv_gl_hsv2_gd__natuk_2006 a sbol:Implementation ;
+    sbol:built ns1:rvsv_gl_hsv2_gd ;
+    sbol:displayId "rvsv_gl_hsv2_gd__natuk_2006" ;
+    sbol:hasAttachment ns1:rvsv_gl_hsv2_gd__natuk_2006_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "natuk-2006" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:index 0 .
+
+ns1:rvsv_gl_hsv2_gd a sbol:Component ;
+    sbol:displayId "rvsv_gl_hsv2_gd" ;
+    sbol:hasAttachment ns1:rvsv_gl_hsv2_gd_citation_1 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_gl_hsv2_gd/Constraint1>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/Constraint2>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/Constraint3>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/Constraint4>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/Constraint5>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/Constraint6>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/Constraint7> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_gl_hsv2_gd/Glycoprotein>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/LargePolymerase>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/MatrixProtein>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/Nucleoprotein>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/Phosphoprotein>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/hsv2_gd>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/leader>,
+        <https://vsv.bio/rvsv_gl_hsv2_gd/trailer> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "rVSV HSV-2 gD" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_gl_hsv2_gd_derivation ;
+    ns1:alias "rVSVI-gD" ;
+    ns3:genital-challenge "guinea pigs and mice were prophylactically protected from genital challenge with high doses of wild-type HSV-2." ;
+    ns2:genital-challenge "The protection sentence does not name one rVSV-gD genome." .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Constraint1> a sbol:Constraint ;
+    sbol:displayId "Constraint1" ;
+    sbol:object <https://vsv.bio/rvsv_gl_hsv2_gd/Nucleoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_hsv2_gd/leader> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Constraint2> a sbol:Constraint ;
+    sbol:displayId "Constraint2" ;
+    sbol:object <https://vsv.bio/rvsv_gl_hsv2_gd/Phosphoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_hsv2_gd/Nucleoprotein> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Constraint3> a sbol:Constraint ;
+    sbol:displayId "Constraint3" ;
+    sbol:object <https://vsv.bio/rvsv_gl_hsv2_gd/MatrixProtein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_hsv2_gd/Phosphoprotein> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Constraint4> a sbol:Constraint ;
+    sbol:displayId "Constraint4" ;
+    sbol:object <https://vsv.bio/rvsv_gl_hsv2_gd/Glycoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_hsv2_gd/MatrixProtein> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Constraint5> a sbol:Constraint ;
+    sbol:displayId "Constraint5" ;
+    sbol:object <https://vsv.bio/rvsv_gl_hsv2_gd/hsv2_gd> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_hsv2_gd/Glycoprotein> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Constraint6> a sbol:Constraint ;
+    sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_gl_hsv2_gd/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_hsv2_gd/hsv2_gd> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Constraint7> a sbol:Constraint ;
+    sbol:displayId "Constraint7" ;
+    sbol:object <https://vsv.bio/rvsv_gl_hsv2_gd/trailer> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_hsv2_gd/LargePolymerase> .
+
+ns1:rvsv_gl_hsv2_gd__natuk_2006_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_gl_hsv2_gd__natuk_2006_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.80.9.4447-4457.2006> .
+
+ns1:rvsv_gl_hsv2_gd_citation_1 a sbol:Attachment ;
+    sbol:displayId "rvsv_gl_hsv2_gd_citation_1" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.80.9.4447-4457.2006> .
+
+ns1:rvsv_gl_hsv2_gd_derivation a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "target=Glycoprotein;module=hsv2_gd;replication=replication-competent" ;
+    sbol:displayId "rvsv_gl_hsv2_gd_derivation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:type <https://vsv.bio/activity/insert-module> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_gl_hsv2_gd_derivation/parent> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd_derivation/parent> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "parent" ;
+    prov:entity ns1:vsv_indiana .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/leader> a sbol:LocalSubComponent ;
+    sbol:displayId "leader" ;
+    sbol:name "leader" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/leader> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/trailer> a sbol:LocalSubComponent ;
+    sbol:displayId "trailer" ;
+    sbol:name "trailer" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/trailer> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Glycoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Glycoprotein" ;
+    sbol:name "Glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/LargePolymerase> a sbol:LocalSubComponent ;
+    sbol:displayId "LargePolymerase" ;
+    sbol:name "LargePolymerase" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/MatrixProtein> a sbol:LocalSubComponent ;
+    sbol:displayId "MatrixProtein" ;
+    sbol:name "MatrixProtein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Nucleoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Nucleoprotein" ;
+    sbol:name "Nucleoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/Phosphoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Phosphoprotein" ;
+    sbol:name "Phosphoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_hsv2_gd/hsv2_gd> a sbol:LocalSubComponent ;
+    sbol:displayId "hsv2_gd" ;
+    sbol:name "HSV-2 gD" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/herpesvirus-glycoprotein> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
