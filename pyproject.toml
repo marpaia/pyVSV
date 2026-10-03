@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-lab-compiler = { path = "../../lab-lang/lab-py", editable = true }
+lab-compiler = { path = "../../MyersResearchGroup/LabCompiler", editable = true }
 
 [project.scripts]
 vsv = "vsv.cli:main"

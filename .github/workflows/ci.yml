@@ -31,6 +31,11 @@ jobs:
         with:
           version: "0.6.7"
           enable-cache: true
+      - name: Checkout Lab Compiler
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/../../MyersResearchGroup"
+          git clone --depth 1 https://github.com/MyersResearchGroup/LabCompiler.git \
+            "$GITHUB_WORKSPACE/../../MyersResearchGroup/LabCompiler"
       - name: Install locked dependencies
         run: uv sync --locked --group server
       - name: Check code and run tests
