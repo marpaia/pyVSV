@@ -10,9 +10,9 @@ import re
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import sbol3
-from lab.part import Part
 
 from vsv import NAMESPACE
 from vsv.design.architecture import Replication
@@ -99,9 +99,13 @@ class Slot:
 
 
 @dataclass(frozen=True, slots=True)
-class Backbone(Part):
-    """A ``Part`` the Lab compiler can take as ``backbone=``, plus the cited sequence."""
+class Backbone:
+    """Cited Indiana antigenome for one slot.
 
+    ``component`` is the SBOL DNA component an assembly takes as ``backbone``.
+    """
+
+    iri: str
     id: str
     accession: str
     citation: str
@@ -109,8 +113,7 @@ class Backbone(Part):
     slot: Slot
 
     def __post_init__(self) -> None:
-        # This slots dataclass does not bind super() to the instance class.
-        Part.__post_init__(self)
+        _require_iri(self.iri)
         if self.iri != f"{NAMESPACE}/backbone/{self.id}":
             raise InputError(f"{self.id}: the backbone IRI does not match its id.")
         expected = _SLOT_NAMES.get(self.id)
@@ -128,8 +131,13 @@ class Backbone(Part):
         if end > len(bases) or bases[slot.end : end] != downstream:
             raise InputError(f"{self.id}: the downstream flank is not on the backbone sequence.")
 
+    @property
+    def component(self) -> sbol3.Component:
+        """The backbone identity an assembly records as a DNA component."""
+        return dna_component(self.iri, name=self.id)
 
-@dataclass(frozen=True, slots=True)
+
+@dataclass(frozen=True, slots=True, eq=False)
 class Plasmid:
     """The transcription unit, cited backbone, and product for one plan."""
 
@@ -137,13 +145,13 @@ class Plasmid:
     edit: str
     slot: str
     insert_id: str
-    insert: Part
+    insert: sbol3.Component
     unit: TranscriptionUnit
     sequence: Nucleotides
     replication: Replication
     backbone: Backbone
     antigenome: Nucleotides
-    product: Part
+    product: sbol3.Component
 
     def __post_init__(self) -> None:
         if self.sequence.bases != self.unit.sequence.bases:
@@ -156,6 +164,41 @@ class Plasmid:
             raise InputError(f"{self.plan_id}: the gene-end does not match the slot.")
         if self.antigenome.bases != _antigenome(self.backbone, self.unit).bases:
             raise InputError(f"{self.plan_id}: the antigenome does not place the unit in the slot.")
+
+    def __eq__(self, other: object) -> bool:
+        # pySBOL3 components compare by object identity, so equality uses the part IRIs.
+        if not isinstance(other, Plasmid):
+            return NotImplemented
+        return (
+            self.plan_id == other.plan_id
+            and self.edit == other.edit
+            and self.slot == other.slot
+            and self.insert_id == other.insert_id
+            and self.insert.identity == other.insert.identity
+            and self.unit == other.unit
+            and self.sequence == other.sequence
+            and self.replication == other.replication
+            and self.backbone == other.backbone
+            and self.antigenome == other.antigenome
+            and self.product.identity == other.product.identity
+        )
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.plan_id,
+                self.edit,
+                self.slot,
+                self.insert_id,
+                self.insert.identity,
+                self.unit,
+                self.sequence,
+                self.replication,
+                self.backbone,
+                self.antigenome,
+                self.product.identity,
+            )
+        )
 
     def check(self) -> CheckResult:
         """Sequence rules for this transcription unit. True when every rule passes."""
@@ -260,13 +303,13 @@ def read_plasmid(path: str | Path) -> Plasmid:
         facts["edit"],
         facts["slot"],
         facts["insert"],
-        Part(str(insert.identity)),
+        dna_component(str(insert.identity), name=facts["insert"]),
         unit,
         unit.sequence,
         replication,
         cited,
         _antigenome(cited, unit),
-        Part(str(product.identity)),
+        dna_component(str(product.identity), name=facts["plan"]),
     )
 
 
@@ -276,6 +319,31 @@ def backbone(identifier: str) -> Backbone:
         return _backbones()[identifier]
     except KeyError:
         raise InputError(f"Unknown backbone {identifier}.") from None
+
+
+def dna_component(identity: str, *, name: str | None = None) -> sbol3.Component:
+    """An SBOL DNA component with ``identity``.
+
+    pySBOL3 requires the last IRI segment to be a display id of letters, digits, and
+    underscores. A backbone id such as ``pvsv-dg`` keeps its hyphen. The assembly compiler
+    names the stock from that IRI.
+    """
+    _require_iri(identity)
+    leaf = identity.rstrip("/").rsplit("/", 1)[-1]
+    if sbol3.is_valid_display_id(leaf):
+        return sbol3.Component(identity, sbol3.SBO_DNA, name=name)
+    display = leaf.replace("-", "_")
+    if not sbol3.is_valid_display_id(display):
+        raise InputError(f"{identity}: not an SBOL component identity.")
+    built = sbol3.Component(display, sbol3.SBO_DNA, name=name if name is not None else leaf)
+    built._identity = identity
+    return built
+
+
+def _require_iri(value: str) -> None:
+    parsed = urlsplit(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc or not parsed.path.strip("/"):
+        raise InputError(f"{value!r} is not an absolute http(s) IRI.")
 
 
 def _antigenome(cited: Backbone, unit: TranscriptionUnit) -> Nucleotides:
@@ -381,14 +449,14 @@ def _antigenome_path() -> Path:
 def _document(plasmid: Plasmid) -> sbol3.Document:
     document = new_document()
     insert_sequence = sbol3.Sequence(
-        _local_id(plasmid.insert.iri, "seq"),
+        _local_id(plasmid.insert.identity, "seq"),
         elements=plasmid.sequence.bases.lower(),
         encoding=sbol3.IUPAC_DNA_ENCODING,
     )
     coding_start = len(plasmid.unit.gene_start.bases)
     coding_end = coding_start + len(plasmid.unit.coding_sequence.bases)
     insert = sbol3.Component(
-        plasmid.insert.iri,
+        plasmid.insert.identity,
         [sbol3.SBO_DNA],
         roles=[SO_GENE],
         sequences=[insert_sequence],
@@ -429,7 +497,7 @@ def _document(plasmid: Plasmid) -> sbol3.Document:
         features=features,
     )
     product = sbol3.Component(
-        plasmid.product.iri,
+        plasmid.product.identity,
         [sbol3.SBO_DNA],
         roles=[plasmid.backbone.iri],
         name=plasmid.plan_id,

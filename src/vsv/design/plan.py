@@ -13,7 +13,6 @@ from dataclasses import replace as data_replace
 from pathlib import Path
 
 import sbol3
-from lab.part import Part
 
 from vsv import NAMESPACE
 from vsv.design.architecture import Architecture, Replication, canonical_chassis, project
@@ -21,7 +20,7 @@ from vsv.design.document import architecture_of, design_of, to_document
 from vsv.design.evidence import Host, Observation, Phenotype
 from vsv.design.library import LIBRARY_ROOT
 from vsv.design.modules import Antigen, ViralGene, require_display_id
-from vsv.design.plasmid import Plasmid, TranscriptionUnit, backbone
+from vsv.design.plasmid import Plasmid, TranscriptionUnit, backbone, dna_component
 from vsv.design.query import antigen_matches
 from vsv.design.rules import CheckResult, check
 from vsv.errors import InputError
@@ -224,13 +223,13 @@ class Plan:
             edit=edit,
             slot=slot_name,
             insert_id=insert_id,
-            insert=Part(f"{NAMESPACE}/{self.id}/{insert_id}"),
+            insert=dna_component(f"{NAMESPACE}/{self.id}/{insert_id}", name=insert_id),
             unit=unit,
             sequence=sequence,
             replication=architecture_of(self.document).replication,
             backbone=cited,
             antigenome=antigenome,
-            product=Part(f"{NAMESPACE}/{self.id}/plasmid"),
+            product=dna_component(f"{NAMESPACE}/{self.id}/plasmid", name=self.id),
         )
 
     def check(self) -> CheckResult:

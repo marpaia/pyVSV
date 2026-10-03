@@ -415,7 +415,7 @@ def plasmid(plasmid: Path) -> None:
                     ("slot", record.slot),
                     ("insert", record.insert_id),
                     ("backbone", record.backbone.iri),
-                    ("product", record.product.iri),
+                    ("product", record.product.identity),
                 ]
             )
         )

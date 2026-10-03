@@ -14,7 +14,7 @@
 ```python
 import vsv
 from lab import compile
-from lab.experiments.cloning import Assembly, BSAI, assembly_deck
+from lab.experiments.cloning import Assembly, BSAI, assembly_deck, build_assembly
 from lab.targets import LiquidHandler
 from vsv import AntigenClass, Gene, Replication
 
@@ -32,15 +32,19 @@ vaccine = chassis.replace(
 plasmid = vaccine.plasmid()
 
 compile(
-    Assembly(
-        id=vaccine.id,
-        product=plasmid.product,
-        backbone=plasmid.backbone,
-        parts=[plasmid.insert],
-        restriction_enzyme=BSAI,
+    build_assembly(
+        [
+            Assembly(
+                product=plasmid.product,
+                backbone=plasmid.backbone.component,
+                parts=[plasmid.insert],
+                restriction_enzyme=BSAI,
+            )
+        ],
+        name=vaccine.id,
     ),
     deck=assembly_deck(),
-    liquid_handler=LiquidHandler.FLEX,
+    liquid_handler=LiquidHandler.OT2,
 )
 ```
 
@@ -50,7 +54,7 @@ compile(
 
 `check` is true when the plan passes. Failures are on `check().violations`. `precedents` returns published plans with this arrangement, and the antigen class includes its subclasses. `vaccine.observations` is empty. `vaccine.write` stores the plan without the coding sequence.
 
-`plasmid.sequence` is the transcription unit: the Indiana G gene-start, the marked coding sequence, and the gene-end. The backbone is the Indiana antigenome NC_001560.1, and the slot is the span that unit replaces. `plasmid.check()` fails an unclosed reading frame, a gene-end inside the unit, or a replication-competent glycoprotein replacement with no hydrophobic anchor in its last 60 residues. `plasmid.write` stores the unit and that antigenome. The assembly compiles the part identities onto the bought backbone for a Flex and writes the bundle to `~/.lab/rvsv_dg_outbreak_gp/Flex/`. `assembly_deck()` places the reagent block on the temperature module and the product plate on the thermocycler.
+`plasmid.sequence` is the transcription unit: the Indiana G gene-start, the marked coding sequence, and the gene-end. The backbone is the Indiana antigenome NC_001560.1, and the slot is the span that unit replaces. `plasmid.check()` fails an unclosed reading frame, a gene-end inside the unit, or a replication-competent glycoprotein replacement with no hydrophobic anchor in its last 60 residues. `plasmid.write` stores the unit and that antigenome. `build_assembly` records the product, the backbone component, and the insert. The assembly transfers 2 µL. `compile` writes the OT-2 bundle to `~/.lab/rvsv_dg_outbreak_gp/OT-2/`. That target needs the `opentrons` extra of `lab-compiler`. `assembly_deck()` places the reagent block on the temperature module and the product plate on the thermocycler.
 
 ## Command line
 

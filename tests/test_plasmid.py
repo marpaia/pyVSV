@@ -2,10 +2,9 @@
 
 from pathlib import Path
 
-from lab import compile as compile_protocol
-from lab.experiments.cloning import BSAI, Assembly
-from lab.part import Part
-from lab.targets import Manual
+import sbol3
+from lab import compile
+from lab.experiments.cloning import BSAI, Assembly, build_assembly
 
 from tests.synthetic import SyntheticGenome
 from vsv import AntigenClass, Gene, Plan, Plasmid, Replication, indiana, read_record
@@ -153,23 +152,28 @@ def test_the_compiler_names_the_plasmid_parts(
         name="outbreak",
     )
     plasmid = vaccine.plasmid()
-    assert isinstance(plasmid.backbone, Part)
-    assert isinstance(plasmid.insert, Part)
-    compiled = compile_protocol(
-        Assembly(
-            id=vaccine.id,
-            product=plasmid.product,
-            backbone=plasmid.backbone,
-            parts=[plasmid.insert],
-            restriction_enzyme=BSAI,
+    assert isinstance(plasmid.backbone.component, sbol3.Component)
+    assert plasmid.backbone.component.identity == plasmid.backbone.iri
+    assert isinstance(plasmid.insert, sbol3.Component)
+    assert isinstance(plasmid.product, sbol3.Component)
+    compiled = compile(
+        build_assembly(
+            [
+                Assembly(
+                    product=plasmid.product,
+                    backbone=plasmid.backbone.component,
+                    parts=[plasmid.insert],
+                    restriction_enzyme=BSAI,
+                )
+            ],
+            name=vaccine.id,
         ),
-        Manual(),
         to=None,
     )
     text = "\n".join(compiled.files.values())
     assert "pvsv-dg" in text
     assert "BsaI" in text
     assert "GP" in text
-    assert plasmid.product.iri.endswith("/plasmid")
+    assert plasmid.product.identity.endswith("/plasmid")
     assert plasmid.sequence.bases not in text
     assert plasmid.sequence.bases.lower() not in text

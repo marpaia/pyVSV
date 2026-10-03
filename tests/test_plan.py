@@ -298,9 +298,9 @@ def test_plasmid_uses_the_sequence_recorded_at_mark(
     assert plasmid.check()
     assert plasmid.slot == "g"
     assert plasmid.edit == "replace g"
-    assert plasmid.insert.iri == "https://vsv.bio/rvsv_dg_outbreak_gp/GP"
+    assert plasmid.insert.identity == "https://vsv.bio/rvsv_dg_outbreak_gp/GP"
     assert plasmid.backbone.iri == "https://vsv.bio/backbone/pvsv-dg"
-    assert plasmid.product.iri == "https://vsv.bio/rvsv_dg_outbreak_gp/plasmid"
+    assert plasmid.product.identity == "https://vsv.bio/rvsv_dg_outbreak_gp/plasmid"
     plan_path = tmp_path / "rvsv_dg_outbreak_gp.ttl"
     vaccine.write(plan_path)
     assert bases not in plan_path.read_text(encoding="utf-8")
