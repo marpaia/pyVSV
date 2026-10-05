@@ -26,7 +26,7 @@ def test_version(command: list[str], tmp_path: Path) -> None:
         text=True,
         check=True,
     )
-    assert result.stdout.strip() == f"vsv {version('vsv-bio')}"
+    assert result.stdout.strip() == f"vsv {version('pyVSV')}"
     assert result.stderr == ""
 
 

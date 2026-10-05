@@ -4,8 +4,8 @@ from importlib.metadata import version
 
 import sbol3
 
-# Distribution name on PyPI.
-__version__ = version("vsv-bio")
+# Distribution name on PyPI. The import package stays `vsv`.
+__version__ = version("pyVSV")
 
 NAMESPACE = "https://vsv.bio"
 

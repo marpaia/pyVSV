@@ -32,5 +32,5 @@ make build        # Build a source distribution and wheel in dist/
 
 Individual checks are available through `make lint`, `make format-check`, `make typecheck`, and `make test`. These targets run tools through uv, so activating the virtual environment is optional.
 
-CI runs these checks on Python 3.12, 3.13, and 3.14, then installs the built wheel into a separate environment to exercise its entry points. The distribution name is `vsv-bio` and its version is defined in `pyproject.toml`. The Python API and CLI read that installed distribution metadata. The import package and the `vsv` command remain `vsv`.
+CI runs these checks on Python 3.12, 3.13, and 3.14, then installs the built wheel into a separate environment to exercise its entry points. The distribution name is `pyVSV` and its version is defined in `pyproject.toml`. The Python API and CLI read that installed distribution metadata. The import package and the `vsv` command remain `vsv`.
 
