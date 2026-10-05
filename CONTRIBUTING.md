@@ -4,7 +4,7 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run 
 
 ## Working on the code
 
-Genomes live in `vsv.genome`. Architectures, edits, evidence, and the design library live in `vsv.design`. The command-line interface lives in `src/vsv/cli/`. The HTTP application lives in `vsv.server`, and its routes stay separate from genome and design code. Its dependencies are the `server` group, installed with `uv sync --group server`. A default `uv sync` installs the library and the dev tools. Add a dependency when a feature needs it.
+Genomes live in `vsv.genome`. Architectures, edits, evidence, and the design library live in `vsv.design`. The command-line interface lives in `src/vsv/cli/`. A default `uv sync` installs the library and the dev tools. Add a dependency when a feature needs it.
 
 Use type annotations for public interfaces. Keep file access, network access, and command-line argument handling separate from analysis code, so computations can be tested independently. Imports should not initiate downloads, write files, or run analyses.
 
@@ -17,7 +17,6 @@ Use notebooks for exploration and move reusable logic into the package. Clear no
 ```sh
 uv add <package>
 uv add --dev <development-tool>
-uv add --group server <package>
 uv lock --upgrade-package <package>
 ```
 

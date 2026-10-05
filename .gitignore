@@ -36,6 +36,3 @@ data/corpus/fulltext/
 data/census/acquired/
 data/census/sections/
 data/census/drafts/
-
-# Vercel project linking at the repository root
-.vercel
