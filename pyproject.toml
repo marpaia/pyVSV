@@ -7,6 +7,8 @@ name = "pyVSV"
 version = "0.3.0"
 description = "Computational genetics tools for Vesicular Stomatitis Virus (VSV) research."
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = [
     "click>=8.5.0",
@@ -44,6 +46,7 @@ include = [
     "/data/raw/NC_001560.fasta",
     "/tests",
     "/README.md",
+    "/LICENSE",
     "/CONTRIBUTING.md",
     "/Makefile",
     "/pyproject.toml",
