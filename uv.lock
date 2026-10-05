@@ -280,29 +280,15 @@ wheels = [
 
 [[package]]
 name = "lab-compiler"
-source = { editable = "../../MyersResearchGroup/LabCompiler" }
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pint" },
     { name = "sbol3" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "opentrons", marker = "extra == 'opentrons'", specifier = "==8.8.2" },
-    { name = "pint", specifier = ">=0.24,<0.27" },
-    { name = "pylabrobot", marker = "extra == 'star'", specifier = "==0.2.1" },
-    { name = "sbol3", specifier = "==1.2.0.post0" },
-]
-provides-extras = ["opentrons", "star"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "mypy", specifier = ">=1.17,<2" },
-    { name = "pytest", specifier = ">=8,<10" },
-    { name = "pytest-asyncio", specifier = ">=1,<2" },
-    { name = "ruff", specifier = ">=0.12,<1" },
-    { name = "twine", specifier = ">=6.2,<7" },
-    { name = "xlsxwriter", specifier = ">=3.2.9" },
+sdist = { url = "https://files.pythonhosted.org/packages/29/4a/7e9c145a20ede245831a7b1222fa3ca3d5858557de00470e6271465e6de5/lab_compiler-0.2.0.tar.gz", hash = "sha256:41bd09c76d5417450020b34e32c8075bac07955651aa7e1eaf583baeb6e40880", size = 136091, upload-time = "2026-10-01T21:48:11.913Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1b/f2/fe1fbde5cc0d054ff208bf163fff9d730cca7ce1b080f6ad40515b0c77b4/lab_compiler-0.2.0-py3-none-any.whl", hash = "sha256:3700006b02d7caef1095852a8a91e796de40122fc69a1af50bbeea01cff80532", size = 64070, upload-time = "2026-10-01T21:48:10.722Z" },
 ]
 
 [[package]]
@@ -838,7 +824,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.5.0" },
-    { name = "lab-compiler", editable = "../../MyersResearchGroup/LabCompiler" },
+    { name = "lab-compiler", specifier = ">=0.2.0" },
     { name = "sbol-utilities", specifier = ">=1.0a17" },
     { name = "sbol2", specifier = ">=1.4.1" },
     { name = "sbol3", specifier = ">=1.2.0.post0" },
