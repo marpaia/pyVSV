@@ -1,19 +1,10 @@
-"""VSV architectures, the edits that derive them, and the evidence attached to them."""
+"""VSV vaccines, the edits that derive them, and the evidence attached to them."""
 
-from vsv.design.architecture import (
-    Architecture,
-    ParentStatus,
-    Replication,
-    add_order_constraints,
-    canonical_chassis,
-    project,
-)
-from vsv.design.document import architecture_of, design_of, design_to_document, to_document
-from vsv.design.edits import Delete, Insert, Replace
 from vsv.design.evidence import (
     Assay,
-    ChassisCard,
-    Design,
+    Challenge,
+    CheckResult,
+    DoseUnit,
     EvidenceLevel,
     Host,
     Implementation,
@@ -22,86 +13,51 @@ from vsv.design.evidence import (
     Phenotype,
     Route,
     Stage,
-    Unmodeled,
-)
-from vsv.design.library import LIBRARY_ROOT, load_design, load_library
-from vsv.design.model import attach_model, parameters_for
-from vsv.design.modules import (
-    Antigen,
-    Leader,
-    LocusStatus,
-    Module,
-    ModuleKind,
-    Reporter,
-    Trailer,
-    ViralGene,
-)
-from vsv.design.plan import Plan, indiana, plan, plans, read
-from vsv.design.plasmid import Backbone, Plasmid, Slot, TranscriptionUnit, read_plasmid
-from vsv.design.query import select
-from vsv.design.rules import (
-    KNOWLEDGE_GAPS,
-    CheckResult,
-    Property,
+    Timing,
     Violation,
-    check,
-    satisfies,
 )
+from vsv.design.library import LIBRARY_ROOT, library, load
+from vsv.design.sbol import read
+from vsv.design.vaccine import (
+    KNOWLEDGE_GAPS,
+    Antigen,
+    GlycoproteinForm,
+    Insert,
+    Replace,
+    Replication,
+    Vaccine,
+    Viral,
+    indiana,
+)
+from vsv.sbol import NAMESPACE
 
 __all__ = [
     "KNOWLEDGE_GAPS",
     "LIBRARY_ROOT",
+    "NAMESPACE",
     "Antigen",
-    "Architecture",
     "Assay",
-    "Backbone",
-    "ChassisCard",
+    "Challenge",
     "CheckResult",
-    "Delete",
-    "Design",
+    "DoseUnit",
     "EvidenceLevel",
+    "GlycoproteinForm",
     "Host",
     "Implementation",
     "Insert",
-    "Leader",
-    "LocusStatus",
-    "Module",
-    "ModuleKind",
     "Observation",
     "Outcome",
-    "ParentStatus",
     "Phenotype",
-    "Plan",
-    "Plasmid",
-    "Property",
     "Replace",
     "Replication",
-    "Reporter",
     "Route",
-    "Slot",
     "Stage",
-    "Trailer",
-    "TranscriptionUnit",
-    "Unmodeled",
+    "Timing",
+    "Vaccine",
     "Violation",
-    "ViralGene",
-    "add_order_constraints",
-    "architecture_of",
-    "attach_model",
-    "canonical_chassis",
-    "check",
-    "design_of",
-    "design_to_document",
+    "Viral",
     "indiana",
-    "load_design",
-    "load_library",
-    "parameters_for",
-    "plan",
-    "plans",
-    "project",
+    "library",
+    "load",
     "read",
-    "read_plasmid",
-    "satisfies",
-    "select",
-    "to_document",
 ]

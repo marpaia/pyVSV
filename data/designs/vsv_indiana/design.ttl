@@ -16,7 +16,6 @@
         <https://vsv.bio/vsv_indiana/Phosphoprotein>,
         <https://vsv.bio/vsv_indiana/leader>,
         <https://vsv.bio/vsv_indiana/trailer> ;
-    sbol:hasModel <https://vsv.bio/vsv_indiana_intracellular> ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:name "VSV Indiana" ;
     sbol:role <https://identifiers.org/SO:0001041>,
@@ -65,14 +64,6 @@
     sbol:object <https://vsv.bio/vsv_indiana/trailer> ;
     sbol:restriction sbol:strictlyPrecedes ;
     sbol:subject <https://vsv.bio/vsv_indiana/LargePolymerase> .
-
-<https://vsv.bio/vsv_indiana_intracellular> a sbol:Model ;
-    sbol:displayId "vsv_indiana_intracellular" ;
-    sbol:framework <https://identifiers.org/SBO:0000063> ;
-    sbol:hasNamespace <https://vsv.bio> ;
-    sbol:language <https://vsv.bio/language/stochastic-simulation> ;
-    sbol:name "Stochastic intracellular VSV replication" ;
-    sbol:source <https://doi.org/10.1371/journal.pcbi.1011373> .
 
 <https://vsv.bio/vsv_indiana/leader> a sbol:LocalSubComponent ;
     sbol:displayId "leader" ;

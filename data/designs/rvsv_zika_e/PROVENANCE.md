@@ -1,5 +1,0 @@
-# rVSV Zika envelope
-
-VSV glycoprotein remains. The Zika envelope gene, class `zika-envelope`, sits between the glycoprotein and large polymerase genes. A 2018 Nature Communications paper (https://doi.org/10.1038/s41467-018-05276-4) cloned anchor-C–prM–E–NS1, and the envelope constructs, into pVSV(+)GxxL at the SmaI and XhoI sites between G and L. A single dose of the attenuated prM-E-NS1 virus protected mice from Zika challenge. A 2017 Journal of Immunology paper (https://doi.org/10.4049/jimmunol.1602180) generated wild-type and matrix-mutant rVSV expressing Zika envelope (ZENV) or premembrane plus envelope (ZprME) from the G-L foreign-gene expression site. The matrix mutant changes residues 52–54 from DTY to AAA. Female C57BL/6 mice were injected intravenously with 2 × 10^6 PFU and boosted with the same dose. Newborn mice of VSVm-ZprME–vaccinated females, challenged intraperitoneally at 7 days of age with 7 × 10^5 PFU of ZIKV MR766, mostly survived; newborns of naive females died by day 10. No envelope sequence is stored.
-
-Retrieved 28 September 2026.

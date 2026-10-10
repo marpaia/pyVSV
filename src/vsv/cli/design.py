@@ -1,4 +1,4 @@
-"""Commands for the curated VSV design library."""
+"""Commands for the curated VSV vaccine library."""
 
 from __future__ import annotations
 
@@ -7,38 +7,31 @@ from pathlib import Path
 
 import click
 
-from vsv.cli.corpus import cluster_edit, resolve_cluster
 from vsv.cli.render import cli_name, indent, row, table, widths, wrap
-from vsv.design import (
-    KNOWLEDGE_GAPS,
-    LIBRARY_ROOT,
-    Architecture,
-    Design,
+from vsv.design.evidence import (
+    Challenge,
+    DoseUnit,
     EvidenceLevel,
     Host,
-    LocusStatus,
-    Module,
     Observation,
     Phenotype,
-    Plan,
-    load_design,
-    load_library,
-    plans,
-    read,
-    read_plasmid,
-    select,
+    Route,
+    Timing,
+    evidence_level,
+    host_matches,
 )
-from vsv.design import check as check_design
-from vsv.design.edits import Delete, Edit, Insert, Replace
-from vsv.design.literature import clusters_from
+from vsv.design.library import LIBRARY_ROOT, library, load, select
+from vsv.design.vaccine import (
+    KNOWLEDGE_GAPS,
+    Antigen,
+    GlycoproteinForm,
+    Insert,
+    Replace,
+    Vaccine,
+    Viral,
+)
 from vsv.errors import InputError
-from vsv.genome.payload import AntigenClass
-from vsv.ingest import DEFAULT_QUERY, INGEST_ROOT
-from vsv.ingest import ingest as fetch_papers
-from vsv.literature.analysis.records import PaperCluster
-from vsv.literature.discovery.pubmed import ingest_corpus
-from vsv.literature.storage.corpus import load_extractions
-from vsv.literature.storage.paths import CORPUS_ROOT
+from vsv.genome.sbol import write_genome
 
 _EVIDENCE = {
     "none": EvidenceLevel.NONE,
@@ -48,6 +41,13 @@ _EVIDENCE = {
     "nonhuman-primate": EvidenceLevel.NONHUMAN_PRIMATE,
     "human": EvidenceLevel.HUMAN,
 }
+_FORMS = (
+    GlycoproteinForm.FULL_LENGTH,
+    GlycoproteinForm.SOLUBLE,
+    GlycoproteinForm.MUCIN_DELETED,
+    GlycoproteinForm.TAIL_CHIMERA,
+)
+_TIMINGS = (Timing.PROPHYLACTIC, Timing.POST_EXPOSURE)
 
 
 class EvidenceName(click.ParamType[EvidenceLevel]):
@@ -75,99 +75,67 @@ def _host(value: str | None) -> Host | None:
     return None if value is None else Host(value)
 
 
-def _design_rows(records: Sequence[Design], clusters: Sequence[PaperCluster]) -> str:
+def _form(value: str | None) -> GlycoproteinForm | None:
+    return None if value is None else GlycoproteinForm(value)
+
+
+def _timing(value: str | None) -> Timing | None:
+    return None if value is None else Timing(value)
+
+
+def _resolve(identifier: str) -> Vaccine:
+    path = Path(identifier)
+    if path.is_dir() or path.is_file():
+        return load(path)
+    matches = [vaccine for vaccine in library() if vaccine.id == identifier]
+    if len(matches) != 1:
+        raise InputError(f"{identifier}: design not found.")
+    return matches[0]
+
+
+def _design_rows(records: Sequence[Vaccine]) -> str:
     rows: list[list[str]] = []
     for record in records:
-        card = record.card
-        edit = record.architecture.edit
         rows.append(
             [
-                record.architecture.id,
-                "curated",
-                _derivation_text(edit) if edit is not None else "-",
-                ",".join(card.antigen_classes) or "-",
-                card.replication.value,
-                card.evidence_level.value,
-                "-",
+                record.id,
+                _derivation(record) if record.edit is not None else "-",
+                ",".join(antigen.antigen_class for antigen in record.antigens) or "-",
+                record.replication.value,
+                evidence_level([item.host for item in record.observations]).value,
                 _gap_text(record),
-            ]
-        )
-    for cluster in clusters:
-        status = f"confirmed:{cluster.match}" if cluster.match else "extracted"
-        rows.append(
-            [
-                cluster.id,
-                status,
-                cluster_edit(cluster),
-                cluster.antigen_slug or cluster.antigen_name,
-                cluster.replication,
-                cluster.evidence,
-                str(len(cluster.pmids)),
-                ",".join(cluster.gaps) or "-",
             ]
         )
     if not rows:
         return "no designs match"
-    return table(
-        ["id", "status", "edit", "antigens", "replication", "evidence", "papers", "gaps"],
-        rows,
-    )
+    return table(["id", "edit", "antigens", "replication", "evidence", "gaps"], rows)
 
 
-def _clusters(
-    curated: Sequence[Design],
-    antigen_class: str | None,
-    phenotype: str | None,
-    host: str | None,
-    evidence: EvidenceLevel | None,
-) -> list[PaperCluster]:
-    try:
-        extractions = load_extractions()
-    except InputError:
-        return []
-    found = []
-    for cluster in clusters_from(extractions, curated):
-        if antigen_class not in {None, cluster.antigen_slug, cluster.antigen_name}:
-            continue
-        if phenotype is not None and phenotype not in cluster.phenotypes:
-            continue
-        if host is not None and host not in cluster.hosts:
-            continue
-        if evidence is not None and EvidenceLevel(cluster.evidence).rank < evidence.rank:
-            continue
-        found.append(cluster)
-    return found
-
-
-def _gap_text(record: Design) -> str:
-    names = [
-        item.rule
-        for item in check_design(record.architecture, record.observations)
-        if item.rule in KNOWLEDGE_GAPS
-    ]
+def _gap_text(vaccine: Vaccine) -> str:
+    names = [item.rule for item in vaccine.check().violations if item.rule in KNOWLEDGE_GAPS]
     return ",".join(names) or "-"
 
 
-def _parent_text(architecture: Architecture) -> str:
-    if architecture.parent_id is not None:
-        return architecture.parent_id
-    return str(architecture.parent)
+def _parent_text(vaccine: Vaccine) -> str:
+    if vaccine.parent is not None:
+        return vaccine.parent
+    if vaccine.edit is None:
+        return "root"
+    return "unknown"
 
 
-def _derivation_text(edit: Edit) -> str:
-    match edit:
-        case Delete(target=target, replication=replication):
-            text = f"delete {cli_name(target)}"
-        case Insert(after=after, module=module, replication=replication):
-            text = f"insert after {cli_name(after)} with {cli_name(module)}"
-        case Replace(target=target, module=module, replication=replication):
-            text = f"replace {cli_name(target)}"
-            shown = cli_name(module)
-            if shown != cli_name(target):
-                text += f" with {shown}"
-    if replication is not None:
-        text += f", {replication.value}"
-    return text
+def _derivation(vaccine: Vaccine) -> str:
+    edit = vaccine.edit
+    if isinstance(edit, Replace):
+        text = "replace g"
+        shown = cli_name(edit.module)
+        if shown != "g":
+            text += f" with {shown}"
+    elif isinstance(edit, Insert):
+        text = f"insert after {edit.after} with {cli_name(edit.module)}"
+    else:
+        text = "-"
+    return f"{text}, {vaccine.replication.value}"
 
 
 def _fact_lines(pairs: Sequence[tuple[str, str]]) -> list[str]:
@@ -175,17 +143,43 @@ def _fact_lines(pairs: Sequence[tuple[str, str]]) -> list[str]:
     return [f"{key:<{width}}  {value}" for key, value in pairs]
 
 
-def _locus(module: Module) -> str:
-    if module.locus_status is LocusStatus.NOT_TRANSCRIBED:
-        return "-"
-    if module.locus_status is LocusStatus.UNKNOWN or module.locus is None:
-        return "unknown"
-    return str(module.locus)
+def _module_table(vaccine: Vaccine) -> str:
+    rows = []
+    for index, module in enumerate(vaccine.modules):
+        rows.append(
+            [
+                str(index),
+                cli_name(module.id),
+                module.antigen_class if isinstance(module, Antigen) else "",
+                *_antigen_fields(module),
+            ]
+        )
+    return table(["locus", "module", "class", "strain", "form"], rows)
 
 
-def _module_table(modules: Sequence[Module]) -> str:
-    rows = [[_locus(module), cli_name(module.id), module.antigen_class or ""] for module in modules]
-    return table(["locus", "module", "class"], rows)
+def _antigen_fields(module: Viral | Antigen) -> tuple[str, str]:
+    if not isinstance(module, Antigen):
+        return ("-", "-")
+    strain = module.strain or "-"
+    form = "-" if module.form is GlycoproteinForm.UNSPECIFIED else module.form.value
+    return (strain, form)
+
+
+def _dose_text(amount: str, unit: DoseUnit) -> str:
+    if unit is DoseUnit.UNSPECIFIED:
+        return amount
+    return f"{amount} {unit.value}".strip()
+
+
+def _challenge_text(challenge: Challenge) -> str:
+    parts = [challenge.virus or "-"]
+    if challenge.strain:
+        parts.append(challenge.strain)
+    if challenge.amount or challenge.unit is not DoseUnit.UNSPECIFIED:
+        parts.append(_dose_text(challenge.amount, challenge.unit))
+    if challenge.route is not Route.UNKNOWN:
+        parts.append(challenge.route.value)
+    return "  ".join(parts)
 
 
 def _observation_lines(observations: Sequence[Observation], citation: str) -> list[str]:
@@ -204,40 +198,51 @@ def _observation_lines(observations: Sequence[Observation], citation: str) -> li
             lines.append(f"    {item.citation}")
         if item.note:
             lines.extend(wrap(item.note, "    "))
+        lines.extend(_observation_details(item))
         lines.append("")
     return lines[:-1]
 
 
-def _show(record: Design) -> str:
-    architecture = record.architecture
+def _observation_details(item: Observation) -> list[str]:
+    details: list[str] = []
+    if item.timing is not Timing.UNKNOWN:
+        details.append(f"timing  {item.timing.value}")
+    if item.day is not None:
+        details.append(f"day  {item.day}")
+    if item.vaccine_amount or item.vaccine_unit is not DoseUnit.UNSPECIFIED:
+        details.append(f"vaccine  {_dose_text(item.vaccine_amount, item.vaccine_unit)}")
+    if item.challenge is not None:
+        details.append(f"challenge  {_challenge_text(item.challenge)}")
+    return [f"    {line}" for line in details]
+
+
+def _show(vaccine: Vaccine) -> str:
     facts = [
-        ("backbone", architecture.backbone),
-        ("replication", architecture.replication.value),
-        ("parent", _parent_text(architecture)),
+        ("backbone", vaccine.backbone),
+        ("replication", vaccine.replication.value),
+        ("parent", _parent_text(vaccine)),
     ]
-    if architecture.edit is not None:
-        facts.append(("derivation", _derivation_text(architecture.edit)))
-    if record.realization:
-        facts.append(("realization", record.realization))
-    if record.model_source:
-        facts.append(("model", record.model_source))
+    if vaccine.edit is not None:
+        facts.append(("derivation", _derivation(vaccine)))
+    if vaccine.realization:
+        facts.append(("realization", vaccine.realization))
     lines = [
-        architecture.id,
-        architecture.name,
+        vaccine.id,
+        vaccine.name,
         "",
         *_fact_lines(facts),
         "",
+        "A gene closer to the 3' end is transcribed more, and position 1 attenuates the virus.",
+        "",
         "modules",
-        indent(_module_table(architecture.modules)),
+        indent(_module_table(vaccine)),
     ]
-    known = {item.id for item in record.implementations}
-    grouped: dict[str, list[Observation]] = {item_id: [] for item_id in known}
-    for observation in record.observations:
-        if observation.implementation_id in known:
-            grouped[observation.implementation_id].append(observation)
-    if not record.implementations:
+    grouped: dict[str, list[Observation]] = {item.id: [] for item in vaccine.implementations}
+    for observation in vaccine.observations:
+        grouped[observation.implementation_id].append(observation)
+    if not vaccine.implementations:
         lines.extend(["", "implementations", "  none"])
-    for implementation in record.implementations:
+    for implementation in vaccine.implementations:
         lines.extend(
             [
                 "",
@@ -245,42 +250,16 @@ def _show(record: Design) -> str:
                 f"  {implementation.citation}",
             ]
         )
+        if implementation.plasmid:
+            lines.append(f"  plasmid  {implementation.plasmid}")
         if implementation.note:
             lines.extend(wrap(implementation.note, "  "))
         lines.append("")
         lines.extend(_observation_lines(grouped[implementation.id], implementation.citation))
-    if record.unmodeled:
-        key_width = max(len(field.key) for field in record.unmodeled)
-        lines.extend(["", "unmodeled"])
-        for field in record.unmodeled:
-            lines.append(f"  {field.key:<{key_width}}  {field.value}")
-            if field.source:
-                lines.extend(wrap(field.source, " " * (key_width + 4)))
-    loose = [
-        observation.id
-        for observation in record.observations
-        if observation.implementation_id not in known
-    ]
-    if loose:
-        lines.extend(["", "observations without an implementation", "  " + ", ".join(loose)])
-    gaps = [
-        item.message
-        for item in check_design(architecture, record.observations)
-        if item.rule in KNOWLEDGE_GAPS
-    ]
+    gaps = [item.message for item in vaccine.check().violations if item.rule in KNOWLEDGE_GAPS]
     if gaps:
         lines.extend(["", "gaps", *[f"  {gap}" for gap in gaps]])
     return "\n".join(lines)
-
-
-def _resolve_show(identifier: str) -> Design:
-    path = Path(identifier)
-    if path.is_dir():
-        return load_design(path)
-    matches = [record for record in load_library() if record.architecture.id == identifier]
-    if len(matches) != 1:
-        raise InputError(f"{identifier}: design not found.")
-    return matches[0]
 
 
 @click.command()
@@ -295,7 +274,20 @@ def _resolve_show(identifier: str) -> Design:
     "--host",
     type=click.Choice([item.value for item in Host]),
     default=None,
-    help="Observation host.",
+    help="Observation host. nonhuman-primate includes cynomolgus and rhesus.",
+)
+@click.option("--strain", default=None, help="Antigen strain.")
+@click.option(
+    "--form",
+    type=click.Choice([item.value for item in _FORMS]),
+    default=None,
+    help="Glycoprotein form.",
+)
+@click.option(
+    "--timing",
+    type=click.Choice([item.value for item in _TIMINGS]),
+    default=None,
+    help="Vaccine timing relative to challenge.",
 )
 @click.option(
     "--evidence",
@@ -305,6 +297,7 @@ def _resolve_show(identifier: str) -> Design:
 )
 @click.option(
     "--library",
+    "library_root",
     type=click.Path(path_type=Path),
     default=LIBRARY_ROOT,
     show_default=True,
@@ -314,32 +307,37 @@ def designs(
     antigen_class: str | None,
     phenotype: str | None,
     host: str | None,
+    strain: str | None,
+    form: str | None,
+    timing: str | None,
     evidence: EvidenceLevel | None,
-    library: Path,
+    library_root: Path,
 ) -> None:
-    """List curated and extracted VSV architectures."""
-    curated = load_library(library)
+    """List curated VSV vaccines."""
     records = select(
-        curated,
+        library(library_root),
         antigen_class=antigen_class,
         phenotype=_phenotype(phenotype),
         host=_host(host),
         min_evidence=evidence,
+        strain=strain,
+        form=_form(form),
+        timing=_timing(timing),
     )
-    click.echo(_design_rows(records, _clusters(curated, antigen_class, phenotype, host, evidence)))
+    click.echo(_design_rows(records))
 
 
 @click.command()
-@click.argument("design", type=click.Path(path_type=Path))
+@click.argument("design")
 @click.pass_context
-def check(ctx: click.Context, design: Path) -> None:
-    """Report design-rule violations for one curated design."""
-    record = load_design(design)
-    violations = check_design(record.architecture, record.observations)
+def check(ctx: click.Context, design: str) -> None:
+    """Report design-rule violations for one curated vaccine."""
+    vaccine = _resolve(design)
+    violations = vaccine.check().violations
     structural = [item for item in violations if item.rule not in KNOWLEDGE_GAPS]
     gaps = [item for item in violations if item.rule in KNOWLEDGE_GAPS]
     if not structural and not gaps:
-        click.echo(f"{record.architecture.id}: ok")
+        click.echo(f"{vaccine.id}: ok")
         return
     blocks = []
     if structural:
@@ -354,7 +352,7 @@ def check(ctx: click.Context, design: Path) -> None:
 
 
 @click.command()
-@click.argument("plan", type=click.Path(path_type=Path))
+@click.argument("plan")
 @click.option("--antigen-class", default=None, help="Antigen class slug, including subclasses.")
 @click.option(
     "--phenotype",
@@ -366,25 +364,56 @@ def check(ctx: click.Context, design: Path) -> None:
     "--host",
     type=click.Choice([item.value for item in Host]),
     default=None,
-    help="Observation host.",
+    help="Observation host. nonhuman-primate includes cynomolgus and rhesus.",
+)
+@click.option("--strain", default=None, help="Antigen strain.")
+@click.option(
+    "--form",
+    type=click.Choice([item.value for item in _FORMS]),
+    default=None,
+    help="Glycoprotein form.",
+)
+@click.option(
+    "--timing",
+    type=click.Choice([item.value for item in _TIMINGS]),
+    default=None,
+    help="Vaccine timing relative to challenge.",
+)
+@click.option(
+    "--locus",
+    type=int,
+    default=None,
+    help="Transcription index of the non-viral gene. Position 1 is 0.",
 )
 def precedents(
-    plan: Path, antigen_class: str | None, phenotype: str | None, host: str | None
+    plan: str,
+    antigen_class: str | None,
+    phenotype: str | None,
+    host: str | None,
+    strain: str | None,
+    form: str | None,
+    timing: str | None,
+    locus: int | None,
 ) -> None:
-    """List published plans with this plan's arrangement."""
-    candidate = _read_plan(plan)
-    antigen = None if antigen_class is None else AntigenClass(antigen_class)
+    """List published vaccines with this vaccine's arrangement."""
+    candidate = _resolve(plan)
     rows: list[list[str]] = []
     for published in candidate.precedents(
-        plans(),
-        antigen_class=antigen,
+        library(),
+        antigen_class=antigen_class,
         phenotype=_phenotype(phenotype),
         host=_host(host),
+        strain=strain,
+        form=_form(form),
+        timing=_timing(timing),
+        locus=locus,
     ):
         for result in published.observations:
             if phenotype is not None and result.phenotype is not Phenotype(phenotype):
                 continue
-            if host is not None and result.host is not Host(host):
+            if host is not None and not host_matches(result.host, Host(host)):
+                continue
+            if timing is not None and result.timing is not Timing(timing):
                 continue
             rows.append(
                 [
@@ -402,75 +431,14 @@ def precedents(
 
 
 @click.command()
-@click.argument("plasmid", type=click.Path(path_type=Path))
-def plasmid(plasmid: Path) -> None:
-    """Show the backbone, slot, and insert in a plasmid file."""
-    record = read_plasmid(plasmid)
-    click.echo(
-        "\n".join(
-            _fact_lines(
-                [
-                    ("plan", record.plan_id),
-                    ("edit", record.edit),
-                    ("slot", record.slot),
-                    ("insert", record.insert_id),
-                    ("backbone", record.backbone.iri),
-                    ("product", record.product.identity),
-                ]
-            )
-        )
-    )
-
-
-def _read_plan(path: Path) -> Plan:
-    turtle = path / "design.ttl" if path.is_dir() else path
-    return read(turtle)
+@click.argument("design")
+def antigenome(design: str) -> None:
+    """Write the spliced NC_001560.1 antigenome as SBOL."""
+    click.echo(write_genome(_resolve(design).antigenome()).rstrip("\n"))
 
 
 @click.command()
 @click.argument("design")
 def show(design: str) -> None:
-    """Show one curated design or one extracted cluster."""
-    try:
-        record = _resolve_show(design)
-    except InputError:
-        text = resolve_cluster(design)
-        if text is None:
-            raise
-        click.echo(text)
-        return
-    click.echo(_show(record))
-
-
-@click.command()
-@click.option(
-    "--dest",
-    type=click.Path(path_type=Path),
-    default=None,
-    help="Output directory. Defaults to data/ingest, or data/corpus with --all.",
-)
-@click.option("--since", default=None, help="Only papers first published on or after this date.")
-@click.option("--query", default=DEFAULT_QUERY, help="Europe PMC query.")
-@click.option("--all", "complete", is_flag=True, help="Fetch the frozen PubMed VSV corpus.")
-def ingest(dest: Path | None, since: str | None, query: str, complete: bool) -> None:
-    """Fetch papers into the review queue, or the whole PubMed corpus with --all."""
-    if complete:
-        if since is not None or query != DEFAULT_QUERY:
-            raise InputError("vsv ingest --all uses the frozen PubMed corpus query.")
-        root = CORPUS_ROOT if dest is None else dest
-        report = ingest_corpus(root, log=click.echo)
-        click.echo(
-            "\n".join(
-                [
-                    f"pubmed: {report.pubmed_count}",
-                    f"stored: {report.stored}",
-                    f"new: {report.new}",
-                    f"removed: {report.removed}",
-                    f"europepmc misses: {report.europepmc_misses}",
-                    f"residual: {report.residual_count}",
-                ]
-            )
-        )
-        return
-    queue = fetch_papers(INGEST_ROOT if dest is None else dest, query=query, since=since)
-    click.echo(f"papers: {queue.papers}\nproposals: {queue.proposals}\ncursor: {queue.cursor}")
+    """Show one curated vaccine."""
+    click.echo(_show(_resolve(design)))

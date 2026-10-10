@@ -1,38 +1,16 @@
 """Command-line behavior, run in process."""
 
-from dataclasses import replace
 from pathlib import Path
 
 import pytest
 import sbol3
 
-import vsv.genome.sbol as sbol
-from tests.synthetic import SyntheticGenome, build_genome
-from vsv import AntigenClass, indiana, read_record
+from tests.synthetic import SyntheticGenome, genbank_text
+from vsv import Gene, GlycoproteinForm, Replication, Vaccine, Viral, indiana
 from vsv.cli import main
-from vsv.design import (
-    Architecture,
-    Design,
-    Leader,
-    Replication,
-    Trailer,
-    canonical_chassis,
-    design_to_document,
-)
-from vsv.design.modules import at_locus
-from vsv.genes import Gene
-from vsv.genome.formats import OUTPUT_FORMATS
+from vsv.sbol import DNA_ENCODING, PROTEIN_ENCODING
 
-
-@pytest.fixture
-def pair(tmp_path: Path, synthetic: SyntheticGenome) -> list[Path]:
-    codons = {name: "GCT" * (10 + 5 * i) for i, name in enumerate(synthetic.genes)}
-    codons[Gene.GLYCOPROTEIN] = "GCTGCA" + "GCT" * 12
-    other = build_genome("SYN0002.1", codons)
-    first, second = tmp_path / "a.fasta", tmp_path / "b.fasta"
-    first.write_text(synthetic.fasta)
-    second.write_text(other.fasta)
-    return [first, second]
+RAW = Path(__file__).resolve().parents[1] / "data" / "raw"
 
 
 def run(capsys: pytest.CaptureFixture[str], *argv: str) -> tuple[int, str, str]:
@@ -41,11 +19,20 @@ def run(capsys: pytest.CaptureFixture[str], *argv: str) -> tuple[int, str, str]:
     return status, captured.out, captured.err
 
 
-def test_summary_reports_each_record(capsys: pytest.CaptureFixture[str], pair: list[Path]) -> None:
-    status, out, err = run(capsys, "summary", *map(str, pair))
-    assert (status, err) == (0, "")
-    assert out.splitlines()[0].split()[:2] == ["id", "length"]
-    assert [line.split()[0] for line in out.splitlines()[1:]] == ["SYN0001.1", "SYN0002.1"]
+def _sbol_records(text: str) -> dict[str, tuple[str, str]]:
+    """Component name to sequence elements and encoding."""
+    sbol3.set_namespace("https://vsv.bio")
+    document = sbol3.Document()
+    document.read_string(text, "ttl")
+    found: dict[str, tuple[str, str]] = {}
+    for component in document.objects:
+        if not isinstance(component, sbol3.Component):
+            continue
+        (uri,) = list(component.sequences)
+        sequence = document.find(str(uri))
+        assert isinstance(sequence, sbol3.Sequence)
+        found[str(component.name)] = (str(sequence.elements), str(sequence.encoding))
+    return found
 
 
 def test_annotate_table(
@@ -62,60 +49,28 @@ def test_annotate_table(
     assert [row[1] for row in rows].count("gene") == 5
 
 
-def test_annotate_gff3(capsys: pytest.CaptureFixture[str], synthetic_fasta: Path) -> None:
-    status, out, _ = run(capsys, "annotate", "--format", "gff3", str(synthetic_fasta))
-    assert status == 0
-    assert out.startswith("##gff-version 3\n")
-    assert out.count("\tgene\t") == 5
-
-
-@pytest.mark.parametrize("output_format", ["turtle", "ntriples", "rdfxml", "jsonld"])
-def test_annotate_sbol(
-    capsys: pytest.CaptureFixture[str], synthetic_fasta: Path, output_format: str
+def test_coding_sequences_keep_gene_spans(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path, synthetic: SyntheticGenome
 ) -> None:
-    status, out, err = run(capsys, "annotate", "--format", output_format, str(synthetic_fasta))
+    path = tmp_path / "cds.gb"
+    path.write_text(genbank_text(synthetic))
+    status, out, err = run(capsys, "annotate", str(path))
     assert (status, err) == (0, "")
-    document = sbol3.Document()
-    document.read_string(out, OUTPUT_FORMATS[output_format])
-    assert not document.validate()
-    (genome,) = sbol.genomes(document)
-    assert len(genome.features(sbol.SO_GENE)) == 5
-
-
-def test_curated_annotations_are_kept(
-    capsys: pytest.CaptureFixture[str], synthetic_genbank: Path
-) -> None:
-    status, out, _ = run(capsys, "annotate", str(synthetic_genbank))
     kinds = [line.split()[1] for line in out.splitlines()[1:]]
+    assert kinds == ["gene", "CDS"] * 5
+    status, genes_out, _ = run(capsys, "genes", str(path))
     assert status == 0
-    # The converter's whole-genome source feature and the five curated coding sequences;
-    # nothing from the heuristic annotator.
-    assert kinds == ["region", "CDS", "CDS", "CDS", "CDS", "CDS"]
-
-
-def test_compare(capsys: pytest.CaptureFixture[str], pair: list[Path]) -> None:
-    status, out, err = run(capsys, "compare", "-k", "8", *map(str, pair))
-    assert (status, err) == (0, "")
-    assert "Genome k-mer similarity (k=8)" in out
-    genes = out.split("Protein identity by gene")[1].splitlines()
-    assert [line.split()[2] for line in genes[2:]] == [gene.short for gene in Gene]
-
-
-def test_compare_accepts_mixed_formats(
-    capsys: pytest.CaptureFixture[str], synthetic_genbank: Path, pair: list[Path]
-) -> None:
-    status, out, _ = run(capsys, "compare", str(synthetic_genbank), str(pair[1]))
-    assert status == 0
-    assert "SYN0001" in out
-    assert "100.00%" in out
-
-
-def test_compare_needs_two_records(
-    capsys: pytest.CaptureFixture[str], synthetic_fasta: Path
-) -> None:
-    status, out, err = run(capsys, "compare", str(synthetic_fasta))
-    assert (status, out) == (1, "")
-    assert "requires at least 2 records" in err
+    row = genes_out.splitlines()[1].split()
+    start, end = synthetic.cds[Gene.NUCLEOPROTEIN]
+    assert row[:2] == ["SYN0001.1", "n"]
+    assert row[2:8] == [
+        str(start + 1),
+        str(end),
+        str(end - start),
+        str(start + 1),
+        str(end),
+        str(end - start),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -127,7 +82,7 @@ def test_bad_input_exits_with_an_error(
 ) -> None:
     path = tmp_path / name
     path.write_text(text)
-    status, out, err = run(capsys, "summary", str(path))
+    status, out, err = run(capsys, "genes", str(path))
     assert (status, out) == (1, "")
     assert err.startswith(f"vsv: error: {path}:")
 
@@ -161,44 +116,40 @@ def test_genes_lists_the_five_genes(
     ]
 
 
-def test_genes_leaves_missing_spans_blank(
-    capsys: pytest.CaptureFixture[str], synthetic_genbank: Path
-) -> None:
-    status, out, _ = run(capsys, "genes", str(synthetic_genbank))
-    assert status == 0
-    # The record annotates coding sequences only, so the gene columns are blank.
-    assert out.splitlines()[1].split()[:2] == ["SYN0001", "n"]
-    assert len(out.splitlines()[1].split()) == 6
-
-
-def test_extract_writes_cds_fasta_by_default(
+def test_extract_writes_cds_sbol_by_default(
     capsys: pytest.CaptureFixture[str], synthetic_fasta: Path, synthetic: SyntheticGenome
 ) -> None:
     status, out, err = run(capsys, "extract", "-g", "p", "-g", "n", str(synthetic_fasta))
     assert (status, err) == (0, "")
-    headers = [line for line in out.splitlines() if line.startswith(">")]
-    assert headers == [">SYN0001.1 p cds", ">SYN0001.1 n cds"]
+    found = _sbol_records(out)
     start, end = synthetic.cds[Gene.PHOSPHOPROTEIN]
-    assert out.splitlines()[1] == synthetic.sequence[start:end]
+    n_start, n_end = synthetic.cds[Gene.NUCLEOPROTEIN]
+    assert found["SYN0001.1 p cds"] == (synthetic.sequence[start:end], DNA_ENCODING)
+    assert found["SYN0001.1 n cds"] == (synthetic.sequence[n_start:n_end], DNA_ENCODING)
 
 
-def test_extract_writes_protein_fasta(
+def test_extract_writes_protein_sbol(
     capsys: pytest.CaptureFixture[str], synthetic_fasta: Path, synthetic: SyntheticGenome
 ) -> None:
     status, out, _ = run(capsys, "extract", "--kind", "protein", "-g", "m", str(synthetic_fasta))
     assert status == 0
-    assert out.splitlines() == [
-        ">SYN0001.1 m protein",
-        synthetic.proteins[Gene.MATRIX_PROTEIN],
-    ]
+    found = _sbol_records(out)
+    assert found == {
+        "SYN0001.1 m protein": (synthetic.proteins[Gene.MATRIX_PROTEIN], PROTEIN_ENCODING)
+    }
 
 
-def test_extract_reports_an_unannotated_product(
-    capsys: pytest.CaptureFixture[str], synthetic_genbank: Path
+def test_extract_writes_the_coding_span_as_the_gene(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path, synthetic: SyntheticGenome
 ) -> None:
-    status, out, err = run(capsys, "extract", "--kind", "gene", "-g", "n", str(synthetic_genbank))
-    assert (status, out) == (1, "")
-    assert "SYN0001: no gene annotated for gene n." in err
+    path = tmp_path / "cds.gb"
+    path.write_text(genbank_text(synthetic))
+    status, out, err = run(capsys, "extract", "--kind", "gene", "-g", "n", str(path))
+    assert (status, err) == (0, "")
+    start, end = synthetic.cds[Gene.NUCLEOPROTEIN]
+    elements, encoding = _sbol_records(out)["SYN0001.1 n gene"]
+    assert encoding == DNA_ENCODING
+    assert elements == synthetic.sequence[start:end]
 
 
 def test_incomplete_genomes_warn_on_stderr(
@@ -208,109 +159,169 @@ def test_incomplete_genomes_warn_on_stderr(
     short.write_text(">SHORT\nACGT\n")
     status, _, err = run(capsys, "genes", str(short))
     assert status == 0
-    assert ("vsv: warning: SHORT: genes not identified: n, p, m, g, l") in err
+    assert "vsv: warning: SHORT: genes not identified: n, p, m, g, l" in err
 
 
-def test_designs_can_be_filtered_by_antigen_class(capsys: pytest.CaptureFixture[str]) -> None:
-    status, out, err = run(capsys, "designs", "--antigen-class", "henipavirus-glycoprotein")
+def test_indiana_genes_and_extract_name_five_genes(capsys: pytest.CaptureFixture[str]) -> None:
+    fasta, genbank = RAW / "NC_001560.fasta", RAW / "NC_001560.gb"
+    if not fasta.exists() or not genbank.exists():
+        pytest.skip("NC_001560 is not in data/raw")
+    status, out, err = run(capsys, "genes", str(fasta))
     assert (status, err) == (0, "")
-    assert "rvsv_niv_g" in out
-    assert "rvsv_niv_f" not in out
+    assert [line.split()[1] for line in out.splitlines()[1:]] == ["n", "p", "m", "g", "l"]
+    turtle = RAW / "NC_001560.ttl"
+    if turtle.exists():
+        status, out, err = run(capsys, "genes", str(turtle))
+        assert (status, err) == (0, "")
+        assert [line.split()[1] for line in out.splitlines()[1:]] == ["n", "p", "m", "g", "l"]
+    status, out, err = run(capsys, "extract", str(genbank))
+    assert (status, err) == (0, "")
+    found = _sbol_records(out)
+    assert set(found) == {f"NC_001560.1 {gene.short} cds" for gene in Gene}
+    assert {encoding for _, encoding in found.values()} == {DNA_ENCODING}
+
+
+def test_designs_can_be_filtered(capsys: pytest.CaptureFixture[str]) -> None:
+    status, out, err = run(capsys, "designs", "--antigen-class", "zaire-ebolavirus-glycoprotein")
+    assert (status, err) == (0, "")
+    assert "rvsv_dg_zebov_kikwit_gp" in out
+    assert "rvsv_dg_zebov_mayinga_gp" in out
+    assert "rvsv_gl_zebov_sgp" in out
+    assert "rvsv_dg_sudv_gp" not in out
+    status, out, err = run(capsys, "designs", "--antigen-class", "filovirus-glycoprotein")
+    assert (status, err) == (0, "")
+    assert "vsv_indiana" not in out
+    assert out.count("rvsv_") == 7
+    status, out, err = run(
+        capsys, "designs", "--phenotype", "protection", "--host", "nonhuman-primate"
+    )
+    assert (status, err) == (0, "")
+    assert {line.split()[0] for line in out.splitlines()[1:]} == {
+        "rvsv_dg_bdbv_gp",
+        "rvsv_dg_marv_gp",
+        "rvsv_dg_sudv_gp",
+        "rvsv_dg_zebov_mayinga_gp",
+    }
+    status, out, err = run(capsys, "designs", "--evidence", "human")
+    assert (status, err) == (0, "")
+    assert [line.split()[0] for line in out.splitlines()[1:]] == ["rvsv_dg_zebov_kikwit_gp"]
     status, out, err = run(capsys, "designs")
     assert (status, err) == (0, "")
-    assert "gaps" in out.splitlines()[0]
+    assert out.splitlines()[0].split()[:6] == [
+        "id",
+        "edit",
+        "antigens",
+        "replication",
+        "evidence",
+        "gaps",
+    ]
 
 
-def test_show_separates_lassa_implementations(capsys: pytest.CaptureFixture[str]) -> None:
-    status, out, err = run(capsys, "show", "rvsv_lasv_gpc")
+def test_show_separates_kikwit_implementations(capsys: pytest.CaptureFixture[str]) -> None:
+    status, out, err = run(capsys, "show", "rvsv_dg_zebov_kikwit_gp")
     assert (status, err) == (0, "")
-    assert "derivation   replace g" in out
-    assert "  3      g        arenavirus-gpc" in out
-    assert "preclinical  garbutt-2004" in out
-    assert "  no observations" in out
-    assert "clinical  malkin-2025" in out
-    assert "phenotype       host   assay           outcome" in out
-    assert "immunogenicity  human  immunogenicity  reported" in out
-    assert "reactogenicity" in out
-    assert "hearing loss" in out
-    assert out.count("https://doi.org/10.1056/NEJMoa2501073") == 1
-    assert "Zaire" not in out
+    assert "derivation   replace g, replication-competent" in out
+    assert "  3      g       zaire-ebolavirus-glycoprotein  Kikwit-1995  full-length" in out
+    assert "clinical  regules-2017" in out
+    assert "clinical  agnandji-2016" in out
+    assert "clinical  henao-restrepo-2017" in out
+    assert "protection  human  field-efficacy  reported" in out
+    assert "The most common adverse events were injection-site pain" in out
+    assert out.count("https://doi.org/10.1056/NEJMoa1414216") == 1
+    assert (
+        "A gene closer to the 3' end is transcribed more, and position 1 attenuates the virus."
+    ) in out
 
 
-def test_show_places_the_nipah_gene_after_the_glycoprotein(
+def test_precedents_locus_separates_a_leader_insert_from_a_g_replacement(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    status, out, err = run(capsys, "show", "data/designs/rvsv_niv_g")
+    status, out, err = run(
+        capsys, "precedents", "data/designs/rvsv_dg_zebov_kikwit_gp", "--locus", "0"
+    )
+    assert (status, out, err) == (0, "no precedents\n", "")
+    status, out, err = run(
+        capsys, "precedents", "data/designs/rvsv_dg_zebov_kikwit_gp", "--locus", "3"
+    )
     assert (status, err) == (0, "")
-    assert "parent       rvsv_dg_filovirus_gp" in out
-    assert "derivation   insert after g with niv_g, replication-competent" in out
-    assert "4      niv_g    henipavirus-glycoprotein" in out
+    assert "rvsv_dg_zebov_mayinga_gp" in out
+    status, out, err = run(capsys, "precedents", "data/designs/rvsv_gl_zebov_sgp", "--locus", "0")
+    assert (status, err) == (0, "")
+    assert "rvsv_dg_zebov_mayinga_gp" not in out
+    assert "rvsv_dg_zebov_kikwit_gp" not in out
+    status, out, err = run(capsys, "precedents", "data/designs/rvsv_gl_zebov_sgp", "--locus", "4")
+    assert (status, out, err) == (0, "no precedents\n", "")
+    status, out, err = run(capsys, "precedents", "rvsv_dg_zebov_mayinga_gp")
+    assert (status, err) == (0, "")
+    assert "rvsv_dg_zebov_kikwit_gp" in out
+    assert "rvsv_dg_bombali_gp" not in out
+    status, out, err = run(capsys, "precedents", "vsv_indiana")
+    assert (status, out, err) == (0, "no precedents\n", "")
+
+
+def test_show_places_soluble_glycoprotein_after_vsv_g(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    status, out, err = run(capsys, "show", "data/designs/rvsv_gl_zebov_sgp")
+    assert (status, err) == (0, "")
+    assert "parent       vsv_indiana" in out
+    assert "derivation   insert after g with zebov_sgp, replication-competent" in out
+    assert "  4      zebov_sgp  zaire-ebolavirus-glycoprotein  Mayinga  soluble" in out
+    assert "  plasmid  VSVXN2" in out
+    assert "  no observations" in out
     assert "locus unknown" not in out
 
 
-def test_check_accepts_the_canonical_chassis(capsys: pytest.CaptureFixture[str]) -> None:
+def test_check_accepts_the_indiana_chassis(capsys: pytest.CaptureFixture[str]) -> None:
     status, out, err = run(capsys, "check", "data/designs/vsv_indiana")
     assert (status, err) == (0, "")
     assert out.strip() == "vsv_indiana: ok"
 
 
 def test_check_reports_a_knowledge_gap_without_failing(
-    capsys: pytest.CaptureFixture[str], tmp_path: Path
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    architecture = canonical_chassis(identifier="gapped", name="gapped")
-    modules = tuple(
-        at_locus(module, None) if module.id == "LargePolymerase" else module
-        for module in architecture.modules
-    )
-    design = tmp_path / "gapped"
-    design.mkdir()
-    document = design_to_document(Design(replace(architecture, modules=modules)))
-    (design / "design.ttl").write_text(document.write_string(sbol3.TURTLE), encoding="utf-8")
-    status, out, err = run(capsys, "check", str(design))
+    status, out, err = run(capsys, "check", "rvsv_dg_bombali_gp")
     assert (status, err) == (0, "")
     assert out.splitlines()[0].split()[0] == "gap"
-    assert "locus-unknown" in out
-    assert "LargePolymerase" in out
+    assert "replication-unknown" in out
 
 
 def test_check_fails_a_structural_violation(
     capsys: pytest.CaptureFixture[str], tmp_path: Path
 ) -> None:
-    design = tmp_path / "bad"
-    design.mkdir()
-    architecture = Architecture("bad", "bad", "VSV", Replication.COMPETENT, (Leader(), Trailer()))
-    document = design_to_document(Design(architecture))
-    (design / "design.ttl").write_text(document.write_string(sbol3.TURTLE), encoding="utf-8")
-    status, out, err = run(capsys, "check", str(design))
+    vaccine = Vaccine(
+        "single_cycle",
+        "single cycle",
+        Replication.SINGLE_CYCLE,
+        tuple(Viral(gene) for gene in Gene),
+    )
+    path = tmp_path / "design.ttl"
+    vaccine.write(path)
+    status, out, err = run(capsys, "check", str(path))
     assert (status, err) == (1, "")
     assert "replication" in out
 
 
-def test_precedents_and_plasmid_commands(
-    capsys: pytest.CaptureFixture[str],
-    synthetic: SyntheticGenome,
-    synthetic_fasta: Path,
-    tmp_path: Path,
+def test_precedents_and_antigenome_commands(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
 ) -> None:
-    virus = read_record(synthetic_fasta)
-    start, end = synthetic.cds[Gene.GLYCOPROTEIN]
-    payload = virus.mark(virus.add_cds("GP", start, end), AntigenClass.filovirus_glycoprotein)
-    chassis = indiana()
-    vaccine = chassis.replace(
-        chassis.feature(Gene.GLYCOPROTEIN),
-        payload,
-        replication=Replication.COMPETENT,
+    coding = "ATG" + "GCT" * 40 + "CTA" * 20 + "TAA"
+    vaccine = indiana().replace(
+        coding,
         identifier="rvsv_dg_outbreak_gp",
         name="rVSV outbreak glycoprotein",
+        antigen_class="filovirus-glycoprotein",
+        replication=Replication.COMPETENT,
+        form=GlycoproteinForm.FULL_LENGTH,
+        strain="Kikwit-1995",
     )
-    plan_path = tmp_path / "rvsv_dg_outbreak_gp.ttl"
-    plasmid_path = tmp_path / "rvsv_dg_outbreak_gp_plasmid.ttl"
-    vaccine.write(plan_path)
-    vaccine.plasmid().write(plasmid_path)
+    path = tmp_path / "design.ttl"
+    vaccine.write(path)
     status, out, err = run(
         capsys,
         "precedents",
-        str(plan_path),
+        str(path),
         "--antigen-class",
         "filovirus-glycoprotein",
         "--phenotype",
@@ -318,17 +329,21 @@ def test_precedents_and_plasmid_commands(
     )
     assert (status, err) == (0, "")
     assert out.splitlines()[0].split() == ["id", "phenotype", "host", "assay", "citation"]
-    assert "rvsv_dg_filovirus_gp" in out
-    assert "rvsv_dg_marv_gp" not in out
+    assert "rvsv_dg_filovirus_gp" not in out
+    assert "rvsv_dg_marv_gp" in out
+    assert "rvsv_dg_zebov_mayinga_gp" in out
+    assert "rvsv_dg_zebov_kikwit_gp" in out
+    assert "rvsv_dg_bombali_gp" not in out
     assert "https://doi.org/10.1038/nm1258" in out
-    status, out, err = run(capsys, "plasmid", str(plasmid_path))
+    status, out, err = run(capsys, "antigenome", str(path))
     assert (status, err) == (0, "")
-    assert "plan      rvsv_dg_outbreak_gp" in out
-    assert "edit      replace g" in out
-    assert "slot      g" in out
-    assert "insert    GP" in out
-    assert "backbone  https://vsv.bio/backbone/pvsv-dg" in out
-    assert "product   https://vsv.bio/rvsv_dg_outbreak_gp/plasmid" in out
+    elements, encoding = _sbol_records(out)["rvsv_dg_outbreak_gp"]
+    assert encoding == DNA_ENCODING
+    assert coding in elements
+    status, out, err = run(capsys, "antigenome", "rvsv_dg_zebov_kikwit_gp")
+    assert status == 1
+    assert out == ""
+    assert "no coding sequence" in err
 
 
 def test_extract_rejects_unknown_genes(

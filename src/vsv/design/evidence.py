@@ -1,30 +1,27 @@
-"""Observations and the design they belong to.
+"""Published results recorded for a vaccine.
 
-An observation is one published result: a phenotype, the host it was measured in, the assay, and
-a citation. A design is an architecture plus the implementations and observations recorded for
-it. The chassis card is computed from those, so it cannot disagree with the design it describes.
+An observation is one result: a phenotype, the host it was measured in, the assay, and a
+citation. An implementation is a preclinical or clinical preparation of that vaccine.
 """
 
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TYPE_CHECKING
 
-from vsv.design.architecture import Architecture, Replication
 from vsv.errors import InputError
-
-if TYPE_CHECKING:
-    from vsv.design.rules import Property, Violation
 
 _DOI = re.compile(r"(?:https://doi\.org/)?10\.\d{4,9}/\S+\Z", re.IGNORECASE)
 _PMID = re.compile(r"(?:PMID:|https://pubmed\.ncbi\.nlm\.nih\.gov/)?(\d+)/?\Z", re.IGNORECASE)
 
 
 class Host(StrEnum):
-    """The biological context an observation was made in."""
+    """The biological context an observation was made in.
+
+    ``cynomolgus`` and ``rhesus`` are macaque species. A query for ``nonhuman-primate``
+    matches either species and also an observation that names no species.
+    """
 
     CELL_LINE = "cell-line"
     MOUSE = "mouse"
@@ -32,6 +29,27 @@ class Host(StrEnum):
     NONHUMAN_PRIMATE = "nonhuman-primate"
     HUMAN = "human"
     OTHER = "other"
+    GUINEA_PIG = "guinea-pig"
+    FERRET = "ferret"
+    CYNOMOLGUS = "cynomolgus"
+    RHESUS = "rhesus"
+
+
+class Timing(StrEnum):
+    """Whether the vaccine was given before challenge or after exposure."""
+
+    PROPHYLACTIC = "prophylactic"
+    POST_EXPOSURE = "post-exposure"
+    UNKNOWN = "unknown"
+
+
+class DoseUnit(StrEnum):
+    """The unit a paper gives for a vaccine dose or a challenge dose."""
+
+    PFU = "pfu"
+    LD50 = "ld50"
+    TCID50 = "tcid50"
+    UNSPECIFIED = "unspecified"
 
 
 class Route(StrEnum):
@@ -74,6 +92,7 @@ class Assay(StrEnum):
     IMMUNOGENICITY = "immunogenicity"
     SAFETY = "safety"
     REACTOGENICITY = "reactogenicity"
+    FIELD_EFFICACY = "field-efficacy"
 
 
 class Stage(StrEnum):
@@ -84,7 +103,10 @@ class Stage(StrEnum):
 
 
 class EvidenceLevel(StrEnum):
-    """The highest biological context among a design's observations."""
+    """The highest biological context among a vaccine's observations.
+
+    ``rodent`` is the small-animal tier: mouse, hamster, guinea pig, and ferret.
+    """
 
     NONE = "none"
     IN_VITRO = "in-vitro"
@@ -102,9 +124,26 @@ _HOST_LEVEL = {
     Host.CELL_LINE: EvidenceLevel.IN_VITRO,
     Host.MOUSE: EvidenceLevel.RODENT,
     Host.HAMSTER: EvidenceLevel.RODENT,
+    Host.GUINEA_PIG: EvidenceLevel.RODENT,
+    Host.FERRET: EvidenceLevel.RODENT,
     Host.NONHUMAN_PRIMATE: EvidenceLevel.NONHUMAN_PRIMATE,
+    Host.CYNOMOLGUS: EvidenceLevel.NONHUMAN_PRIMATE,
+    Host.RHESUS: EvidenceLevel.NONHUMAN_PRIMATE,
     Host.HUMAN: EvidenceLevel.HUMAN,
 }
+_NONHUMAN_PRIMATE_HOSTS = frozenset({Host.NONHUMAN_PRIMATE, Host.CYNOMOLGUS, Host.RHESUS})
+_HOSTS = frozenset(host.value for host in Host)
+
+
+def host_matches(observed: Host, query: Host) -> bool:
+    """Whether an observation host satisfies a host query.
+
+    A nonhuman-primate query matches cynomolgus, rhesus, and an observation that
+    names no macaque species. A query for one species does not match the other.
+    """
+    if query is Host.NONHUMAN_PRIMATE:
+        return observed in _NONHUMAN_PRIMATE_HOSTS
+    return observed is query
 
 
 def is_citation(citation: str) -> bool:
@@ -114,23 +153,44 @@ def is_citation(citation: str) -> bool:
     return _PMID.fullmatch(citation) is not None
 
 
-@dataclass(frozen=True, slots=True)
-class Unmodeled:
-    """A field the current schema does not name, kept with the sentence it came from."""
+def evidence_level(hosts: tuple[Host, ...] | list[Host]) -> EvidenceLevel:
+    """The highest evidence tier among ``hosts``."""
+    level = EvidenceLevel.NONE
+    for host in hosts:
+        candidate = _HOST_LEVEL.get(host, EvidenceLevel.NONE)
+        if candidate.rank > level.rank:
+            level = candidate
+    return level
 
-    key: str
-    value: str
-    source: str = ""
+
+@dataclass(frozen=True, slots=True)
+class Violation:
+    """One design rule a vaccine does not meet."""
+
+    rule: str
+    message: str
+
+
+@dataclass(frozen=True, slots=True)
+class CheckResult:
+    """Rule check of one vaccine. True when every rule passes."""
+
+    violations: tuple[Violation, ...]
+
+    def __bool__(self) -> bool:
+        return not self.violations
 
 
 @dataclass(frozen=True, slots=True)
 class Implementation:
-    """A preclinical or clinical realization of an architecture."""
+    """A preclinical or clinical realization of a vaccine."""
 
     id: str
     stage: Stage
     citation: str
     note: str = ""
+    plasmid: str = ""
+    cloning_sites: str = ""
 
     def __post_init__(self) -> None:
         if not self.id:
@@ -140,8 +200,33 @@ class Implementation:
 
 
 @dataclass(frozen=True, slots=True)
+class Challenge:
+    """A challenge named by an observation."""
+
+    virus: str
+    strain: str = ""
+    route: Route = Route.UNKNOWN
+    amount: str = ""
+    unit: DoseUnit = DoseUnit.UNSPECIFIED
+
+    def __post_init__(self) -> None:
+        stated = (
+            bool(self.virus)
+            or bool(self.strain)
+            or bool(self.amount)
+            or self.route is not Route.UNKNOWN
+            or self.unit is not DoseUnit.UNSPECIFIED
+        )
+        if not stated:
+            raise InputError("A challenge needs a virus, a strain, a route, or a dose.")
+
+
+@dataclass(frozen=True, slots=True)
 class Observation:
-    """One cited result for an implementation of a design."""
+    """One cited result for an implementation of a vaccine.
+
+    ``day`` is days relative to challenge. A negative day is before challenge.
+    """
 
     id: str
     implementation_id: str
@@ -152,85 +237,28 @@ class Observation:
     citation: str
     note: str = ""
     route: Route = Route.UNKNOWN
-    challenge_virus: str = ""
-    challenge_route: str = ""
-    challenge_dose: str = ""
+    timing: Timing = Timing.UNKNOWN
+    day: int | None = None
+    vaccine_amount: str = ""
+    vaccine_unit: DoseUnit = DoseUnit.UNSPECIFIED
+    challenge: Challenge | None = None
 
     def __post_init__(self) -> None:
         if not self.id or not self.implementation_id:
             raise InputError("An observation needs an id and an implementation.")
         if not is_citation(self.citation):
             raise InputError(f"{self.id}: citation must be a DOI or PubMed identifier.")
-
-
-@dataclass(frozen=True, slots=True)
-class ChassisCard:
-    """The datasheet computed for one architecture."""
-
-    architecture_id: str
-    replication: Replication
-    antigen_classes: tuple[str, ...]
-    hosts: tuple[str, ...]
-    evidence_level: EvidenceLevel
-
-
-def chassis_card(architecture: Architecture, observations: Sequence[Observation]) -> ChassisCard:
-    """Build the card for ``architecture`` from ``observations``."""
-    hosts: list[str] = []
-    level = EvidenceLevel.NONE
-    for observation in observations:
-        if observation.host.value not in hosts:
-            hosts.append(observation.host.value)
-        candidate = _HOST_LEVEL.get(observation.host, EvidenceLevel.NONE)
-        if candidate.rank > level.rank:
-            level = candidate
-    return ChassisCard(
-        architecture.id,
-        architecture.replication,
-        architecture.antigen_classes,
-        tuple(hosts),
-        level,
-    )
-
-
-@dataclass(frozen=True, slots=True)
-class Design:
-    """One curated design: its architecture, implementations, and observations."""
-
-    architecture: Architecture
-    observations: tuple[Observation, ...] = ()
-    implementations: tuple[Implementation, ...] = ()
-    realization: str | None = None
-    model_source: str | None = None
-    unmodeled: tuple[Unmodeled, ...] = ()
-    aliases: tuple[str, ...] = ()
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, "observations", tuple(self.observations))
-        object.__setattr__(self, "implementations", tuple(self.implementations))
-        object.__setattr__(self, "unmodeled", tuple(self.unmodeled))
-        object.__setattr__(self, "aliases", tuple(self.aliases))
-        known = {item.id for item in self.implementations}
-        for observation in self.observations:
-            if observation.implementation_id not in known:
-                message = (
-                    f"{observation.id} cites unknown implementation "
-                    f"{observation.implementation_id}."
-                )
-                raise InputError(message)
-
-    @property
-    def card(self) -> ChassisCard:
-        return chassis_card(self.architecture, self.observations)
-
-    def violations(self) -> tuple[Violation, ...]:
-        """Design-rule failures for this architecture and its observations."""
-        from vsv.design.rules import check
-
-        return tuple(check(self.architecture, self.observations))
-
-    def satisfies(self, requirement: Property) -> bool:
-        """Whether this design meets ``requirement``."""
-        from vsv.design.rules import satisfies
-
-        return satisfies(self.architecture, self.observations, requirement)
+        if self.host.value not in _HOSTS:
+            raise InputError(f"{self.id}: unknown host {self.host!r}.")
+        if self.day is not None and self.timing is Timing.UNKNOWN:
+            raise InputError(f"{self.id}: a day needs a timing.")
+        if self.vaccine_unit is not DoseUnit.UNSPECIFIED and not self.vaccine_amount:
+            raise InputError(f"{self.id}: a vaccine unit needs an amount.")
+        challenge = self.challenge
+        if (
+            challenge is not None
+            and challenge.unit is not DoseUnit.UNSPECIFIED
+            and not challenge.amount
+        ):
+            message = f"{self.id}: a challenge unit of {challenge.unit.value} needs an amount."
+            raise InputError(message)

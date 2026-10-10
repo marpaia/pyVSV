@@ -3,17 +3,35 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ns1:rvsv_dg_marv_gp__garbutt_2004_animal_safety_data a sbol:ExperimentalData ;
-    sbol:displayId "rvsv_dg_marv_gp__garbutt_2004_animal_safety_data" ;
-    sbol:hasAttachment ns1:rvsv_dg_marv_gp__garbutt_2004_animal_safety_citation ;
+ns1:rvsv_dg_marv_gp__obs_garbutt_2004_animal_safety a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "None of the rVSV vectors, including the Marburg glycoprotein vector, displayed pathogenic potential in animals." ;
+    sbol:displayId "rvsv_dg_marv_gp__obs_garbutt_2004_animal_safety" ;
+    sbol:hasAttachment ns1:rvsv_dg_marv_gp__obs_garbutt_2004_animal_safety_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
-    prov:wasGeneratedBy ns1:rvsv_dg_marv_gp__garbutt_2004_animal_safety .
+    sbol:name "garbutt-2004-animal-safety" ;
+    sbol:type <https://vsv.bio/assay/safety>,
+        <https://vsv.bio/host/other>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/safety> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_marv_gp__obs_garbutt_2004_animal_safety/Usage1> ;
+    ns1:index 0 .
 
-ns1:rvsv_dg_marv_gp__nm_2005_nhp_protection_data a sbol:ExperimentalData ;
-    sbol:displayId "rvsv_dg_marv_gp__nm_2005_nhp_protection_data" ;
-    sbol:hasAttachment ns1:rvsv_dg_marv_gp__nm_2005_nhp_protection_citation ;
+ns1:rvsv_dg_marv_gp__obs_nm_2005_nhp_protection a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "A live attenuated recombinant vaccine protected nonhuman primates against Marburg virus." ;
+    sbol:displayId "rvsv_dg_marv_gp__obs_nm_2005_nhp_protection" ;
+    sbol:hasAttachment ns1:rvsv_dg_marv_gp__obs_nm_2005_nhp_protection_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
-    prov:wasGeneratedBy ns1:rvsv_dg_marv_gp__nm_2005_nhp_protection .
+    sbol:name "nm-2005-nhp-protection" ;
+    sbol:type <https://vsv.bio/assay/lethal-challenge>,
+        <https://vsv.bio/host/nonhuman-primate>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_marv_gp__obs_nm_2005_nhp_protection/Usage1> ;
+    ns1:challenge-virus "MARV" ;
+    ns1:index 1 .
 
 <https://vsv.bio/rvsv_dg_marv_gp/Constraint1> a sbol:Constraint ;
     sbol:displayId "Constraint1" ;
@@ -51,81 +69,55 @@ ns1:rvsv_dg_marv_gp__nm_2005_nhp_protection_data a sbol:ExperimentalData ;
     sbol:restriction sbol:strictlyPrecedes ;
     sbol:subject <https://vsv.bio/rvsv_dg_marv_gp/LargePolymerase> .
 
-ns1:rvsv_dg_marv_gp__garbutt_2004 a sbol:Implementation ;
+ns1:rvsv_dg_marv_gp__impl_garbutt_2004 a sbol:Implementation ;
     sbol:built ns1:rvsv_dg_marv_gp ;
     sbol:description "Marburg virus transmembrane glycoprotein inserted between the matrix and polymerase genes of a glycoprotein-deleted, replication-competent rVSV." ;
-    sbol:displayId "rvsv_dg_marv_gp__garbutt_2004" ;
-    sbol:hasAttachment ns1:rvsv_dg_marv_gp__garbutt_2004_citation ;
+    sbol:displayId "rvsv_dg_marv_gp__impl_garbutt_2004" ;
+    sbol:hasAttachment ns1:rvsv_dg_marv_gp__impl_garbutt_2004_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:name "garbutt-2004" ;
     sbol:role <https://vsv.bio/stage/preclinical> ;
-    ns1:index 0 .
+    ns1:cloning-sites "XhoI/NheI" ;
+    ns1:index 0 ;
+    ns1:plasmid "VSVXN2ΔG" .
 
-ns1:rvsv_dg_marv_gp__garbutt_2004_animal_safety a sbol:TopLevel,
-        prov:Activity ;
-    sbol:description "None of the rVSV vectors, including the Marburg glycoprotein vector, displayed pathogenic potential in animals." ;
-    sbol:displayId "rvsv_dg_marv_gp__garbutt_2004_animal_safety" ;
-    sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "garbutt-2004-animal-safety" ;
-    sbol:type <https://vsv.bio/assay/safety>,
-        <https://vsv.bio/host/other>,
-        <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/safety> ;
-    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_marv_gp__garbutt_2004_animal_safety/Usage1> ;
-    ns1:index 0 .
-
-<https://vsv.bio/rvsv_dg_marv_gp__garbutt_2004_animal_safety/Usage1> a sbol:Identified,
-        prov:Usage ;
-    sbol:displayId "Usage1" ;
-    prov:entity ns1:rvsv_dg_marv_gp__garbutt_2004 .
-
-ns1:rvsv_dg_marv_gp__garbutt_2004_animal_safety_citation a sbol:Attachment ;
-    sbol:displayId "rvsv_dg_marv_gp__garbutt_2004_animal_safety_citation" ;
+ns1:rvsv_dg_marv_gp__impl_garbutt_2004_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_marv_gp__impl_garbutt_2004_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1128/jvi.78.10.5458-5465.2004> .
 
-ns1:rvsv_dg_marv_gp__garbutt_2004_citation a sbol:Attachment ;
-    sbol:displayId "rvsv_dg_marv_gp__garbutt_2004_citation" ;
-    sbol:hasNamespace <https://vsv.bio> ;
-    sbol:source <https://doi.org/10.1128/jvi.78.10.5458-5465.2004> .
-
-ns1:rvsv_dg_marv_gp__nm_2005 a sbol:Implementation ;
+ns1:rvsv_dg_marv_gp__impl_nm_2005 a sbol:Implementation ;
     sbol:built ns1:rvsv_dg_marv_gp ;
     sbol:description "Replication-competent rVSV expressing the Marburg virus glycoprotein protected nonhuman primates." ;
-    sbol:displayId "rvsv_dg_marv_gp__nm_2005" ;
-    sbol:hasAttachment ns1:rvsv_dg_marv_gp__nm_2005_citation ;
+    sbol:displayId "rvsv_dg_marv_gp__impl_nm_2005" ;
+    sbol:hasAttachment ns1:rvsv_dg_marv_gp__impl_nm_2005_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:name "nm-2005" ;
     sbol:role <https://vsv.bio/stage/preclinical> ;
     ns1:index 1 .
 
-ns1:rvsv_dg_marv_gp__nm_2005_citation a sbol:Attachment ;
-    sbol:displayId "rvsv_dg_marv_gp__nm_2005_citation" ;
+ns1:rvsv_dg_marv_gp__impl_nm_2005_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_marv_gp__impl_nm_2005_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1038/nm1258> .
 
-ns1:rvsv_dg_marv_gp__nm_2005_nhp_protection a sbol:TopLevel,
-        prov:Activity ;
-    sbol:description "A live attenuated recombinant vaccine protected nonhuman primates against Marburg virus." ;
-    sbol:displayId "rvsv_dg_marv_gp__nm_2005_nhp_protection" ;
-    sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "nm-2005-nhp-protection" ;
-    sbol:type <https://vsv.bio/assay/lethal-challenge>,
-        <https://vsv.bio/host/nonhuman-primate>,
-        <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection>,
-        <https://vsv.bio/route/intramuscular> ;
-    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_marv_gp__nm_2005_nhp_protection/Usage1> ;
-    ns1:challenge-virus "MARV" ;
-    ns1:index 1 .
-
-<https://vsv.bio/rvsv_dg_marv_gp__nm_2005_nhp_protection/Usage1> a sbol:Identified,
+<https://vsv.bio/rvsv_dg_marv_gp__obs_garbutt_2004_animal_safety/Usage1> a sbol:Identified,
         prov:Usage ;
     sbol:displayId "Usage1" ;
-    prov:entity ns1:rvsv_dg_marv_gp__nm_2005 .
+    prov:entity ns1:rvsv_dg_marv_gp__impl_garbutt_2004 .
 
-ns1:rvsv_dg_marv_gp__nm_2005_nhp_protection_citation a sbol:Attachment ;
-    sbol:displayId "rvsv_dg_marv_gp__nm_2005_nhp_protection_citation" ;
+ns1:rvsv_dg_marv_gp__obs_garbutt_2004_animal_safety_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_marv_gp__obs_garbutt_2004_animal_safety_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.78.10.5458-5465.2004> .
+
+<https://vsv.bio/rvsv_dg_marv_gp__obs_nm_2005_nhp_protection/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_marv_gp__impl_nm_2005 .
+
+ns1:rvsv_dg_marv_gp__obs_nm_2005_nhp_protection_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_marv_gp__obs_nm_2005_nhp_protection_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1038/nm1258> .
 
@@ -141,16 +133,17 @@ ns1:rvsv_dg_marv_gp_citation_2 a sbol:Attachment ;
 
 ns1:rvsv_dg_marv_gp_derivation a sbol:TopLevel,
         prov:Activity ;
-    sbol:description "target=Glycoprotein;module=Glycoprotein" ;
     sbol:displayId "rvsv_dg_marv_gp_derivation" ;
+    sbol:hasAttachment ns1:rvsv_dg_marv_gp_derivation_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:type <https://vsv.bio/activity/replace-module> ;
-    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_marv_gp_derivation/parent> .
+    ns1:module "Glycoprotein" ;
+    ns1:slot "g" .
 
-<https://vsv.bio/rvsv_dg_marv_gp_derivation/parent> a sbol:Identified,
-        prov:Usage ;
-    sbol:displayId "parent" ;
-    prov:entity ns1:vsv_indiana .
+ns1:rvsv_dg_marv_gp_derivation_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_marv_gp_derivation_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.78.10.5458-5465.2004> .
 
 ns1:rvsv_dg_marv_gp a sbol:Component ;
     sbol:displayId "rvsv_dg_marv_gp" ;
@@ -197,7 +190,9 @@ ns1:rvsv_dg_marv_gp a sbol:Component ;
     sbol:name "Marburg glycoprotein" ;
     sbol:role <https://identifiers.org/SO:0000704>,
         <https://vsv.bio/antigen-class/marburgvirus-glycoprotein> ;
-    sbol:type <https://identifiers.org/SBO:0000251> .
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    ns1:glycoprotein-form "full-length" ;
+    ns1:strain "Musoke" .
 
 <https://vsv.bio/rvsv_dg_marv_gp/LargePolymerase> a sbol:LocalSubComponent ;
     sbol:displayId "LargePolymerase" ;

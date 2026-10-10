@@ -1,9 +1,8 @@
-"""Nucleotide and protein sequence records, FASTA input and output, and basic statistics."""
+"""Nucleotide and protein sequences, and FASTA input."""
 
 from __future__ import annotations
 
 import re
-from collections import Counter
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,7 +10,6 @@ from pathlib import Path
 from vsv.errors import InputError
 
 IUPAC_NUCLEOTIDES = frozenset("ACGTRYSWKMBDHVN")
-_UNAMBIGUOUS = "ACGT"
 _COMPLEMENT = str.maketrans(
     "ACGTRYSWKMBDHVN",
     "TGCAYRSWMKVHDBN",
@@ -74,26 +72,6 @@ class SequenceRecord:
         return f"{self.id} {self.description}".rstrip()
 
 
-@dataclass(frozen=True, slots=True)
-class Composition:
-    """Nucleotide composition of a sequence."""
-
-    length: int
-    counts: dict[str, int]
-    ambiguous: int
-
-    @property
-    def unambiguous(self) -> int:
-        return self.length - self.ambiguous
-
-    @property
-    def gc_content(self) -> float:
-        """Fraction of unambiguous bases that are G or C; ``nan`` if there are none."""
-        if self.unambiguous == 0:
-            return float("nan")
-        return (self.counts["G"] + self.counts["C"]) / self.unambiguous
-
-
 def parse_fasta(lines: Iterable[str]) -> Iterator[SequenceRecord]:
     """Yield records from FASTA text lines.
 
@@ -137,19 +115,6 @@ def read_fasta(path: str | Path) -> list[SequenceRecord]:
         raise FastaError(f"{path}: file is not ASCII text.") from error
 
 
-def wrap_fasta(header: str, sequence: str, width: int = 70) -> str:
-    """Render one FASTA entry, of nucleotides or protein, with lines wrapped at ``width``."""
-    if width < 1:
-        raise ValueError("width must be positive.")
-    lines = [f">{header}", *(sequence[i : i + width] for i in range(0, len(sequence), width))]
-    return "\n".join(lines) + "\n"
-
-
-def format_fasta(records: Iterable[SequenceRecord], width: int = 70) -> str:
-    """Render records as FASTA text with sequence lines wrapped at ``width``."""
-    return "".join(wrap_fasta(record.header, record.sequence, width) for record in records)
-
-
 def reverse_complement(sequence: str) -> str:
     """Return the reverse complement of an IUPAC nucleotide string."""
     return sequence.translate(_COMPLEMENT)[::-1]
@@ -189,11 +154,3 @@ def hydrophobic_window(
         sum(residue in HYDROPHOBIC for residue in region[index : index + width]) >= minimum
         for index in range(len(region) - width + 1)
     )
-
-
-def composition(sequence: str) -> Composition:
-    """Count nucleotides in a sequence."""
-    tally = Counter(sequence)
-    counts = {base: tally[base] for base in _UNAMBIGUOUS}
-    ambiguous = len(sequence) - sum(counts.values())
-    return Composition(length=len(sequence), counts=counts, ambiguous=ambiguous)

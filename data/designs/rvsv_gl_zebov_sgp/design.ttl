@@ -1,0 +1,163 @@
+@prefix ns1: <https://vsv.bio/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:rvsv_gl_zebov_sgp__impl_garbutt_2004 a sbol:Implementation ;
+    sbol:built ns1:rvsv_gl_zebov_sgp ;
+    sbol:description "The open reading frames encoding the soluble glycoprotein (sGP) of Zaire Ebola virus and the larger cleavage fragment (GP1) of Marburg virus were cloned into the XhoI and NheI sites of the VSVXN2 vector, which contains the transcriptional start and stop signals for insertion of an additional gene (42)." ;
+    sbol:displayId "rvsv_gl_zebov_sgp__impl_garbutt_2004" ;
+    sbol:hasAttachment ns1:rvsv_gl_zebov_sgp__impl_garbutt_2004_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "garbutt-2004" ;
+    sbol:role <https://vsv.bio/stage/preclinical> ;
+    ns1:cloning-sites "XhoI/NheI" ;
+    ns1:index 0 ;
+    ns1:plasmid "VSVXN2" .
+
+ns1:rvsv_gl_zebov_sgp a sbol:Component ;
+    sbol:displayId "rvsv_gl_zebov_sgp" ;
+    sbol:hasAttachment ns1:rvsv_gl_zebov_sgp_citation_1 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_gl_zebov_sgp/Constraint1>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/Constraint2>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/Constraint3>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/Constraint4>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/Constraint5>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/Constraint6>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/Constraint7> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_gl_zebov_sgp/Glycoprotein>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/LargePolymerase>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/MatrixProtein>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/Nucleoprotein>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/Phosphoprotein>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/leader>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/trailer>,
+        <https://vsv.bio/rvsv_gl_zebov_sgp/zebov_sgp> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "rVSV Zaire ebolavirus soluble glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_gl_zebov_sgp_derivation .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Constraint1> a sbol:Constraint ;
+    sbol:displayId "Constraint1" ;
+    sbol:object <https://vsv.bio/rvsv_gl_zebov_sgp/Nucleoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_zebov_sgp/leader> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Constraint2> a sbol:Constraint ;
+    sbol:displayId "Constraint2" ;
+    sbol:object <https://vsv.bio/rvsv_gl_zebov_sgp/Phosphoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_zebov_sgp/Nucleoprotein> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Constraint3> a sbol:Constraint ;
+    sbol:displayId "Constraint3" ;
+    sbol:object <https://vsv.bio/rvsv_gl_zebov_sgp/MatrixProtein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_zebov_sgp/Phosphoprotein> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Constraint4> a sbol:Constraint ;
+    sbol:displayId "Constraint4" ;
+    sbol:object <https://vsv.bio/rvsv_gl_zebov_sgp/Glycoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_zebov_sgp/MatrixProtein> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Constraint5> a sbol:Constraint ;
+    sbol:displayId "Constraint5" ;
+    sbol:object <https://vsv.bio/rvsv_gl_zebov_sgp/zebov_sgp> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_zebov_sgp/Glycoprotein> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Constraint6> a sbol:Constraint ;
+    sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_gl_zebov_sgp/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_zebov_sgp/zebov_sgp> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Constraint7> a sbol:Constraint ;
+    sbol:displayId "Constraint7" ;
+    sbol:object <https://vsv.bio/rvsv_gl_zebov_sgp/trailer> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_gl_zebov_sgp/LargePolymerase> .
+
+ns1:rvsv_gl_zebov_sgp__impl_garbutt_2004_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_gl_zebov_sgp__impl_garbutt_2004_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.78.10.5458-5465.2004> .
+
+ns1:rvsv_gl_zebov_sgp_citation_1 a sbol:Attachment ;
+    sbol:displayId "rvsv_gl_zebov_sgp_citation_1" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.78.10.5458-5465.2004> .
+
+ns1:rvsv_gl_zebov_sgp_derivation a sbol:TopLevel,
+        prov:Activity ;
+    sbol:displayId "rvsv_gl_zebov_sgp_derivation" ;
+    sbol:hasAttachment ns1:rvsv_gl_zebov_sgp_derivation_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:type <https://vsv.bio/activity/insert-module> ;
+    ns1:module "zebov_sgp" ;
+    ns1:slot "g" .
+
+ns1:rvsv_gl_zebov_sgp_derivation_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_gl_zebov_sgp_derivation_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1128/jvi.78.10.5458-5465.2004> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/leader> a sbol:LocalSubComponent ;
+    sbol:displayId "leader" ;
+    sbol:name "leader" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/leader> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/trailer> a sbol:LocalSubComponent ;
+    sbol:displayId "trailer" ;
+    sbol:name "trailer" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/trailer> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Glycoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Glycoprotein" ;
+    sbol:name "Glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/LargePolymerase> a sbol:LocalSubComponent ;
+    sbol:displayId "LargePolymerase" ;
+    sbol:name "LargePolymerase" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/MatrixProtein> a sbol:LocalSubComponent ;
+    sbol:displayId "MatrixProtein" ;
+    sbol:name "MatrixProtein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Nucleoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Nucleoprotein" ;
+    sbol:name "Nucleoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/Phosphoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Phosphoprotein" ;
+    sbol:name "Phosphoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_gl_zebov_sgp/zebov_sgp> a sbol:LocalSubComponent ;
+    sbol:displayId "zebov_sgp" ;
+    sbol:name "Zaire ebolavirus soluble glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/zaire-ebolavirus-glycoprotein> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    ns1:glycoprotein-form "soluble" ;
+    ns1:strain "Mayinga" .
+

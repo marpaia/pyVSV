@@ -7,11 +7,8 @@ from collections.abc import Sequence
 import click
 
 from vsv import __version__
-from vsv.cli.census import census
-from vsv.cli.corpus import corpus, papers, promote
-from vsv.cli.design import check, designs, ingest, plasmid, precedents, show
-from vsv.cli.genome import annotate, compare, extract, genes, summary
-from vsv.cli.literature import literature
+from vsv.cli.design import antigenome, check, designs, precedents, show
+from vsv.cli.genome import annotate, extract, genes
 from vsv.errors import InputError
 
 
@@ -24,22 +21,14 @@ def cli(ctx: click.Context) -> None:
         click.echo(ctx.get_help())
 
 
-cli.add_command(summary)
 cli.add_command(annotate)
 cli.add_command(genes)
 cli.add_command(extract)
-cli.add_command(compare)
 cli.add_command(designs)
 cli.add_command(check)
 cli.add_command(show)
 cli.add_command(precedents)
-cli.add_command(plasmid)
-cli.add_command(ingest)
-cli.add_command(literature)
-cli.add_command(census)
-cli.add_command(corpus)
-cli.add_command(papers)
-cli.add_command(promote)
+cli.add_command(antigenome)
 
 
 def main(argv: Sequence[str] | None = None) -> int:

@@ -2,13 +2,7 @@
 
 Keep downloaded sequence files in `data/raw/` and derived intermediate files in `data/processed/`. Treat raw inputs as immutable and regenerate processed data through documented commands.
 
-`data/designs/` is tracked. Each directory is one VSV architecture: `design.ttl` is the SBOL3 document for the genome plan, its implementations, and qualitative observations, and `PROVENANCE.md` is the reading note. Those files describe antigen class, host, assay, and citation. A locus, parent, or replication class may be unknown. They do not contain nucleotide or amino-acid sequences.
-
-`data/ingest/` holds the Europe PMC review queue written by `vsv ingest`. `papers/`, `queue/`, and `cursor.json` are local and gitignored. A pending proposal is not a curated design. See `data/ingest/README.md`.
-
-`data/corpus/` is the PubMed VSV corpus: `papers.jsonl`, `extractions.jsonl`, and `ledger.json` are tracked. `fulltext/` is a local cache and is gitignored. See `data/corpus/README.md`.
-
-`data/census/` is the construction-paper bibliography. `index.json` lists the PMIDs cited by the index reviews, and `manifest.jsonl` records each download. Article XML is written into `data/corpus/fulltext/`. HTML, PDF, and section files under `data/census/` are a local cache and are gitignored. See `data/census/README.md`.
+`data/designs/` is tracked. The directories are the Indiana chassis and the filovirus vaccines. Each has `design.ttl`, an SBOL3 design file, and `PROVENANCE.md`, the reading note. The Turtle describes the ordered genome and the papers: antigen class, host, assay, and citation. A parent or replication class may be unknown. A nucleotide sequence is present only when the antigen feature has an `sbol:Sequence`. The shelf cards have none.
 
 For each dataset, add a small, tracked provenance document beside this README. Record its source URL or accession with version, retrieval date, checksum, local filename, and any usage or attribution requirements. Record the commands and parameters used for derived data, together with the input identifiers and code revision.
 

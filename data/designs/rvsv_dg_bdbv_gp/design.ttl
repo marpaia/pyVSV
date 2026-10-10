@@ -3,11 +3,28 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ns1:rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection_data a sbol:ExperimentalData ;
-    sbol:displayId "rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection_data" ;
-    sbol:hasAttachment ns1:rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection_citation ;
+ns1:rvsv_dg_bdbv_gp__obs_pmid_24367715_macaque_protection a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "In this study the animals in Group 2 lacked clinical signs of disease, were below the limits of detection for viremia by plaque assay and qRT-PCR" ;
+    sbol:displayId "rvsv_dg_bdbv_gp__obs_pmid_24367715_macaque_protection" ;
+    sbol:hasAttachment ns1:rvsv_dg_bdbv_gp__obs_pmid_24367715_macaque_protection_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
-    prov:wasGeneratedBy ns1:rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection .
+    sbol:name "pmid-24367715-macaque-protection" ;
+    sbol:type <https://vsv.bio/assay/lethal-challenge>,
+        <https://vsv.bio/host/cynomolgus>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection>,
+        <https://vsv.bio/route/intramuscular>,
+        <https://vsv.bio/timing/prophylactic> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_bdbv_gp__obs_pmid_24367715_macaque_protection/Usage1> ;
+    ns1:challenge-amount "1000" ;
+    ns1:challenge-route "intramuscular" ;
+    ns1:challenge-strain "200706291" ;
+    ns1:challenge-unit "pfu" ;
+    ns1:challenge-virus "BEBOV" ;
+    ns1:index 0 ;
+    ns1:vaccine-amount "2e7" ;
+    ns1:vaccine-unit "pfu" .
 
 ns1:rvsv_dg_bdbv_gp a sbol:Component ;
     sbol:displayId "rvsv_dg_bdbv_gp" ;
@@ -32,8 +49,7 @@ ns1:rvsv_dg_bdbv_gp a sbol:Component ;
         <https://vsv.bio/role/replication-competent> ;
     sbol:type <https://identifiers.org/SBO:0000251> ;
     prov:wasDerivedFrom ns1:vsv_indiana ;
-    prov:wasGeneratedBy ns1:rvsv_dg_bdbv_gp_derivation ;
-    ns1:alias "rVSV-BEBOV-GP" .
+    prov:wasGeneratedBy ns1:rvsv_dg_bdbv_gp_derivation .
 
 <https://vsv.bio/rvsv_dg_bdbv_gp/Constraint1> a sbol:Constraint ;
     sbol:displayId "Constraint1" ;
@@ -71,44 +87,27 @@ ns1:rvsv_dg_bdbv_gp a sbol:Component ;
     sbol:restriction sbol:strictlyPrecedes ;
     sbol:subject <https://vsv.bio/rvsv_dg_bdbv_gp/LargePolymerase> .
 
-ns1:rvsv_dg_bdbv_gp__pmid_24367715 a sbol:Implementation ;
+ns1:rvsv_dg_bdbv_gp__impl_pmid_24367715 a sbol:Implementation ;
     sbol:built ns1:rvsv_dg_bdbv_gp ;
-    sbol:displayId "rvsv_dg_bdbv_gp__pmid_24367715" ;
-    sbol:hasAttachment ns1:rvsv_dg_bdbv_gp__pmid_24367715_citation ;
+    sbol:displayId "rvsv_dg_bdbv_gp__impl_pmid_24367715" ;
+    sbol:hasAttachment ns1:rvsv_dg_bdbv_gp__impl_pmid_24367715_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:name "pmid-24367715" ;
     sbol:role <https://vsv.bio/stage/preclinical> ;
     ns1:index 0 .
 
-ns1:rvsv_dg_bdbv_gp__pmid_24367715_citation a sbol:Attachment ;
-    sbol:displayId "rvsv_dg_bdbv_gp__pmid_24367715_citation" ;
+ns1:rvsv_dg_bdbv_gp__impl_pmid_24367715_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_bdbv_gp__impl_pmid_24367715_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1371/journal.pntd.0002600> .
 
-ns1:rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection a sbol:TopLevel,
-        prov:Activity ;
-    sbol:description "Groups 2 and 4 were 100% protected against BEBOV" ;
-    sbol:displayId "rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection" ;
-    sbol:hasNamespace <https://vsv.bio> ;
-    sbol:name "pmid-24367715-macaque-protection" ;
-    sbol:type <https://vsv.bio/assay/lethal-challenge>,
-        <https://vsv.bio/host/nonhuman-primate>,
-        <https://vsv.bio/outcome/reported>,
-        <https://vsv.bio/phenotype/protection>,
-        <https://vsv.bio/route/intramuscular> ;
-    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection/Usage1> ;
-    ns1:challenge-dose "1,000 PFU" ;
-    ns1:challenge-route "intramuscular" ;
-    ns1:challenge-virus "BEBOV" ;
-    ns1:index 0 .
-
-<https://vsv.bio/rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection/Usage1> a sbol:Identified,
+<https://vsv.bio/rvsv_dg_bdbv_gp__obs_pmid_24367715_macaque_protection/Usage1> a sbol:Identified,
         prov:Usage ;
     sbol:displayId "Usage1" ;
-    prov:entity ns1:rvsv_dg_bdbv_gp__pmid_24367715 .
+    prov:entity ns1:rvsv_dg_bdbv_gp__impl_pmid_24367715 .
 
-ns1:rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection_citation a sbol:Attachment ;
-    sbol:displayId "rvsv_dg_bdbv_gp__pmid_24367715_macaque_protection_citation" ;
+ns1:rvsv_dg_bdbv_gp__obs_pmid_24367715_macaque_protection_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_bdbv_gp__obs_pmid_24367715_macaque_protection_citation" ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:source <https://doi.org/10.1371/journal.pntd.0002600> .
 
@@ -119,16 +118,17 @@ ns1:rvsv_dg_bdbv_gp_citation_1 a sbol:Attachment ;
 
 ns1:rvsv_dg_bdbv_gp_derivation a sbol:TopLevel,
         prov:Activity ;
-    sbol:description "target=Glycoprotein;module=Glycoprotein;replication=replication-competent" ;
     sbol:displayId "rvsv_dg_bdbv_gp_derivation" ;
+    sbol:hasAttachment ns1:rvsv_dg_bdbv_gp_derivation_citation ;
     sbol:hasNamespace <https://vsv.bio> ;
     sbol:type <https://vsv.bio/activity/replace-module> ;
-    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_bdbv_gp_derivation/parent> .
+    ns1:module "Glycoprotein" ;
+    ns1:slot "g" .
 
-<https://vsv.bio/rvsv_dg_bdbv_gp_derivation/parent> a sbol:Identified,
-        prov:Usage ;
-    sbol:displayId "parent" ;
-    prov:entity ns1:vsv_indiana .
+ns1:rvsv_dg_bdbv_gp_derivation_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_bdbv_gp_derivation_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1371/journal.pntd.0002600> .
 
 <https://vsv.bio/rvsv_dg_bdbv_gp/leader> a sbol:LocalSubComponent ;
     sbol:displayId "leader" ;
@@ -149,7 +149,8 @@ ns1:rvsv_dg_bdbv_gp_derivation a sbol:TopLevel,
     sbol:name "Bundibugyo GP" ;
     sbol:role <https://identifiers.org/SO:0000704>,
         <https://vsv.bio/antigen-class/bundibugyo-ebolavirus-glycoprotein> ;
-    sbol:type <https://identifiers.org/SBO:0000251> .
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    ns1:glycoprotein-form "full-length" .
 
 <https://vsv.bio/rvsv_dg_bdbv_gp/LargePolymerase> a sbol:LocalSubComponent ;
     sbol:displayId "LargePolymerase" ;

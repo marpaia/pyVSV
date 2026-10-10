@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from vsv.genes import Gene
-from vsv.genome.annotation import GENE_END_SIGNAL, TRANSCRIPT_END
+from vsv.genome.annotate import GENE_END_SIGNAL, TRANSCRIPT_END
 
 _LEADER = "ACGCTTCCGCTCCTCCTCGCCTCCCTCTCCGCTCCTCCGC"
 _TRAILER = "GCGGAGGAGCGGAGAGGGAGGCGAGGAGGAGCGGAAGCGT"

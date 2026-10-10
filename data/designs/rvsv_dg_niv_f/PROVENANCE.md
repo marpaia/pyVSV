@@ -1,7 +1,0 @@
-# rvsv_dg_niv_f
-
-Chattopadhyay and Rose (Journal of Virology, 2011, https://doi.org/10.1128/jvi.01852-10) built VSV recombinants expressing Nipah virus G or F. The replication-competent pair keeps VSV G and carries the Nipah gene between G and L: "NiV genes were inserted into the plasmid vector pVSVXN2 (30) between the VSV G and L genes (Fig. 1 A)." The single-cycle pair deletes that VSV G gene. This record is VSVΔG-F(NiV). The replication-defective vectors generated Nipah neutralizing antibody in mice. Mice were immunized intramuscularly with the single-cycle vector. "three groups of mice were immunized i.m. with VSVΔG-G(NiV), VSVΔG-F(NiV), or a combination." The combination arm is not a third genome. No Nipah sequence is stored.
-
-A 2014 Antiviral Research paper (https://doi.org/10.1016/j.antiviral.2013.10.012) gave hamsters one intramuscular dose: "inoculated intramuscularly in the right quadriceps with 1 x 106 infectious particles of either VSV-ΔG-NiVG (10 animals), VSV-ΔG-NiVF." "all hamsters were inoculated via the intraperitoneal route with a previously described uniformly lethal challenge dose (105 TCID50/hamster, >1000 times LD50) of NiV Malaysia." "hamsters vaccinated with VSV-ΔG-NiVG or VSV-ΔG-NiVF did not develop any clinical illness nor weight loss." The dose in the saved challenge sentence is 105 TCID50/hamster. No Nipah sequence is stored.
-
-Retrieved 27 September 2026.

@@ -1,5 +1,0 @@
-# rVSV RSV fusion
-
-VSV glycoprotein remains. RSV fusion, class `pneumovirus-fusion`, sits between the glycoprotein and large polymerase genes. A 2001 Journal of Virology paper (https://doi.org/10.1128/jvi.75.22.11079-11087.2001) states that the original full-length genomes contained RSV F between the VSV G and L genes, and RSV attachment between the VSV M and G genes. Intranasal vaccination of mice with replication-competent VSV expressing RSV F induced neutralizing antibodies and completely protected mice from RSV challenge. The same paper deletes VSV G so that the RSV glycoprotein gene occupies the G position. That glycoprotein-deleted virus is not this record. Kahn, Schnell, Buonocore, and Rose (Virology, 1999, https://doi.org/10.1006/viro.1998.9535) built those genomes: "The RSV G gene was inserted between the VSV M and G genes, and the RSV F gene was cloned in a second construct between the VSV G and L genes." RSV F was cloned into pVSV-XN1 at the XhoI and NheI sites between G and L. That paper shows the proteins in cell culture. It does not report an animal challenge. No fusion sequence is stored.
-
-Retrieved 27 September 2026.

@@ -1,0 +1,337 @@
+@prefix ns1: <https://vsv.bio/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_agnandji_2016_reactogenicity a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "No serious vaccine-related adverse events were reported." ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_agnandji_2016_reactogenicity" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__obs_agnandji_2016_reactogenicity_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "agnandji-2016-reactogenicity" ;
+    sbol:type <https://vsv.bio/assay/reactogenicity>,
+        <https://vsv.bio/host/human>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/safety> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_agnandji_2016_reactogenicity/Usage1> ;
+    ns1:index 1 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_henao_restrepo_2017_efficacy a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "No cases of Ebola virus disease occurred 10 days or more after randomisation among randomly assigned contacts and contacts of contacts vaccinated in immediate clusters versus 16 cases (7 clusters affected) among all eligible individuals in delayed clusters." ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_henao_restrepo_2017_efficacy" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__obs_henao_restrepo_2017_efficacy_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "henao-restrepo-2017-efficacy" ;
+    sbol:type <https://vsv.bio/assay/field-efficacy>,
+        <https://vsv.bio/host/human>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/protection> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_henao_restrepo_2017_efficacy/Usage1> ;
+    ns1:index 4 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_antibody a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "Although seropositivity rates remained similarly high (48 [94%] of 51), day-28 EBOV-glycoprotein-binding and neutralising antibody titres were lower in low-dose versus high-dose vaccinees." ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_antibody" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_antibody_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "huttner-2015-antibody" ;
+    sbol:type <https://vsv.bio/assay/neutralization>,
+        <https://vsv.bio/host/human>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/immunogenicity>,
+        <https://vsv.bio/route/intramuscular>,
+        <https://vsv.bio/timing/prophylactic> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_antibody/Usage1> ;
+    ns1:index 3 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_reactogenicity a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "At 3 × 105 pfu, early-onset reactogenicity remained frequent (45 [88%] of 51 compared with 50 [98%] of 51 high dose and two [15%] of 13 placebo recipients), but mild." ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_reactogenicity" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_reactogenicity_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "huttner-2015-reactogenicity" ;
+    sbol:type <https://vsv.bio/assay/reactogenicity>,
+        <https://vsv.bio/host/human>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/safety>,
+        <https://vsv.bio/route/intramuscular>,
+        <https://vsv.bio/timing/prophylactic> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_reactogenicity/Usage1> ;
+    ns1:index 2 ;
+    ns1:vaccine-amount "3e5" ;
+    ns1:vaccine-unit "pfu" .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_regules_2017_adverse a sbol:TopLevel,
+        prov:Activity ;
+    sbol:description "The most common adverse events were injection-site pain, fatigue, myalgia, and headache." ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_regules_2017_adverse" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__obs_regules_2017_adverse_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "regules-2017-adverse" ;
+    sbol:type <https://vsv.bio/assay/reactogenicity>,
+        <https://vsv.bio/host/human>,
+        <https://vsv.bio/outcome/reported>,
+        <https://vsv.bio/phenotype/safety>,
+        <https://vsv.bio/timing/prophylactic> ;
+    prov:qualifiedUsage <https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_regules_2017_adverse/Usage1> ;
+    ns1:index 0 .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint1> a sbol:Constraint ;
+    sbol:displayId "Constraint1" ;
+    sbol:object <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Nucleoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/leader> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint2> a sbol:Constraint ;
+    sbol:displayId "Constraint2" ;
+    sbol:object <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Phosphoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Nucleoprotein> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint3> a sbol:Constraint ;
+    sbol:displayId "Constraint3" ;
+    sbol:object <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/MatrixProtein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Phosphoprotein> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint4> a sbol:Constraint ;
+    sbol:displayId "Constraint4" ;
+    sbol:object <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Glycoprotein> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/MatrixProtein> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint5> a sbol:Constraint ;
+    sbol:displayId "Constraint5" ;
+    sbol:object <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/LargePolymerase> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Glycoprotein> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint6> a sbol:Constraint ;
+    sbol:displayId "Constraint6" ;
+    sbol:object <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/trailer> ;
+    sbol:restriction sbol:strictlyPrecedes ;
+    sbol:subject <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/LargePolymerase> .
+
+ns1:rvsv_dg_zebov_kikwit_gp__impl_agnandji_2016 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_zebov_kikwit_gp ;
+    sbol:description "In these studies, rVSV-ZEBOV was reactogenic but immunogenic after a single dose and warrants further evaluation for safety and efficacy." ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__impl_agnandji_2016" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__impl_agnandji_2016_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "agnandji-2016" ;
+    sbol:role <https://vsv.bio/stage/clinical> ;
+    ns1:index 1 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__impl_agnandji_2016_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__impl_agnandji_2016_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1056/NEJMoa1502924> .
+
+ns1:rvsv_dg_zebov_kikwit_gp__impl_henao_restrepo_2017 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_zebov_kikwit_gp ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__impl_henao_restrepo_2017" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__impl_henao_restrepo_2017_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "henao-restrepo-2017" ;
+    sbol:role <https://vsv.bio/stage/clinical> ;
+    ns1:index 3 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__impl_henao_restrepo_2017_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__impl_henao_restrepo_2017_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/S0140-6736(16)32621-6> .
+
+ns1:rvsv_dg_zebov_kikwit_gp__impl_huttner_2015_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__impl_huttner_2015_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/S1473-3099(15)00154-1> .
+
+ns1:rvsv_dg_zebov_kikwit_gp__impl_regules_2017 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_zebov_kikwit_gp ;
+    sbol:description "The rVSV-ZEBOV vaccine candidate is a live attenuated recombinant virus consisting of the VSV strain Indiana, with the glycoprotein of the ZEBOV Kikwit 1995 strain replacing the gene for the VSV envelope glycoprotein." ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__impl_regules_2017" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__impl_regules_2017_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "regules-2017" ;
+    sbol:role <https://vsv.bio/stage/clinical> ;
+    ns1:index 0 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__impl_regules_2017_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__impl_regules_2017_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1056/NEJMoa1414216> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_agnandji_2016_reactogenicity/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_zebov_kikwit_gp__impl_agnandji_2016 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_agnandji_2016_reactogenicity_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_agnandji_2016_reactogenicity_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1056/NEJMoa1502924> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_henao_restrepo_2017_efficacy/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_zebov_kikwit_gp__impl_henao_restrepo_2017 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_henao_restrepo_2017_efficacy_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_henao_restrepo_2017_efficacy_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/S0140-6736(16)32621-6> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_antibody/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_zebov_kikwit_gp__impl_huttner_2015 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_antibody_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_antibody_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/S1473-3099(15)00154-1> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_reactogenicity/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_zebov_kikwit_gp__impl_huttner_2015 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_reactogenicity_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_huttner_2015_reactogenicity_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/S1473-3099(15)00154-1> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp__obs_regules_2017_adverse/Usage1> a sbol:Identified,
+        prov:Usage ;
+    sbol:displayId "Usage1" ;
+    prov:entity ns1:rvsv_dg_zebov_kikwit_gp__impl_regules_2017 .
+
+ns1:rvsv_dg_zebov_kikwit_gp__obs_regules_2017_adverse_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__obs_regules_2017_adverse_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1056/NEJMoa1414216> .
+
+ns1:rvsv_dg_zebov_kikwit_gp_citation_1 a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp_citation_1" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1056/NEJMoa1414216> .
+
+ns1:rvsv_dg_zebov_kikwit_gp_citation_2 a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp_citation_2" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1056/NEJMoa1502924> .
+
+ns1:rvsv_dg_zebov_kikwit_gp_citation_3 a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp_citation_3" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/S1473-3099(15)00154-1> .
+
+ns1:rvsv_dg_zebov_kikwit_gp_citation_4 a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp_citation_4" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1016/S0140-6736(16)32621-6> .
+
+ns1:rvsv_dg_zebov_kikwit_gp_derivation a sbol:TopLevel,
+        prov:Activity ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp_derivation" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp_derivation_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:type <https://vsv.bio/activity/replace-module> ;
+    ns1:module "Glycoprotein" ;
+    ns1:slot "g" .
+
+ns1:rvsv_dg_zebov_kikwit_gp_derivation_citation a sbol:Attachment ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp_derivation_citation" ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:source <https://doi.org/10.1056/NEJMoa1414216> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/leader> a sbol:LocalSubComponent ;
+    sbol:displayId "leader" ;
+    sbol:name "leader" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/leader> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/trailer> a sbol:LocalSubComponent ;
+    sbol:displayId "trailer" ;
+    sbol:name "trailer" ;
+    sbol:role <https://identifiers.org/SO:0000001>,
+        <https://vsv.bio/role/trailer> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+ns1:rvsv_dg_zebov_kikwit_gp__impl_huttner_2015 a sbol:Implementation ;
+    sbol:built ns1:rvsv_dg_zebov_kikwit_gp ;
+    sbol:description "Injections were given intramuscularly over 30 s into the deltoid." ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp__impl_huttner_2015" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp__impl_huttner_2015_citation ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "huttner-2015" ;
+    sbol:role <https://vsv.bio/stage/clinical> ;
+    ns1:index 2 .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Glycoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Glycoprotein" ;
+    sbol:name "Zaire ebolavirus glycoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704>,
+        <https://vsv.bio/antigen-class/zaire-ebolavirus-glycoprotein> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    ns1:glycoprotein-form "full-length" ;
+    ns1:strain "Kikwit-1995" .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/LargePolymerase> a sbol:LocalSubComponent ;
+    sbol:displayId "LargePolymerase" ;
+    sbol:name "LargePolymerase" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/MatrixProtein> a sbol:LocalSubComponent ;
+    sbol:displayId "MatrixProtein" ;
+    sbol:name "MatrixProtein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Nucleoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Nucleoprotein" ;
+    sbol:name "Nucleoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+<https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Phosphoprotein> a sbol:LocalSubComponent ;
+    sbol:displayId "Phosphoprotein" ;
+    sbol:name "Phosphoprotein" ;
+    sbol:role <https://identifiers.org/SO:0000704> ;
+    sbol:type <https://identifiers.org/SBO:0000251> .
+
+ns1:rvsv_dg_zebov_kikwit_gp a sbol:Component ;
+    sbol:displayId "rvsv_dg_zebov_kikwit_gp" ;
+    sbol:hasAttachment ns1:rvsv_dg_zebov_kikwit_gp_citation_1,
+        ns1:rvsv_dg_zebov_kikwit_gp_citation_2,
+        ns1:rvsv_dg_zebov_kikwit_gp_citation_3,
+        ns1:rvsv_dg_zebov_kikwit_gp_citation_4 ;
+    sbol:hasConstraint <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint1>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint2>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint3>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint4>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint5>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Constraint6> ;
+    sbol:hasFeature <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Glycoprotein>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/LargePolymerase>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/MatrixProtein>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Nucleoprotein>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/Phosphoprotein>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/leader>,
+        <https://vsv.bio/rvsv_dg_zebov_kikwit_gp/trailer> ;
+    sbol:hasNamespace <https://vsv.bio> ;
+    sbol:name "rVSV-ZEBOV Kikwit GP" ;
+    sbol:role <https://identifiers.org/SO:0001041>,
+        <https://vsv.bio/backbone/VSV-Indiana>,
+        <https://vsv.bio/role/replication-competent> ;
+    sbol:type <https://identifiers.org/SBO:0000251> ;
+    prov:wasDerivedFrom ns1:vsv_indiana ;
+    prov:wasGeneratedBy ns1:rvsv_dg_zebov_kikwit_gp_derivation ;
+    ns1:alias "Ervebo" .
+

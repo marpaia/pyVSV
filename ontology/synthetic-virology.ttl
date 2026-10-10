@@ -9,22 +9,17 @@
 @prefix gene: <https://vsv.bio/gene/> .
 @prefix antigen: <https://vsv.bio/antigen-class/> .
 @prefix activity: <https://vsv.bio/activity/> .
-@prefix stage: <https://vsv.bio/stage/> .
-@prefix phenotype: <https://vsv.bio/phenotype/> .
-@prefix host: <https://vsv.bio/host/> .
-@prefix assay: <https://vsv.bio/assay/> .
-@prefix outcome: <https://vsv.bio/outcome/> .
-@prefix route: <https://vsv.bio/route/> .
+@prefix form: <https://vsv.bio/glycoprotein-form/> .
 
 # Sequence feature classes are the Sequence Ontology. Design files write the same terms as
 # https://identifiers.org/SO:{id}. This ontology does not redefine them.
 
 <https://vsv.bio/ontology> a owl:Ontology ;
     rdfs:label "synthetic virology ontology" ;
-    owl:versionIRI <https://vsv.bio/ontology/2026-09-22> ;
-    owl:versionInfo "2026-09-22" ;
+    owl:versionIRI <https://vsv.bio/ontology/2026-10-07> ;
+    owl:versionInfo "2026-10-07" ;
     owl:imports <http://purl.obolibrary.org/obo/so.owl> ;
-    rdfs:comment "Terms for recombinant RNA-virus vector genome plans. Sequence features use the Sequence Ontology. Assay, host, and stage terms are the labels stored on a plan; their definitions live here so a design file can be read without the program that wrote it." .
+    rdfs:comment "Terms for recombinant RNA-virus vector genome plans. Sequence features use the Sequence Ontology. Antigen classes, the Indiana backbone, replication, and the replace and insert edits are defined here." .
 
 :VectorPlan a owl:Class ;
     rdfs:label "vector genome plan" ;
@@ -47,31 +42,6 @@
     rdfs:comment "The edit that derives a plan from its parent. A design file records the edit as the sbol:type of a prov:Activity." ;
     rdfs:seeAlso sbol:Activity .
 
-:DevelopmentStage a owl:Class ;
-    rdfs:label "development stage" ;
-    rdfs:comment "Where a built virus sits in development. Recorded as an sbol:role on an sbol:Implementation." ;
-    rdfs:seeAlso sbol:Implementation .
-
-:Phenotype a owl:Class ;
-    rdfs:label "phenotype" ;
-    rdfs:comment "The kind of result named by an observation. These classes are the library's labels. They do not replace an assay ontology." .
-
-:HostContext a owl:Class ;
-    rdfs:label "host context" ;
-    rdfs:comment "The biological context in which a result was measured." .
-
-:Assay a owl:Class ;
-    rdfs:label "assay" ;
-    rdfs:comment "The measurement named by an observation." .
-
-:Outcome a owl:Class ;
-    rdfs:label "outcome" ;
-    rdfs:comment "Whether the cited paper reports the phenotype, does not report it, or reports harm." .
-
-:Route a owl:Class ;
-    rdfs:label "route" ;
-    rdfs:comment "The immunization route named by an observation, when a paper states one." .
-
 # Replication. A plan carries one of these roles when the source states it.
 
 role:replication-competent a owl:Class ;
@@ -82,7 +52,7 @@ role:replication-competent a owl:Class ;
 role:single-cycle a owl:Class ;
     rdfs:label "single-cycle" ;
     rdfs:subClassOf :VectorPlan ;
-    rdfs:comment "The vector does not complete an infectious cycle without a complementing protein." .
+    rdfs:comment "The vector does not complete an infectious cycle on its own." .
 
 # Backbone. A plan carries one of these roles.
 
@@ -90,11 +60,6 @@ backbone:VSV-Indiana a owl:Class ;
     rdfs:label "VSV Indiana" ;
     rdfs:subClassOf :VectorPlan ;
     rdfs:comment "Vesicular stomatitis Indiana virus serotype backbone." .
-
-backbone:VSV-NewJersey a owl:Class ;
-    rdfs:label "VSV New Jersey" ;
-    rdfs:subClassOf :VectorPlan ;
-    rdfs:comment "Vesicular stomatitis New Jersey virus serotype backbone." .
 
 # Parts of a VSV genome. Each pairs with the Sequence Ontology term the design file also writes.
 
@@ -117,11 +82,6 @@ role:gene-end a owl:Class ;
     rdfs:label "gene end" ;
     rdfs:subClassOf so:0000141 ;
     rdfs:comment "The transcription stop signal following a VSV gene." .
-
-role:reporter a owl:Class ;
-    rdfs:label "reporter" ;
-    rdfs:subClassOf so:0000704 ;
-    rdfs:comment "A reporter gene, such as GFP or luciferase, that is not an antigen class." .
 
 role:parent-unknown a owl:Class ;
     rdfs:label "parent unknown" ;
@@ -160,10 +120,9 @@ activity:insert-module a owl:Class ;
     rdfs:subClassOf :GenomicEdit ;
     rdfs:comment "A module was added and the parent's modules remain. An extra gene downstream of a retained VSV G is this edit." .
 
-activity:delete-module a owl:Class ;
-    rdfs:label "delete module" ;
-    rdfs:subClassOf :GenomicEdit ;
-    rdfs:comment "A module of the parent was removed and nothing was put in its place." .
+:editing-run a owl:DatatypeProperty ;
+    rdfs:label "editing run" ;
+    rdfs:comment "Length of the single adenosine run an ORF of this class must contain for one glycoprotein form." .
 
 # Antigen classes. A feature carries one of these roles together with SO:0000704.
 # Species glycoproteins are subclasses of the genus class, so a query for the genus includes them.
@@ -171,7 +130,16 @@ activity:delete-module a owl:Class ;
 antigen:filovirus-glycoprotein a owl:Class ;
     rdfs:label "filovirus glycoprotein" ;
     rdfs:subClassOf :AntigenClass ;
-    rdfs:comment "A filovirus glycoprotein gene. The Zaire ebolavirus glycoprotein plans use this class. Species classes below are subclasses." .
+    rdfs:comment "A filovirus glycoprotein gene. Zaire, Sudan, Bundibugyo, Reston, Taï Forest, Bombali, and Marburg are subclasses." .
+
+antigen:zaire-ebolavirus-glycoprotein a owl:Class ;
+    rdfs:label "Zaire ebolavirus glycoprotein" ;
+    rdfs:subClassOf antigen:filovirus-glycoprotein ;
+    rdfs:comment "The Zaire ebolavirus glycoprotein. Kikwit-1995 and Mayinga are strains of this class." ;
+    :editing-run [
+        form:full-length 8 ;
+        form:soluble 7
+    ] .
 
 antigen:sudan-ebolavirus-glycoprotein a owl:Class ;
     rdfs:label "Sudan ebolavirus glycoprotein" ;
@@ -199,7 +167,8 @@ antigen:hiv-gag a owl:Class ;
 
 antigen:marburgvirus-glycoprotein a owl:Class ;
     rdfs:label "Marburg virus glycoprotein" ;
-    rdfs:subClassOf :AntigenClass .
+    rdfs:subClassOf antigen:filovirus-glycoprotein ;
+    rdfs:comment "Marburg virus glycoprotein, a filovirus glycoprotein." .
 
 antigen:arenavirus-gpc a owl:Class ;
     rdfs:label "arenavirus glycoprotein complex" ;
@@ -311,139 +280,82 @@ antigen:henipavirus-nucleoprotein a owl:Class ;
     rdfs:label "henipavirus nucleoprotein" ;
     rdfs:subClassOf :AntigenClass .
 
-# Development stage, phenotype, host, assay, and outcome. Leaf IRIs are the values stored on a plan.
-
-stage:preclinical a owl:Class ;
-    rdfs:label "preclinical" ;
-    rdfs:subClassOf :DevelopmentStage .
-
-stage:clinical a owl:Class ;
-    rdfs:label "clinical" ;
-    rdfs:subClassOf :DevelopmentStage .
-
-phenotype:expression a owl:Class ;
-    rdfs:label "expression" ;
-    rdfs:subClassOf :Phenotype .
-
-phenotype:growth a owl:Class ;
-    rdfs:label "growth" ;
-    rdfs:subClassOf :Phenotype .
-
-phenotype:immunogenicity a owl:Class ;
-    rdfs:label "immunogenicity" ;
-    rdfs:subClassOf :Phenotype .
-
-phenotype:safety a owl:Class ;
-    rdfs:label "safety" ;
-    rdfs:subClassOf :Phenotype .
-
-phenotype:protection a owl:Class ;
-    rdfs:label "protection" ;
-    rdfs:subClassOf :Phenotype .
-
-host:cell-line a owl:Class ;
-    rdfs:label "cell line" ;
-    rdfs:subClassOf :HostContext .
-
-host:mouse a owl:Class ;
-    rdfs:label "mouse" ;
-    rdfs:subClassOf :HostContext .
-
-host:hamster a owl:Class ;
-    rdfs:label "hamster" ;
-    rdfs:subClassOf :HostContext .
-
-host:nonhuman-primate a owl:Class ;
-    rdfs:label "nonhuman primate" ;
-    rdfs:subClassOf :HostContext .
-
-host:human a owl:Class ;
-    rdfs:label "human" ;
-    rdfs:subClassOf :HostContext .
-
-host:other a owl:Class ;
-    rdfs:label "other host" ;
-    rdfs:subClassOf :HostContext .
-
-route:unknown a owl:Class ;
-    rdfs:label "unknown route" ;
-    rdfs:subClassOf :Route .
-
-route:intramuscular a owl:Class ;
-    rdfs:label "intramuscular" ;
-    rdfs:subClassOf :Route .
-
-route:intravenous a owl:Class ;
-    rdfs:label "intravenous" ;
-    rdfs:subClassOf :Route .
-
-route:intranasal a owl:Class ;
-    rdfs:label "intranasal" ;
-    rdfs:subClassOf :Route .
-
-route:oral a owl:Class ;
-    rdfs:label "oral" ;
-    rdfs:subClassOf :Route .
-
-route:intraperitoneal a owl:Class ;
-    rdfs:label "intraperitoneal" ;
-    rdfs:subClassOf :Route .
-
-route:subcutaneous a owl:Class ;
-    rdfs:label "subcutaneous" ;
-    rdfs:subClassOf :Route .
-
-route:intradermal a owl:Class ;
-    rdfs:label "intradermal" ;
-    rdfs:subClassOf :Route .
-
-route:other a owl:Class ;
-    rdfs:label "other route" ;
-    rdfs:subClassOf :Route .
-
-assay:lethal-challenge a owl:Class ;
-    rdfs:label "lethal challenge" ;
-    rdfs:subClassOf :Assay .
-
-assay:neutralization a owl:Class ;
-    rdfs:label "neutralization" ;
-    rdfs:subClassOf :Assay .
-
-assay:immunogenicity a owl:Class ;
-    rdfs:label "immunogenicity assay" ;
-    rdfs:subClassOf :Assay .
-
-assay:safety a owl:Class ;
-    rdfs:label "safety assay" ;
-    rdfs:subClassOf :Assay .
-
-assay:reactogenicity a owl:Class ;
-    rdfs:label "reactogenicity" ;
-    rdfs:subClassOf :Assay .
-
-outcome:reported a owl:Class ;
-    rdfs:label "reported" ;
-    rdfs:subClassOf :Outcome .
-
-outcome:not-reported a owl:Class ;
-    rdfs:label "not reported" ;
-    rdfs:subClassOf :Outcome .
-
-outcome:adverse a owl:Class ;
-    rdfs:label "adverse" ;
-    rdfs:subClassOf :Outcome .
-
 # Predicates written on a design document that are not sequence features.
 
 :alias a owl:AnnotationProperty ;
     rdfs:label "alias" ;
-    rdfs:comment "A name the literature uses for this plan, such as Ervebo for the Zaire ebolavirus glycoprotein plan." ;
+    rdfs:comment "A product name for one strain-resolved genome. An alias is not a name for a genus." ;
+    rdfs:range xsd:string .
+
+:strain a owl:AnnotationProperty ;
+    rdfs:label "strain" ;
+    rdfs:comment "The strain name a paper prints for an antigen." ;
+    rdfs:range xsd:string .
+
+:isolate-accession a owl:AnnotationProperty ;
+    rdfs:label "isolate accession" ;
+    rdfs:comment "A GenBank nucleotide or protein accession for an antigen, when the paper gives one." ;
+    rdfs:range xsd:string .
+
+:plasmid a owl:AnnotationProperty ;
+    rdfs:label "plasmid" ;
+    rdfs:comment "The infectious-clone plasmid a paper names. This is not a coordinate on NC_001560." ;
+    rdfs:range xsd:string .
+
+:cloning-sites a owl:AnnotationProperty ;
+    rdfs:label "cloning sites" ;
+    rdfs:comment "The restriction sites a paper names for inserting the antigen." ;
     rdfs:range xsd:string .
 
 :index a owl:AnnotationProperty ;
     rdfs:label "record index" ;
     rdfs:comment "Position of an implementation or observation in the curated record. This keeps authored order in a format that does not order triples. It is not a biological relation." ;
     rdfs:range xsd:integer .
+
+:challenge-virus a owl:AnnotationProperty ;
+    rdfs:label "challenge virus" ;
+    rdfs:comment "The challenge virus as the paper names it." ;
+    rdfs:range xsd:string .
+
+:challenge-strain a owl:AnnotationProperty ;
+    rdfs:label "challenge strain" ;
+    rdfs:comment "The challenge strain as the paper names it." ;
+    rdfs:range xsd:string .
+
+:challenge-route a owl:AnnotationProperty ;
+    rdfs:label "challenge route" ;
+    rdfs:comment "The challenge route, when it is one of the route labels." ;
+    rdfs:range xsd:string .
+
+:challenge-amount a owl:AnnotationProperty ;
+    rdfs:label "challenge amount" ;
+    rdfs:comment "The challenge dose amount. A prose dose that is not an amount plus a unit is stored as challenge-dose instead." ;
+    rdfs:range xsd:string .
+
+:challenge-unit a owl:AnnotationProperty ;
+    rdfs:label "challenge unit" ;
+    rdfs:comment "The challenge dose unit: pfu, ld50, or tcid50." ;
+    rdfs:range xsd:string .
+
+:challenge-dose a owl:AnnotationProperty ;
+    rdfs:label "challenge dose" ;
+    rdfs:comment "A challenge dose kept as the paper printed it when the text is not an amount plus a unit." ;
+    rdfs:range xsd:string .
+
+:day a owl:AnnotationProperty ;
+    rdfs:label "day" ;
+    rdfs:comment "Days relative to challenge. A negative day is before challenge." ;
+    rdfs:range xsd:integer .
+
+:vaccine-amount a owl:AnnotationProperty ;
+    rdfs:label "vaccine amount" ;
+    rdfs:comment "The vaccine dose amount named for one observation." ;
+    rdfs:range xsd:string .
+
+:vaccine-unit a owl:AnnotationProperty ;
+    rdfs:label "vaccine unit" ;
+    rdfs:comment "The vaccine dose unit: pfu, ld50, or tcid50." ;
+    rdfs:range xsd:string .
 
 <https://vsv.bio/language/stochastic-simulation> a owl:NamedIndividual ;
     rdfs:label "stochastic simulation" ;

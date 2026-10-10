@@ -1,571 +1,321 @@
-"""SBOL3 model of VSV genomes and their parts.
+"""Read and write a genome as an SBOL3 document.
 
-A genome is an ``sbol3.Component`` that carries one DNA ``sbol3.Sequence``. Located annotations
-are ``sbol3.SequenceFeature`` or ``sbol3.SubComponent`` objects with ``sbol3.Range`` locations.
-SBOL coordinates are one-based and inclusive; :class:`Genome` exposes them as zero-based,
-half-open spans so they slice Python strings directly. Sequences are stored as the DNA text of
-the antigenome, with ``T`` for thymine.
-
-A transcription unit, its coding sequence, and its protein are different parts. The transcription
-unit carries the gene name (``Nucleoprotein``). The coding sequence is its own DNA component,
-located on the genome as ``Nucleoprotein_cds``, and it keeps the product name
-(``nucleocapsid (N) protein``) rather than repeating the gene name. The same split names a coding
-sequence we infer from the antigenome ``Nucleoprotein CDS``. A role
-``https://vsv.bio/gene/Nucleoprotein`` records which gene a part belongs to.
-
-Standard Sequence Ontology roles mark what a feature is. VSV-specific meaning that the ontology
-has no term for (leader, trailer, gene-start and gene-end signals) is carried by an additional
-role in the ``vsv.bio`` namespace next to the closest SO role.
+The file is one antigenome. Callers pass and receive a :class:`~vsv.genome.record.Genome`.
+A feature is a single range. Ranges are one-based and inclusive; :class:`~vsv.genome.record.Span`
+stays zero-based and half-open. A sequence with no gene feature is annotated from its
+transcription signals. A sequence with gene features keeps those spans.
 """
 
 from __future__ import annotations
 
-import re
-from collections.abc import Iterable
+from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 import sbol3
 
-from vsv import NAMESPACE
 from vsv.errors import InputError
-from vsv.genes import Gene, Product
-from vsv.genome.payload import AntigenClass, AntigenFeature
-from vsv.genome.sequence import Nucleotides, reverse_complement, translate
+from vsv.genes import Gene
+from vsv.genome.annotate import annotate
+from vsv.genome.record import GeneSpan, Genome, Span
+from vsv.sbol import (
+    DNA_ENCODING,
+    NAMESPACE,
+    PROTEIN_ENCODING,
+    ROLE_GENE_END,
+    ROLE_GENE_START,
+    ROLE_LEADER,
+    ROLE_TRAILER,
+    SO_CDS,
+    SO_GENE,
+    SO_GENE_END,
+    SO_GENE_START,
+    SO_REGION,
+    display_id,
+    pin,
+)
 
-sbol3.set_namespace(NAMESPACE)
-
-_ROLE_NAMESPACE = f"{NAMESPACE}/role"
-
-ROLE_LEADER = f"{_ROLE_NAMESPACE}/leader"
-ROLE_TRAILER = f"{_ROLE_NAMESPACE}/trailer"
-ROLE_GENE_START = f"{_ROLE_NAMESPACE}/gene-start"
-ROLE_GENE_END = f"{_ROLE_NAMESPACE}/gene-end"
-
-SO_REGION = "https://identifiers.org/SO:0000001"
-SO_REGULATORY_REGION = "https://identifiers.org/SO:0005836"
-SO_VIRAL_SEQUENCE = "https://identifiers.org/SO:0001041"
-SO_GENE = sbol3.SO_GENE
-SO_CDS = sbol3.SO_CDS
-SO_TERMINATOR = sbol3.SO_TERMINATOR
-
-type Part = sbol3.SequenceFeature | sbol3.SubComponent
-
-_SO_TERM = re.compile(r"SO[:_](\d{7})$")
-_INVALID_DISPLAY_ID = re.compile(r"[^A-Za-z0-9_]")
-_ACCESSION_VERSION = re.compile(r"\.\d+$")
-_REVERSE = frozenset({sbol3.SBOL_REVERSE_COMPLEMENT, sbol3.SO_REVERSE})
-
-
-def _is_coding(feature: Part) -> bool:
-    """Whether ``feature`` is a gene or a coding sequence, including a located CDS component."""
-    roles = [str(role) for role in feature.roles]
-    if isinstance(feature, sbol3.SubComponent) and feature.role_integration is not None:
-        roles.append(str(feature.role_integration))
-    keys = {role_key(role) for role in roles}
-    return role_key(SO_CDS) in keys or role_key(SO_GENE) in keys
-
-
-def role_key(role: str) -> str:
-    """Normalize a role URI so that equivalent Sequence Ontology URIs compare equal.
-
-    Sequence Ontology terms appear as ``https://identifiers.org/SO:0000704``,
-    ``http://identifiers.org/so/SO:0000704``, and ``http://purl.obolibrary.org/obo/SO_0000704``;
-    all normalize to ``SO:0000704``. Other URIs are returned unchanged.
-    """
-    match = _SO_TERM.search(role)
-    return f"SO:{match.group(1)}" if match else role
-
-
-def new_document() -> sbol3.Document:
-    """An empty SBOL3 document whose new objects live in the ``vsv.bio`` namespace."""
-    sbol3.set_namespace(NAMESPACE)
-    return sbol3.Document()
-
-
-def display_id(identifier: str) -> str:
-    """The SBOL display ID for a sequence identifier.
-
-    The accession version suffix is dropped and characters SBOL does not allow become ``_``, so
-    ``NC_001560.1`` is ``NC_001560``.
-    """
-    cleaned = _INVALID_DISPLAY_ID.sub("_", _ACCESSION_VERSION.sub("", identifier))
-    return f"_{cleaned}" if cleaned[:1].isdigit() else cleaned
-
-
-def gene_symbol_role(symbol: str) -> str:
-    """The role URI for a VSV gene, for example ``https://vsv.bio/gene/Nucleoprotein``."""
-    return f"{NAMESPACE}/gene/{display_id(symbol)}"
-
-
-def part_id(symbol: str, kind: str) -> str:
-    """The display id of a gene's part, such as ``Nucleoprotein_cds``."""
-    return f"{display_id(symbol)}_{kind}"
-
-
-def pin_display_id(identified: sbol3.Identified, identifier: str) -> None:
-    """Set the display id pySBOL3 keeps when this object is parented.
-
-    The display id property has no setter. An owned object that already has one keeps it;
-    otherwise pySBOL3 assigns a numbered id.
-    """
-    if display_id(identifier) != identifier:
-        raise InputError(f"Invalid part id {identifier!r}.")
-    identified._display_id = identifier  # pySBOL3 reads this private attribute when parenting
-
-
-def ensure_role(feature: Part, role: str) -> None:
-    """Add ``role`` unless the feature already carries an equivalent one."""
-    if any(role_key(existing) == role_key(role) for existing in feature.roles):
-        return
-    feature.roles.append(role)
-
-
-def _range(feature: Part) -> sbol3.Range | None:
-    return next((loc for loc in feature.locations if isinstance(loc, sbol3.Range)), None)
-
-
-def _part_roles(feature: Part, document: sbol3.Document) -> list[str]:
-    """Roles of a located part, including those of the component it instances."""
-    roles = [str(role) for role in feature.roles]
-    if isinstance(feature, sbol3.SubComponent):
-        instance = feature.instance_of
-        if not isinstance(instance, sbol3.Component):
-            found = document.find(str(instance))
-            instance = found if isinstance(found, sbol3.Component) else None
-        if isinstance(instance, sbol3.Component):
-            roles.extend(str(role) for role in instance.roles)
-    return roles
-
-
-def _symbol_of(feature: Part, document: sbol3.Document) -> str | None:
-    prefix = f"{NAMESPACE}/gene/"
-    for role in _part_roles(feature, document):
-        if role.startswith(prefix):
-            return role[len(prefix) :]
-    return None
+_ENCODINGS = {
+    DNA_ENCODING: sbol3.SBO_DNA,
+    PROTEIN_ENCODING: sbol3.SBO_PROTEIN,
+}
 
 
 @dataclass(frozen=True, slots=True)
-class GeneAnnotation:
-    """The annotated features of one gene in a genome.
-
-    ``gene_feature`` is the transcription unit, named with the gene symbol. ``cds_feature`` is the
-    coding sequence of that gene, a separate part. Either may be absent, as in curated records
-    that annotate only coding sequences.
-    """
-
-    genome: Genome
-    gene: Gene
-    gene_feature: Part | None
-    cds_feature: Part | None
-
-    @property
-    def gene_span(self) -> tuple[int, int] | None:
-        """Zero-based, half-open span of the transcription unit."""
-        return None if self.gene_feature is None else self.genome.span(self.gene_feature)
-
-    @property
-    def cds_span(self) -> tuple[int, int] | None:
-        """Zero-based, half-open span of the coding sequence."""
-        return None if self.cds_feature is None else self.genome.span(self.cds_feature)
-
-    @property
-    def gene_dna(self) -> str | None:
-        """The DNA of the transcription unit."""
-        return None if self.gene_feature is None else self.genome.feature_bases(self.gene_feature)
-
-    @property
-    def cds_dna(self) -> str | None:
-        """The DNA of the coding sequence, including its stop codon."""
-        return None if self.cds_feature is None else self.genome.feature_bases(self.cds_feature)
-
-    @property
-    def protein(self) -> str | None:
-        """The encoded protein without its stop codon."""
-        return None if self.cds_feature is None else self.genome.translate(self.cds_feature)
-
-    def sequence(self, product: Product) -> str | None:
-        """The requested sequence, or ``None`` if the genome does not annotate it."""
-        match product:
-            case Product.GENE:
-                return self.gene_dna
-            case Product.CDS:
-                return self.cds_dna
-            case Product.PROTEIN:
-                return self.protein
+class _Piece:
+    kind: str
+    name: str
+    span: Span
 
 
-class Genome:
-    """A genome sequence and its annotations within an SBOL3 document."""
+def read_genomes(path: str | Path) -> list[Genome]:
+    """Every DNA component in an SBOL genome document that owns one sequence."""
+    path = Path(path)
+    document = _open(path)
+    genomes: list[Genome] = []
+    for obj in document.objects:
+        if isinstance(obj, sbol3.Component) and _is_dna(obj):
+            sequence = _sequence(document, obj, path)
+            if sequence is None:
+                continue
+            genomes.append(_genome(obj, sequence, path))
+    if not genomes:
+        raise InputError(f"{path}: no genome sequence.")
+    return genomes
 
-    def __init__(self, document: sbol3.Document, component: sbol3.Component) -> None:
-        self.document = document
-        self.component = component
-        self.sequence = self._dna_sequence()
-        self.bases: str = str(self.sequence.elements).upper()
 
-    def _dna_sequence(self) -> sbol3.Sequence:
-        for uri in self.component.sequences:
-            sequence = self.document.find(uri)
-            if (
-                isinstance(sequence, sbol3.Sequence)
-                and sequence.encoding == sbol3.IUPAC_DNA_ENCODING
-            ):
-                return sequence
-        raise InputError(f"Component {self.component.identity} has no DNA sequence.")
-
-    @property
-    def id(self) -> str:
-        """The sequence identifier, such as ``NC_001560.1``, or the SBOL display ID."""
-        return str(self.component.name or self.component.display_id)
-
-    @property
-    def description(self) -> str:
-        return str(self.component.description or "")
-
-    def __len__(self) -> int:
-        return len(self.bases)
-
-    def features(self, role: str | None = None) -> list[Part]:
-        """Located features ordered by position, optionally only those with ``role``.
-
-        A coding sequence located as a subcomponent is included. A protein subcomponent has no
-        range and is not a genomic feature.
-        """
-        found = [
-            feature
-            for feature in self.component.features
-            if isinstance(feature, (sbol3.SequenceFeature, sbol3.SubComponent))
-            and _range(feature) is not None
-        ]
-        if role is not None:
-            wanted = role_key(role)
-            found = [f for f in found if any(role_key(r) == wanted for r in f.roles)]
-        return sorted(found, key=lambda f: (self.span(f)[0], -self.span(f)[1]))
-
-    def span(self, feature: Part) -> tuple[int, int]:
-        """Zero-based, half-open ``(start, end)`` of a feature's first range."""
-        location = _range(feature)
-        if location is None:
-            raise ValueError(f"Feature {feature.identity} has no range.")
-        return int(location.start) - 1, int(location.end)
-
-    def is_reverse(self, feature: Part) -> bool:
-        """Whether a feature lies on the reverse strand."""
-        location = _range(feature)
-        orientation = (location.orientation if location else None) or feature.orientation
-        return orientation in _REVERSE
-
-    def feature_bases(self, feature: Part) -> str:
-        """The DNA of a feature read in its own direction."""
-        start, end = self.span(feature)
-        bases = self.bases[start:end]
-        return reverse_complement(bases) if self.is_reverse(feature) else bases
-
-    def translate(self, feature: Part) -> str:
-        """The protein encoded by a coding feature, without the stop codon."""
-        return translate(self.feature_bases(feature), to_stop=True)
-
-    def named(self, role: str, name: str) -> Part | None:
-        """The first feature with ``role`` and ``name``, if any."""
-        return next((f for f in self.features(role) if f.name == name), None)
-
-    def gene(self, name: str) -> Part | None:
-        """The transcription unit of gene ``name``, if annotated."""
-        symbol = display_id(name)
-        for feature in self.features(SO_GENE):
-            if (
-                feature.display_id == symbol
-                or feature.name == name
-                or _symbol_of(feature, self.document) == symbol
-            ):
-                return feature
-        return None
-
-    def cds(self, name: str) -> Part | None:
-        """The coding sequence of gene ``name``, if annotated.
-
-        This is the part ``{name}_cds``, or the coding sequence marked with that gene's symbol.
-        A feature merely named ``name`` is used only when no part is linked to the gene. The
-        longest coding sequence inside the transcription unit wins when several overlap it.
-        """
-        symbol = display_id(name)
-        coded = self.features(SO_CDS)
-        identified = next(
-            (feature for feature in coded if feature.display_id == part_id(symbol, "cds")),
-            None,
+def write_genome(genome: Genome) -> str:
+    """Turtle for one genome, including leader, genes, signals, coding sequences, and trailer."""
+    sbol3.set_namespace(NAMESPACE)
+    document = sbol3.Document()
+    pinned = display_id(genome.id)
+    sequence = sbol3.Sequence(f"{pinned}_sequence", elements=genome.bases, encoding=DNA_ENCODING)
+    document.add(sequence)
+    component = sbol3.Component(
+        pinned,
+        [sbol3.SBO_DNA],
+        sequences=[sequence],
+        name=genome.id,
+        description=genome.description or None,
+    )
+    document.add(component)
+    if genome.leader is not None:
+        _feature(component, sequence, "leader", "leader", (SO_REGION, ROLE_LEADER), genome.leader)
+    for gene in genome.genes:
+        _feature(component, sequence, gene.name, gene.name, (SO_GENE,), gene.unit)
+        if gene.gene_start is not None:
+            _feature(
+                component,
+                sequence,
+                f"{gene.name}_gene_start",
+                f"{gene.name} gene start",
+                (SO_GENE_START, ROLE_GENE_START),
+                gene.gene_start,
+            )
+        if gene.gene_end is not None:
+            _feature(
+                component,
+                sequence,
+                f"{gene.name}_gene_end",
+                f"{gene.name} gene end",
+                (SO_GENE_END, ROLE_GENE_END),
+                gene.gene_end,
+            )
+        if gene.cds is not None:
+            _feature(
+                component,
+                sequence,
+                f"{gene.name}_cds",
+                gene.product,
+                (SO_CDS,),
+                gene.cds,
+            )
+    if genome.trailer is not None:
+        _feature(
+            component, sequence, "trailer", "trailer", (SO_REGION, ROLE_TRAILER), genome.trailer
         )
-        if identified is not None:
-            return identified
-        marked = [feature for feature in coded if _symbol_of(feature, self.document) == symbol]
-        if marked:
-            return max(marked, key=lambda feature: self.span(feature)[1] - self.span(feature)[0])
-        gene = self.gene(name)
-        if gene is not None:
-            start, end = self.span(gene)
-            inside = [
-                feature
-                for feature in coded
-                if start <= self.span(feature)[0] and self.span(feature)[1] <= end
-            ]
-            if inside:
-                return max(
-                    inside,
-                    key=lambda feature: self.span(feature)[1] - self.span(feature)[0],
-                )
-        return self.named(SO_CDS, name)
+    return _turtle(document)
 
-    def protein(self, name: str) -> str | None:
-        """The translated product of gene ``name`` without the stop codon."""
-        cds = self.cds(name)
-        return None if cds is None else self.translate(cds)
 
-    def mark(self, feature: Part | None, antigen_class: AntigenClass) -> AntigenFeature:
-        """Mark ``feature`` with ``antigen_class`` and return that antigen.
-
-        The role is written on the feature already in this document. The feature has to be a
-        gene or coding sequence this genome carries. The returned feature keeps that coding
-        sequence.
-        """
-        if feature is None or not any(item is feature for item in self.component.features):
-            raise InputError(f"{self.id}: the feature to mark is not on this genome.")
-        prefix = f"{NAMESPACE}/antigen-class/"
-        existing = [str(role) for role in feature.roles if str(role).startswith(prefix)]
-        if any(role_key(role) != role_key(antigen_class.role) for role in existing):
-            raise InputError(f"{self.id}: {feature.display_id} already has an antigen class.")
-        if not existing and not _is_coding(feature):
-            raise InputError(f"{self.id}: {feature.display_id} is not a coding feature.")
-        ensure_role(feature, antigen_class.role)
-        sequence = self.feature_bases(feature)
-        if not sequence:
-            raise InputError(f"{self.id}: {feature.display_id} has no coding sequence.")
-        return AntigenFeature(feature, antigen_class, Nucleotides(sequence))
-
-    @property
-    def genes(self) -> dict[Gene, GeneAnnotation]:
-        """The annotated genes, in genome order. Genes with no gene or coding feature are absent."""
-        found: dict[Gene, GeneAnnotation] = {}
-        for gene in Gene:
-            gene_feature, cds_feature = self.gene(gene), self.cds(gene)
-            if gene_feature is not None or cds_feature is not None:
-                found[gene] = GeneAnnotation(self, gene, gene_feature, cds_feature)
-        return found
-
-    def add_region(
-        self, name: str, start: int, end: int, roles: Iterable[str], *, part: str | None = None
-    ) -> sbol3.SequenceFeature:
-        """Add a forward-strand feature over the zero-based, half-open span ``[start, end)``.
-
-        ``part`` is the display id. Without it, pySBOL3 assigns a numbered id.
-        """
-        if not 0 <= start < end <= len(self):
-            raise ValueError(f"Span [{start}, {end}) is outside a sequence of length {len(self)}.")
-        location = sbol3.Range(self.sequence, start + 1, end, orientation=sbol3.SBOL_INLINE)
-        feature = sbol3.SequenceFeature(
-            [location],
-            roles=list(roles),
-            orientation=sbol3.SBOL_INLINE,
-            name=name,
-        )
-        if part is not None:
-            pin_display_id(feature, part)
-        self.component.features.append(feature)
-        return feature
-
-    def identify_gene(self, feature: Part, symbol: str) -> Part:
-        """Name a transcription unit with gene ``symbol`` and give it that part id.
-
-        A previous name other than the feature key ``gene`` is kept as the description.
-        """
-        if feature.name and feature.name not in {symbol, "gene"} and not feature.description:
-            feature.description = feature.name
-        feature.name = symbol
-        ensure_role(feature, gene_symbol_role(symbol))
-        if isinstance(feature, sbol3.SequenceFeature):
-            return self._reidentify(feature, display_id(symbol))
-        return feature
-
-    def add_cds(
-        self, symbol: str, start: int, end: int, *, name: str | None = None
-    ) -> sbol3.SubComponent:
-        """Add gene ``symbol``'s coding sequence as a DNA component located on this genome.
-
-        The located part's display id is ``{symbol}_cds``. ``name`` is the product name and
-        defaults to ``{symbol} CDS``. It is not the gene symbol.
-        """
-        if not 0 <= start < end <= len(self):
-            raise ValueError(f"Span [{start}, {end}) is outside a sequence of length {len(self)}.")
-        product = name or f"{symbol} CDS"
-        component = self._cds_component(symbol, product, self.bases[start:end])
-        return self._locate_cds(component, symbol, product, start, end, sbol3.SBOL_INLINE)
-
-    def define_cds(self, feature: Part, symbol: str) -> sbol3.SubComponent:
-        """Make ``feature`` the located coding-sequence component of gene ``symbol``.
-
-        The product name already on ``feature`` is kept. A second call returns the same part.
-        """
-        identifier = part_id(symbol, "cds")
-        if isinstance(feature, sbol3.SubComponent) and feature.display_id == identifier:
-            return feature
-        start, end = self.span(feature)
-        product = str(feature.name or f"{symbol} CDS")
-        orientation = (
-            sbol3.SBOL_REVERSE_COMPLEMENT if self.is_reverse(feature) else sbol3.SBOL_INLINE
-        )
-        component = self._cds_component(symbol, product, self.feature_bases(feature))
-        located = self._locate_cds(component, symbol, product, start, end, orientation)
-        if feature.description and not located.description:
-            located.description = feature.description
-        if feature in self.component.features:
-            self.component.features.remove(feature)
-        return located
-
-    def constrain(self, subject: Part, target: Part, restriction: str) -> None:
-        """Record ``restriction`` from ``subject`` to ``target`` unless it is already present."""
-        key = (str(subject.identity), str(target.identity), restriction)
-        existing = {
-            (str(constraint.subject), str(constraint.object), str(constraint.restriction))
-            for constraint in self.component.constraints
-        }
-        if key in existing:
-            return
-        self.component.constraints.append(sbol3.Constraint(restriction, subject, target))
-
-    def _cds_component(self, symbol: str, product: str, bases: str) -> sbol3.Component:
-        identifier = f"{self.component.display_id}_{part_id(symbol, 'cds')}"
-        found = self.document.find(f"{NAMESPACE}/{identifier}")
-        if isinstance(found, sbol3.Component):
-            return found
-        sequence = sbol3.Sequence(
-            f"{identifier}_seq", elements=bases.lower(), encoding=sbol3.IUPAC_DNA_ENCODING
-        )
-        component = sbol3.Component(
-            identifier,
-            [sbol3.SBO_DNA],
-            roles=[SO_CDS, gene_symbol_role(symbol)],
-            name=product,
-            sequences=[sequence],
-        )
-        try:
-            self.document.add(sequence)
-            self.document.add(component)
-        except ValueError as error:
-            raise InputError(f"Duplicate coding sequence: {symbol}") from error
-        return component
-
-    def _locate_cds(
-        self,
-        component: sbol3.Component,
-        symbol: str,
-        product: str,
-        start: int,
-        end: int,
-        orientation: str,
-    ) -> sbol3.SubComponent:
-        identifier = part_id(symbol, "cds")
-        existing = next(
-            (
-                feature
-                for feature in self.component.features
-                if isinstance(feature, sbol3.SubComponent) and feature.display_id == identifier
-            ),
-            None,
-        )
-        if existing is not None:
-            return existing
-        location = sbol3.Range(self.sequence, start + 1, end, orientation=orientation)
-        # A subcomponent has a single role. The gene symbol is on the CDS component.
-        located = sbol3.SubComponent(
-            component,
-            role_integration=SO_CDS,
-            orientation=orientation,
-            name=product,
-            locations=[location],
-        )
-        pin_display_id(located, identifier)
-        self.component.features.append(located)
-        return located
-
-    def _reidentify(self, feature: sbol3.SequenceFeature, identifier: str) -> sbol3.SequenceFeature:
-        if feature.display_id == identifier or self.is_reverse(feature):
-            return feature
-        start, end = self.span(feature)
-        replacement = self.add_region(
-            str(feature.name or identifier),
-            start,
-            end,
-            list(feature.roles),
-            part=identifier,
-        )
-        if feature.description:
-            replacement.description = feature.description
-        self.component.features.remove(feature)
-        return replacement
-
-    def add_protein(self, cds: Part, name: str) -> sbol3.Component:
-        """Record the protein encoded by ``cds`` as its own component.
-
-        The protein is linked to the coding sequence by a genetic-production interaction.
-        """
-        base = f"{self.component.display_id}_{display_id(name)}_protein"
-        sequence = sbol3.Sequence(
-            f"{base}_seq",
-            elements=self.translate(cds),
-            encoding=sbol3.IUPAC_PROTEIN_ENCODING,
-        )
-        protein = sbol3.Component(
-            base, sbol3.SBO_PROTEIN, name=f"{name} protein", sequences=[sequence]
-        )
-        self.document.add(sequence)
-        self.document.add(protein)
-        product = sbol3.SubComponent(protein, name=protein.name)
-        self.component.features.append(product)
-        self.component.interactions.append(
-            sbol3.Interaction(
-                [sbol3.SBO_GENETIC_PRODUCTION],
-                participations=[
-                    sbol3.Participation([sbol3.SBO_TEMPLATE], cds),
-                    sbol3.Participation([sbol3.SBO_PRODUCT], product),
-                ],
+def write_sequences(records: Sequence[tuple[str, str, str]]) -> str:
+    """Turtle for extracted products. Each record is an id, an IUPAC string, and an encoding."""
+    sbol3.set_namespace(NAMESPACE)
+    document = sbol3.Document()
+    seen: set[str] = set()
+    for identifier, elements, encoding in records:
+        kind = _ENCODINGS.get(encoding)
+        if kind is None:
+            raise InputError(f"Unsupported sequence encoding {encoding}.")
+        if not elements:
+            raise InputError(f"{identifier}: sequence is empty.")
+        pinned = display_id(identifier)
+        if pinned in seen:
+            raise InputError(f"Duplicate record identifier: {identifier}")
+        seen.add(pinned)
+        sequence = sbol3.Sequence(f"{pinned}_sequence", elements=elements, encoding=encoding)
+        document.add(sequence)
+        document.add(
+            sbol3.Component(
+                pinned,
+                [kind],
+                sequences=[sequence],
+                name=identifier,
             )
         )
-        return protein
+    return _turtle(document)
 
 
-def add_genome(document: sbol3.Document, identifier: str, description: str, bases: str) -> Genome:
-    """Add a genome with the given sequence to ``document``."""
-    key = display_id(identifier)
-    sequence = sbol3.Sequence(
-        f"{key}_seq", elements=bases.lower(), encoding=sbol3.IUPAC_DNA_ENCODING
-    )
-    component = sbol3.Component(
-        key,
-        [sbol3.SBO_DNA, sbol3.SO_LINEAR],
-        roles=[SO_VIRAL_SEQUENCE],
-        sequences=[sequence],
-        name=identifier,
-        description=description or None,
-    )
+def _open(path: Path) -> sbol3.Document:
+    sbol3.set_namespace(NAMESPACE)
+    document = sbol3.Document()
     try:
-        document.add(sequence)
-        document.add(component)
-    except ValueError as error:
-        raise InputError(f"Duplicate record identifier: {identifier}") from error
-    return Genome(document, component)
+        document.read(str(path))
+    except OSError as error:
+        raise InputError(f"{path}: {error.strerror or error}") from error
+    except Exception as error:
+        raise InputError(f"{path}: not a readable SBOL file.") from error
+    return document
 
 
-def genomes(document: sbol3.Document) -> list[Genome]:
-    """Every component in ``document`` that has a DNA sequence, ordered by identity."""
-    components = sorted(
-        (o for o in document.objects if isinstance(o, sbol3.Component)),
-        key=lambda c: str(c.identity),
+def _turtle(document: sbol3.Document) -> str:
+    text = document.write_string(sbol3.TURTLE)
+    if isinstance(text, bytes):
+        return text.decode()
+    return str(text)
+
+
+def _is_dna(component: sbol3.Component) -> bool:
+    return sbol3.SBO_DNA in {str(kind) for kind in component.types}
+
+
+def _sequence(
+    document: sbol3.Document, component: sbol3.Component, path: Path
+) -> sbol3.Sequence | None:
+    uris = [str(uri) for uri in component.sequences]
+    if not uris:
+        return None
+    if len(uris) != 1:
+        raise InputError(f"{path}: {component.display_id} owns more than one sequence.")
+    sequence = document.find(uris[0])
+    if not isinstance(sequence, sbol3.Sequence) or not sequence.elements:
+        raise InputError(f"{path}: {component.display_id} is missing its sequence.")
+    if str(sequence.encoding) != DNA_ENCODING:
+        raise InputError(f"{path}: {component.display_id} is not an IUPAC DNA sequence.")
+    return sequence
+
+
+def _genome(component: sbol3.Component, sequence: sbol3.Sequence, path: Path) -> Genome:
+    identifier = str(component.name) if component.name else str(component.display_id)
+    description = str(component.description) if component.description else ""
+    bases = str(sequence.elements).upper().replace("U", "T")
+    pieces = _pieces(component, path)
+    if not any(piece.kind == "gene" for piece in pieces):
+        return annotate(bases, identifier=identifier, description=description)
+    return Genome(
+        identifier,
+        description,
+        bases,
+        _single(pieces, "leader", path),
+        _single(pieces, "trailer", path),
+        tuple(_genes(pieces, path)),
     )
-    found: list[Genome] = []
-    for component in components:
-        if any(role_key(role) == role_key(SO_CDS) for role in component.roles):
+
+
+def _pieces(component: sbol3.Component, path: Path) -> list[_Piece]:
+    pieces: list[_Piece] = []
+    for feature in component.features:
+        if not isinstance(feature, sbol3.SequenceFeature):
+            raise InputError(f"{path}: {feature.display_id} is not a sequence feature.")
+        locations = list(feature.locations)
+        if len(locations) != 1 or not isinstance(locations[0], sbol3.Range):
+            raise InputError(f"{path}: {feature.display_id} has no single range.")
+        kind = _kind(feature)
+        if kind is None:
+            raise InputError(f"{path}: {feature.display_id} has no genome role.")
+        name = str(feature.name) if feature.name else str(feature.display_id)
+        pieces.append(_Piece(kind, name, _span(locations[0], path, str(feature.display_id))))
+    return pieces
+
+
+def _kind(feature: sbol3.Feature) -> str | None:
+    roles = {str(role) for role in feature.roles}
+    if ROLE_LEADER in roles:
+        return "leader"
+    if ROLE_TRAILER in roles:
+        return "trailer"
+    if SO_CDS in roles:
+        return "cds"
+    if ROLE_GENE_START in roles:
+        return "gene_start"
+    if ROLE_GENE_END in roles:
+        return "gene_end"
+    if SO_GENE in roles:
+        return "gene"
+    return None
+
+
+def _span(location: sbol3.Range, path: Path, name: str) -> Span:
+    orientation = str(location.orientation or "")
+    if orientation in {"", sbol3.SBOL_INLINE}:
+        strand = "+"
+    elif orientation == sbol3.SBOL_REVERSE_COMPLEMENT:
+        strand = "-"
+    else:
+        raise InputError(f"{path}: {name} has an unknown orientation.")
+    try:
+        return Span(int(location.start) - 1, int(location.end), strand)
+    except InputError as error:
+        raise InputError(f"{path}: {name}: {error}") from error
+
+
+def _single(pieces: Sequence[_Piece], kind: str, path: Path) -> Span | None:
+    found = [piece for piece in pieces if piece.kind == kind]
+    if len(found) > 1:
+        raise InputError(f"{path}: expected one {kind}.")
+    return None if not found else found[0].span
+
+
+def _genes(pieces: Sequence[_Piece], path: Path) -> list[GeneSpan]:
+    genes = sorted(
+        (piece for piece in pieces if piece.kind == "gene"),
+        key=lambda piece: (piece.span.start, piece.span.end),
+    )
+    symbols: Sequence[Gene | None] = list(Gene) if len(genes) == len(Gene) else [None] * len(genes)
+    claimed: dict[int, str] = {}
+    built: list[GeneSpan] = []
+    for gene, symbol in zip(genes, symbols, strict=True):
+        cds = _claim(pieces, "cds", gene, path, claimed)
+        start = _claim(pieces, "gene_start", gene, path, claimed)
+        end = _claim(pieces, "gene_end", gene, path, claimed)
+        if len(start) > 1 or len(end) > 1:
+            raise InputError(f"{path}: {gene.name} has more than one transcription signal.")
+        chosen = max(cds, key=lambda piece: (len(piece.span), -piece.span.start), default=None)
+        built.append(
+            GeneSpan(
+                gene.name,
+                symbol,
+                gene.span,
+                None if chosen is None else chosen.span,
+                gene.name if chosen is None else chosen.name,
+                None if not start else start[0].span,
+                None if not end else end[0].span,
+            )
+        )
+    outside = [
+        piece
+        for piece in pieces
+        if piece.kind in {"cds", "gene_start", "gene_end"} and id(piece) not in claimed
+    ]
+    if outside:
+        raise InputError(f"{path}: {outside[0].name} is outside every gene.")
+    return built
+
+
+def _claim(
+    pieces: Sequence[_Piece], kind: str, gene: _Piece, path: Path, claimed: dict[int, str]
+) -> list[_Piece]:
+    found = []
+    for piece in pieces:
+        if piece.kind != kind or not (gene.span.start <= piece.span.start < gene.span.end):
             continue
-        try:
-            found.append(Genome(document, component))
-        except InputError:
-            continue
+        owner = claimed.get(id(piece))
+        if owner is not None:
+            raise InputError(f"{path}: {piece.name} falls in {owner} and {gene.name}.")
+        claimed[id(piece)] = gene.name
+        found.append(piece)
     return found
+
+
+def _feature(
+    component: sbol3.Component,
+    sequence: sbol3.Sequence,
+    identifier: str,
+    name: str,
+    roles: tuple[str, ...],
+    span: Span,
+) -> None:
+    orientation = sbol3.SBOL_REVERSE_COMPLEMENT if span.strand == "-" else None
+    location = sbol3.Range(sequence, span.start + 1, span.end, orientation=orientation)
+    feature = sbol3.SequenceFeature([location], roles=list(roles), name=name)
+    pin(feature, identifier)
+    component.features.append(feature)
