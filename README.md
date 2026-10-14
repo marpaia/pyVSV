@@ -1,9 +1,6 @@
 # pyVSV
 
-Build a recombinant VSV vaccine plan from a pathogen genome and the Indiana chassis.
-
-Take the glycoprotein coding sequence, place it by a method the literature states, and read
-which published vaccines used that same arrangement.
+pyVSV is a Python library for assembling recombinant Vesicular Stomatitis Virus (VSV) vaccine plans on the Indiana antigenome.
 
 <p align="center">
   <img src="https://www.arpaia.io/images/vsv/vsv-structure-genome.jpg" alt="VSV Structure and Genome">
@@ -18,7 +15,7 @@ which published vaccines used that same arrangement.
 pip install pyVSV
 ```
 
-The distribution is `pyVSV`; the import package is `vsv`. Python 3.12 or newer.
+The Python library is installed as `pyVSV` but the import package is `vsv`.
 
 ## Quick start
 
@@ -44,26 +41,19 @@ print(write_genome(vaccine.antigenome()))
 vaccine.write("kikwit.ttl")
 ```
 
-`read_record` reads FASTA, GenBank, or an SBOL genome document. `write_genome` writes that
-antigenome as SBOL Turtle. `write` stores the plan as an SBOL3 design file. `vsv.read` opens a
-plan and returns a `Vaccine`. Calling code does not handle SBOL objects.
+`read_record` reads FASTA, GenBank, or an SBOL genome document. `write_genome` writes that antigenome as SBOL Turtle. `write` stores the plan as an SBOL3 design file. `vsv.read` opens a plan and returns a `Vaccine`. Calling code does not handle SBOL objects.
 
 ## The coding sequence
 
-`cds` returns the DNA string for one of the five VSV genes and raises when that gene has no
-coding sequence. Spans inside a `Genome` are zero-based and half-open. In an SBOL file those
-spans are one-based inclusive ranges.
+`cds` returns the DNA string for one of the five VSV genes and raises when that gene has no coding sequence. Spans inside a `Genome` are zero-based and half-open. In an SBOL file those spans are one-based inclusive ranges.
 
 ## Placing the gene
 
-`replace` removes the VSV glycoprotein and puts the coding sequence in its place. The new vaccine cites the 2004
-glycoprotein-replacement method. The antigen id defaults to `Glycoprotein`.
+`replace` removes the VSV glycoprotein and puts the coding sequence in its place. The new vaccine cites the 2004 glycoprotein-replacement method. The antigen id defaults to `Glycoprotein`.
 
-`replication` is `Replication.COMPETENT` when the antigen supplies entry, and
-`Replication.SINGLE_CYCLE` when it does not.
+`replication` is `Replication.COMPETENT` when the antigen supplies entry, and `Replication.SINGLE_CYCLE` when it does not.
 
-To keep the VSV glycoprotein, or to place the gene first, use `insert`. It keeps the parent's replication class,
-so it takes no `replication` argument. The published sites are `"g"` and `"leader"`.
+To keep the VSV glycoprotein, or to place the gene first, use `insert`. It keeps the parent's replication class, so it takes no `replication` argument. The published sites are `"g"` and `"leader"`.
 
 ```python
 # Keep the VSV glycoprotein and add the gene after it. Cites the 1997 method.
@@ -91,14 +81,11 @@ vaccine = vsv.indiana().insert(
 )
 ```
 
-`vsv.indiana()` is nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and large
-polymerase, with realization `NC_001560`.
+`vsv.indiana()` is nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and large polymerase, with realization `NC_001560`.
 
 ## Checking a vaccine
 
-`check()` is true only when `violations` is empty. A knowledge gap is a violation: unknown
-replication, or an unknown parent. `vsv check` exits 0 when every violation is a gap and
-exits 1 on any other rule.
+`check()` is true only when `violations` is empty. A knowledge gap is a violation: unknown replication, or an unknown parent. `vsv check` exits 0 when every violation is a gap and exits 1 on any other rule.
 
 When the edited antigen has a coding sequence, `check()` also rejects:
 
@@ -116,23 +103,18 @@ if not result:
         print(violation.rule, violation.message)
 ```
 
-`vaccine.observations` is empty until a result is recorded. `write` stores the coding sequence
-when one is set. The curated shelf cards have none.
+`vaccine.observations` is empty until a result is recorded. `write` stores the coding sequence when one is set. The curated shelf cards have none.
 
 ## Finding precedents
 
-`precedents` returns published vaccines with the same arrangement: the glycoprotein replaced,
-one gene after the glycoprotein, or one gene after the leader. `vsv.library()` reads the curated shelf.
+`precedents` returns published vaccines with the same arrangement: the glycoprotein replaced, one gene after the glycoprotein, or one gene after the leader. `vsv.library()` reads the curated shelf.
 
 ```python
 for precedent in vaccine.precedents(vsv.library()):
     print(precedent.id)
 ```
 
-`antigen_class` keeps vaccines whose antigen is that class or a subclass of it. `phenotype`,
-`host`, and `timing` keep vaccines with a matching observation. A filovirus query includes the
-species glycoproteins. A Zaire query does not include Sudan or Marburg. A nonhuman-primate query
-includes cynomolgus and rhesus.
+`antigen_class` keeps vaccines whose antigen is that class or a subclass of it. `phenotype`, `host`, and `timing` keep vaccines with a matching observation. A filovirus query includes the species glycoproteins. A Zaire query does not include Sudan or Marburg. A nonhuman-primate query includes cynomolgus and rhesus.
 
 ```python
 from vsv import Phenotype
@@ -147,13 +129,9 @@ vaccine.precedents(
 
 A vaccine with any number of non-viral genes other than one is not compared.
 
-`data/designs/` holds the Indiana chassis and one directory per published filovirus vaccine.
-Each directory has `design.ttl` and `PROVENANCE.md`. The Turtle describes the ordered genome and
-the papers. A nucleotide sequence is present only when the antigen feature has an `sbol:Sequence`.
-The shelf cards have none.
+`data/designs/` holds the Indiana chassis and one directory per published filovirus vaccine. Each directory has `design.ttl` and `PROVENANCE.md`. The Turtle describes the ordered genome and the papers. A nucleotide sequence is present only when the antigen feature has an `sbol:Sequence`. The shelf cards have none.
 
-The curated library lives in the repository, not in the wheel. `vsv.library()` finds it from a
-checkout. From an installed package, pass the directory:
+The curated library lives in the repository, not in the wheel. `vsv.library()` finds it from a checkout. From an installed package, pass the directory:
 
 ```python
 from pathlib import Path
@@ -163,15 +141,9 @@ shelf = vsv.library(Path("path/to/pyVSV/data/designs"))
 
 ## Antigenome
 
-`vaccine.antigenome()` splices the coding sequence into NC_001560.1 and returns a `Genome`.
-The chassis sequence is the SBOL document `NC_001560.ttl`.
-A glycoprotein replacement has five named genes, so `cds` returns the inserted glycoprotein.
-The backbone is `https://vsv.bio/backbone/VSV-Indiana`. The reference accession is NC_001560.1.
-The papers' infectious clones stay on `Implementation.plasmid`.
+`vaccine.antigenome()` splices the coding sequence into NC_001560.1 and returns a `Genome`. The chassis sequence is the SBOL document `NC_001560.ttl`. A glycoprotein replacement has five named genes, so `cds` returns the inserted glycoprotein. The backbone is `https://vsv.bio/backbone/VSV-Indiana`. The reference accession is NC_001560.1. The papers' infectious clones stay on `Implementation.plasmid`.
 
-A glycoprotein replacement keeps both flanking intergenic dinucleotides on the backbone. An
-insert between the glycoprotein and the large polymerase prefixes `CT`. An insert after the
-leader suffixes `CT`, so a gene-end is not joined directly to the next gene-start.
+A glycoprotein replacement keeps both flanking intergenic dinucleotides on the backbone. An insert between the glycoprotein and the large polymerase prefixes `CT`. An insert after the leader suffixes `CT`, so a gene-end is not joined directly to the next gene-start.
 
 A shelf card has no coding sequence, so `antigenome()` raises for those files.
 
@@ -189,17 +161,13 @@ vsv precedents data/designs/rvsv_gl_zebov_sgp
 vsv antigenome kikwit.ttl
 ```
 
-On the command line the genes are `n` (nucleoprotein), `p` (phosphoprotein), `m` (matrix protein),
-`g` (glycoprotein), and `l` (large polymerase). The full command reference (every
-subcommand, its filters, and what an empty `precedents` answer means) is in
-[docs/cli.md](https://github.com/marpaia/pyVSV/blob/master/docs/cli.md).
+On the command line the genes are `n` (nucleoprotein), `p` (phosphoprotein), `m` (matrix protein), `g` (glycoprotein), and `l` (large polymerase). The full command reference (every subcommand, its filters, and what an empty `precedents` answer means) is in [docs/cli.md](https://github.com/marpaia/pyVSV/blob/master/docs/cli.md).
 
 ## Literature
 
 ### Methods the library cites
 
-`replace` and `insert` record the citation for the method they implement, so a written plan carries
-the paper its arrangement came from.
+`replace` and `insert` record the citation for the method they implement, so a written plan carries the paper its arrangement came from.
 
 | Arrangement | Call | Method paper |
 |---|---|---|
