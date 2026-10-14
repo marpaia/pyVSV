@@ -8,14 +8,13 @@ design file and are not modules. Position is the index in ``modules``.
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
-from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 
 from vsv.design.antigenome import SLOT_CITATION, cassette_violations, splice
 from vsv.design.classes import antigen_matches, is_leaf
+from vsv.design.coding import coding_violations
 from vsv.design.evidence import (
     CheckResult,
     Host,
@@ -25,110 +24,23 @@ from vsv.design.evidence import (
     Timing,
     Violation,
     host_matches,
+    is_citation,
 )
+from vsv.design.modules import Antigen as Antigen
+from vsv.design.modules import Edit, Module, _require_id
+from vsv.design.modules import Insert as Insert
+from vsv.design.modules import Replace as Replace
+from vsv.design.modules import Viral as Viral
+from vsv.design.sbol.write import write as _write_plan
+from vsv.design.vector import GlycoproteinForm as GlycoproteinForm
+from vsv.design.vector import Replication as Replication
 from vsv.errors import InputError
 from vsv.genes import Gene
 from vsv.genome.record import Genome
-from vsv.genome.sequence import Nucleotides
 
-_DISPLAY_ID = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
-_SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 _BACKBONE = "VSV-Indiana"
 
 KNOWLEDGE_GAPS = frozenset({"replication-unknown", "parent-unknown"})
-
-
-class Replication(StrEnum):
-    """Whether the vector completes a cycle on its own."""
-
-    COMPETENT = "replication-competent"
-    SINGLE_CYCLE = "single-cycle"
-    UNKNOWN = "unknown"
-
-
-class GlycoproteinForm(StrEnum):
-    """How much of a glycoprotein the insert encodes."""
-
-    FULL_LENGTH = "full-length"
-    SOLUBLE = "soluble"
-    MUCIN_DELETED = "mucin-deleted"
-    TAIL_CHIMERA = "tail-chimera"
-    UNSPECIFIED = "unspecified"
-
-    def supplies_entry(self) -> bool:
-        """Whether this form can be the entry protein of a competent genome."""
-        return self in {self.FULL_LENGTH, self.TAIL_CHIMERA, self.MUCIN_DELETED}
-
-    def needs_anchor(self) -> bool:
-        """Whether a competent replacement must show a hydrophobic anchor."""
-        return self in {self.FULL_LENGTH, self.TAIL_CHIMERA}
-
-
-def _require_id(identifier: str, what: str) -> None:
-    if _DISPLAY_ID.fullmatch(identifier) is None:
-        raise InputError(f"Invalid {what} {identifier!r}.")
-
-
-@dataclass(frozen=True, slots=True)
-class Viral:
-    """One of the five VSV genes."""
-
-    gene: Gene
-
-    @property
-    def id(self) -> str:
-        return self.gene.value
-
-    @property
-    def name(self) -> str:
-        return self.gene.value
-
-
-@dataclass(frozen=True, slots=True)
-class Antigen:
-    """A non-viral gene. ``coding`` is kept in memory and written only when it is set."""
-
-    id: str
-    name: str
-    antigen_class: str
-    strain: str = ""
-    accession: str = ""
-    form: GlycoproteinForm = GlycoproteinForm.UNSPECIFIED
-    coding: str = ""
-
-    def __post_init__(self) -> None:
-        _require_id(self.id, "module id")
-        if not self.name:
-            raise InputError(f"Module {self.id} needs a name.")
-        if _SLUG.fullmatch(self.antigen_class) is None:
-            raise InputError(f"Module {self.id} needs an antigen class slug.")
-        if self.coding:
-            Nucleotides(self.coding)
-
-
-Module = Viral | Antigen
-
-
-@dataclass(frozen=True, slots=True)
-class Replace:
-    """The antigen ``module`` stands where the VSV glycoprotein stood."""
-
-    module: str
-
-
-@dataclass(frozen=True, slots=True)
-class Insert:
-    """``module`` was added after the leader or after the glycoprotein."""
-
-    after: Literal["leader", "g"]
-    module: str
-
-    def __post_init__(self) -> None:
-        if self.after not in {"leader", "g"}:
-            raise InputError(f"Unknown insertion site {self.after!r}.")
-
-
-Edit = Replace | Insert
 
 
 @dataclass(frozen=True, slots=True)
@@ -346,11 +258,13 @@ class Vaccine:
             raise InputError(f"{self.id}: the plan has no published insertion site.")
         return splice(antigen.coding, slot, identifier=self.id, description=self.name)
 
-    def write(self, path: str | Path) -> None:
+    def write_plan(self, path: str | Path) -> None:
         """Write this vaccine as an SBOL3 design file. Callers do not handle SBOL objects."""
-        from vsv.design.sbol import write
+        _write_plan(self, path)
 
-        write(self, path)
+    def write_antigenome(self, path: str | Path) -> None:
+        """Write the spliced NC_001560.1 antigenome as an SBOL3 document."""
+        self.antigenome().write(path)
 
 
 def indiana() -> Vaccine:
@@ -452,16 +366,12 @@ def _cited(vaccine: Vaccine) -> list[Violation]:
     derived = vaccine.parent is not None or vaccine.edit is not None
     if not derived:
         return []
-    from vsv.design.evidence import is_citation
-
     if any(is_citation(citation) for citation in vaccine.citations):
         return []
     return [Violation("cited", f"{vaccine.id}: a derived vaccine needs a DOI or PMID citation.")]
 
 
 def _observations(vaccine: Vaccine) -> list[Violation]:
-    from vsv.design.evidence import is_citation
-
     violations = []
     known_hosts = {host.value for host in Host}
     for index, observation in enumerate(vaccine.observations):
@@ -519,8 +429,6 @@ def _sequence(vaccine: Vaccine) -> list[Violation]:
     slot = _slot(vaccine)
     if antigen is None or not antigen.coding or slot is None or vaccine.edit is None:
         return []
-    from vsv.design.coding import coding_violations
-
     return [
         *cassette_violations(vaccine.id, antigen.coding, slot),
         *coding_violations(

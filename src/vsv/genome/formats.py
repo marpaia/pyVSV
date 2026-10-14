@@ -6,7 +6,7 @@ nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and large polymeras
 coding sequence inside each gene is that gene's CDS, so the shorter overlapping ORF inside
 phosphoprotein is not the phosphoprotein. With no gene features and exactly five CDS features,
 those five are named in file order. An SBOL document is read by
-:func:`vsv.genome.sbol.read_genomes`.
+:func:`vsv.genome.sbol.read.read_genomes`.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from vsv.errors import InputError
 from vsv.genes import Gene
 from vsv.genome.annotate import annotate
 from vsv.genome.record import GeneSpan, Genome, Span
-from vsv.genome.sbol import read_genomes
+from vsv.genome.sbol.read import read_genomes
 from vsv.genome.sequence import read_fasta
 
 FASTA_SUFFIXES = frozenset({".fasta", ".fa", ".fna", ".fas"})

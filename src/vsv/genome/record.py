@@ -6,9 +6,11 @@ Coordinates are zero-based and half-open. The antigenome is positive sense.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 from vsv.errors import InputError
 from vsv.genes import Gene, Product
+from vsv.genome.sbol.write import write as _write_document
 from vsv.genome.sequence import IUPAC_NUCLEOTIDES, translate
 
 
@@ -152,3 +154,7 @@ class Genome:
         if self.trailer is not None:
             rows.append(Feature("trailer", "trailer", self.trailer))
         return tuple(rows)
+
+    def write(self, path: str | Path) -> None:
+        """Write this genome as an SBOL3 document. Callers do not handle SBOL objects."""
+        _write_document(self, path)

@@ -5,11 +5,20 @@ from pathlib import Path
 import pytest
 
 from tests.synthetic import SyntheticGenome, genbank_text
-from vsv import GeneWarning, Genome, InputError, indiana, load, load_all, read_record
+from vsv import (
+    GeneWarning,
+    Genome,
+    GlycoproteinForm,
+    InputError,
+    Replication,
+    indiana,
+    load,
+    load_all,
+    read_record,
+)
 from vsv.genes import Gene, Product
 from vsv.genome.annotate import annotate
 from vsv.genome.formats import read_records
-from vsv.genome.sbol import write_genome
 
 RAW = Path(__file__).resolve().parents[1] / "data" / "raw"
 ACCESSIONS = ["NC_001560", "MF196237", "MF196238"]
@@ -153,15 +162,13 @@ def test_a_genome_document_round_trips(tmp_path: Path, synthetic: SyntheticGenom
         synthetic.sequence, identifier=synthetic.identifier, description=synthetic.description
     )
     path = tmp_path / "genome.ttl"
-    path.write_text(write_genome(genome))
+    genome.write(path)
     assert read_record(path) == genome
 
 
 def test_a_sequence_only_document_is_annotated(tmp_path: Path, synthetic: SyntheticGenome) -> None:
     path = tmp_path / "sequence.ttl"
-    path.write_text(
-        write_genome(Genome(synthetic.identifier, synthetic.description, synthetic.sequence))
-    )
+    Genome(synthetic.identifier, synthetic.description, synthetic.sequence).write(path)
     assert read_record(path) == annotate(
         synthetic.sequence, identifier=synthetic.identifier, description=synthetic.description
     )
@@ -169,9 +176,25 @@ def test_a_sequence_only_document_is_annotated(tmp_path: Path, synthetic: Synthe
 
 def test_a_design_file_has_no_genome_sequence(tmp_path: Path) -> None:
     path = tmp_path / "design.ttl"
-    indiana().write(path)
+    indiana().write_plan(path)
     with pytest.raises(InputError, match="no genome sequence"):
         read_record(path)
+
+
+def test_write_antigenome_round_trips_the_spliced_antigenome(tmp_path: Path) -> None:
+    coding = "ATG" + "GCT" * 40 + "TAA"
+    vaccine = indiana().replace(
+        coding,
+        identifier="rvsv_dg_outbreak_gp",
+        name="rVSV outbreak glycoprotein",
+        antigen_class="zaire-ebolavirus-glycoprotein",
+        replication=Replication.COMPETENT,
+        form=GlycoproteinForm.FULL_LENGTH,
+        strain="Kikwit-1995",
+    )
+    path = tmp_path / "antigenome.ttl"
+    vaccine.write_antigenome(path)
+    assert read_record(path) == vaccine.antigenome()
 
 
 def test_unreadable_sbol_is_rejected(tmp_path: Path) -> None:

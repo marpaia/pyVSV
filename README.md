@@ -22,12 +22,11 @@ The Python library is installed as `pyVSV` but the import package is `vsv`.
 ```python
 import vsv
 from vsv import Gene, GlycoproteinForm, Host, Replication, Timing
-from vsv.genome.sbol import write_genome
 
-genome = vsv.read_record("outbreak.gb")  # FASTA, GenBank, or an SBOL genome document
-coding = genome.cds(Gene.GLYCOPROTEIN)
+outbreak = vsv.read_record("outbreak.gb")  # pathogen record: FASTA, GenBank, or SBOL
+glycoprotein = outbreak.cds(Gene.GLYCOPROTEIN)
 vaccine = vsv.indiana().replace(
-    coding,
+    glycoprotein,
     identifier="rvsv_dg_outbreak_gp",
     name="rVSV outbreak glycoprotein",
     antigen_class="zaire-ebolavirus-glycoprotein",
@@ -36,12 +35,15 @@ vaccine = vsv.indiana().replace(
     replication=Replication.COMPETENT,
 )
 vaccine.check()
-vaccine.precedents(vsv.library(), host=Host.RHESUS, timing=Timing.POST_EXPOSURE)
-print(write_genome(vaccine.antigenome()))
-vaccine.write("kikwit.ttl")
+
+# Gene order, the edit, its citation, and the foreign coding sequence.
+vaccine.write_plan("plan.ttl")
+
+# That coding sequence spliced into the Indiana reference, NC_001560.1.
+vaccine.write_antigenome("antigenome.ttl")
 ```
 
-`read_record` reads FASTA, GenBank, or an SBOL genome document. `write_genome` writes that antigenome as SBOL Turtle. `write` stores the plan as an SBOL3 design file. `vsv.read` opens a plan and returns a `Vaccine`. Calling code does not handle SBOL objects.
+`read_record` reads the pathogen genome from FASTA, GenBank, or an SBOL genome document. `write_plan` stores the plan: ordered genes, the edit, the method citation, and the foreign coding sequence. `write_antigenome` stores the antigenome, the same coding sequence spliced into the Indiana reference NC_001560.1. `vsv.read` opens a plan and returns a `Vaccine`. `read_record` opens that antigenome and returns a `Genome`. Calling code does not handle SBOL objects.
 
 ## The coding sequence
 
@@ -103,7 +105,7 @@ if not result:
         print(violation.rule, violation.message)
 ```
 
-`vaccine.observations` is empty until a result is recorded. `write` stores the coding sequence when one is set. The curated shelf cards have none.
+`vaccine.observations` is empty until a result is recorded. `write_plan` stores the coding sequence when one is set. The curated shelf cards have none.
 
 ## Finding precedents
 
@@ -145,7 +147,7 @@ shelf = vsv.library(Path("path/to/pyVSV/data/designs"))
 
 A glycoprotein replacement keeps both flanking intergenic dinucleotides on the backbone. An insert between the glycoprotein and the large polymerase prefixes `CT`. An insert after the leader suffixes `CT`, so a gene-end is not joined directly to the next gene-start.
 
-A shelf card has no coding sequence, so `antigenome()` raises for those files.
+A shelf card has no coding sequence, so `antigenome()` and `write_antigenome` raise for those files.
 
 ## Command line
 

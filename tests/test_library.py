@@ -173,5 +173,5 @@ def test_bombali_only_gap_is_unknown_replication() -> None:
 def test_shelf_cards_round_trip(tmp_path: Path) -> None:
     for vaccine in library():
         path = tmp_path / f"{vaccine.id}.ttl"
-        vaccine.write(path)
+        vaccine.write_plan(path)
         assert read(path) == vaccine

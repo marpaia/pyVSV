@@ -7,7 +7,6 @@ import sbol3
 import vsv
 from vsv import GlycoproteinForm, Replication, indiana, library
 from vsv.genome.record import Genome, Span
-from vsv.genome.sbol import write_genome
 from vsv.sbol import NAMESPACE, ROLE_LEADER, SO_REGION
 
 _CODING = "ATG" + "GCT" * 20 + "TAA"
@@ -56,7 +55,7 @@ def test_a_design_file_orders_the_genome_and_records_its_parent(tmp_path: Path) 
         form=GlycoproteinForm.FULL_LENGTH,
     )
     path = tmp_path / "design.ttl"
-    vaccine.write(path)
+    vaccine.write_plan(path)
     document = sbol3.Document()
     document.read(str(path))
     (component,) = (obj for obj in document.objects if isinstance(obj, sbol3.Component))
@@ -83,8 +82,8 @@ def test_a_design_file_orders_the_genome_and_records_its_parent(tmp_path: Path) 
 def test_a_second_shelf_round_trip_writes_no_sequence(tmp_path: Path) -> None:
     kikwit = next(item for item in library() if item.id == "rvsv_dg_zebov_kikwit_gp")
     path = tmp_path / "design.ttl"
-    kikwit.write(path)
-    vsv.read(path).write(path)
+    kikwit.write_plan(path)
+    vsv.read(path).write_plan(path)
     document = sbol3.Document()
     document.read(str(path))
     assert "hasSequence" not in path.read_text()
@@ -93,9 +92,9 @@ def test_a_second_shelf_round_trip_writes_no_sequence(tmp_path: Path) -> None:
 
 def test_a_plan_and_a_genome_share_the_leader_role(tmp_path: Path) -> None:
     design = tmp_path / "design.ttl"
-    indiana().write(design)
+    indiana().write_plan(design)
     genome = tmp_path / "genome.ttl"
-    genome.write_text(write_genome(Genome("tiny", "tiny genome", "ACGTACGT", leader=Span(0, 4))))
+    Genome("tiny", "tiny genome", "ACGTACGT", leader=Span(0, 4)).write(genome)
     assert _leader_roles(design) == {SO_REGION, ROLE_LEADER}
     assert _leader_roles(genome) == {SO_REGION, ROLE_LEADER}
 

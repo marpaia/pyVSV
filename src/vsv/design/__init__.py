@@ -17,7 +17,7 @@ from vsv.design.evidence import (
     Violation,
 )
 from vsv.design.library import LIBRARY_ROOT, library, load
-from vsv.design.sbol import read
+from vsv.design.sbol.read import read
 from vsv.design.vaccine import (
     KNOWLEDGE_GAPS,
     Antigen,

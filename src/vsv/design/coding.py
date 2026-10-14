@@ -10,7 +10,7 @@ import re
 
 from vsv.design.classes import class_label, editing_length
 from vsv.design.evidence import Violation
-from vsv.design.vaccine import GlycoproteinForm, Replication
+from vsv.design.vector import GlycoproteinForm, Replication
 from vsv.genome.sequence import STOP_CODONS, hydrophobic_window, translate
 
 _ADENOSINE_RUN = re.compile(r"A{7,8}")

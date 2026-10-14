@@ -13,7 +13,7 @@ from vsv.genes import Gene, Product
 from vsv.genome import gene_problems
 from vsv.genome.formats import read_records
 from vsv.genome.record import Genome
-from vsv.genome.sbol import write_sequences
+from vsv.genome.sbol.write import write_sequences
 from vsv.genome.sequence import translate
 from vsv.sbol import DNA_ENCODING, PROTEIN_ENCODING
 

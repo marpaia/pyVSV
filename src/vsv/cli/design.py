@@ -31,7 +31,7 @@ from vsv.design.vaccine import (
     Viral,
 )
 from vsv.errors import InputError
-from vsv.genome.sbol import write_genome
+from vsv.genome.sbol.write import _text
 
 _EVIDENCE = {
     "none": EvidenceLevel.NONE,
@@ -434,7 +434,7 @@ def precedents(
 @click.argument("design")
 def antigenome(design: str) -> None:
     """Write the spliced NC_001560.1 antigenome as SBOL."""
-    click.echo(write_genome(_resolve(design).antigenome()).rstrip("\n"))
+    click.echo(_text(_resolve(design).antigenome()).rstrip("\n"))
 
 
 @click.command()

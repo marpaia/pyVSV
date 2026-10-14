@@ -297,7 +297,7 @@ def test_check_fails_a_structural_violation(
         tuple(Viral(gene) for gene in Gene),
     )
     path = tmp_path / "design.ttl"
-    vaccine.write(path)
+    vaccine.write_plan(path)
     status, out, err = run(capsys, "check", str(path))
     assert (status, err) == (1, "")
     assert "replication" in out
@@ -317,7 +317,7 @@ def test_precedents_and_antigenome_commands(
         strain="Kikwit-1995",
     )
     path = tmp_path / "design.ttl"
-    vaccine.write(path)
+    vaccine.write_plan(path)
     status, out, err = run(
         capsys,
         "precedents",

@@ -11,7 +11,7 @@ from pathlib import Path
 
 from vsv.design.classes import antigen_matches
 from vsv.design.evidence import EvidenceLevel, Host, Phenotype, Timing, evidence_level, host_matches
-from vsv.design.sbol import read
+from vsv.design.sbol.read import read
 from vsv.design.vaccine import GlycoproteinForm, Vaccine
 from vsv.errors import InputError
 

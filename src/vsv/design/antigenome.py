@@ -16,7 +16,7 @@ from vsv.design.evidence import Violation
 from vsv.errors import InputError
 from vsv.genome.annotate import GENE_END_SIGNAL, annotate
 from vsv.genome.record import Genome
-from vsv.genome.sbol import read_genomes
+from vsv.genome.sbol.read import read_genomes
 from vsv.genome.sequence import Nucleotides
 
 _ACCESSION = "NC_001560.1"

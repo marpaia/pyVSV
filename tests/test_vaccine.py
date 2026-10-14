@@ -231,5 +231,5 @@ def test_a_vaccine_round_trips_evidence_and_coding(tmp_path: Path) -> None:
         observations=(observation,),
     )
     path = tmp_path / "design.ttl"
-    vaccine.write(path)
+    vaccine.write_plan(path)
     assert read(path) == vaccine
