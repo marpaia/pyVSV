@@ -1,10 +1,11 @@
 """FASTA, GenBank, and SBOL genome readers.
 
 FASTA is annotated from transcription signals. GenBank locations are simple spans. A ``join``
-or ``complement`` location is rejected. Five ``gene`` features, in file order, are N, P, M, G,
-and L. The longest coding sequence inside each gene is that gene's CDS, so the shorter
-overlapping ORF inside phosphoprotein is not P. With no gene features and exactly five CDS
-features, those five are named in file order. An SBOL document is read by
+or ``complement`` location is rejected. Five ``gene`` features, in file order, are
+nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and large polymerase. The longest
+coding sequence inside each gene is that gene's CDS, so the shorter overlapping ORF inside
+phosphoprotein is not the phosphoprotein. With no gene features and exactly five CDS features,
+those five are named in file order. An SBOL document is read by
 :func:`vsv.genome.sbol.read_genomes`.
 """
 

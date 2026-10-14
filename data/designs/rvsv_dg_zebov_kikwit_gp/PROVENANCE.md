@@ -1,6 +1,6 @@
 # rVSV-ZEBOV Kikwit GP
 
-The glycoprotein is Zaire ebolavirus strain Kikwit-1995, full length, and replaces VSV G. The product name on this genome is Ervebo.
+The glycoprotein is Zaire ebolavirus strain Kikwit-1995, full length, and replaces the VSV glycoprotein. The product name on this genome is Ervebo.
 
 Regules and colleagues (New England Journal of Medicine, 2017, https://doi.org/10.1056/NEJMoa1414216) state: "The rVSV-ZEBOV vaccine candidate is a live attenuated recombinant virus consisting of the VSV strain Indiana, with the glycoprotein of the ZEBOV Kikwit 1995 strain replacing the gene for the VSV envelope glycoprotein." The same paper states: "The most common adverse events were injection-site pain, fatigue, myalgia, and headache." That observation is prophylactic. The adverse-event sentence does not state one dose.
 

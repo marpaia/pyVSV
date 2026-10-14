@@ -6,7 +6,7 @@
 
 A genome plan in `data/designs/` is an SBOL component. Gene order is `sbol:strictlyPrecedes`. A feature that is a gene also carries a Sequence Ontology role. Those facts are SBOL and the Sequence Ontology. This file does not redefine them.
 
-The Sequence Ontology has no term for an Indiana backbone, for replication competence, or for replacing VSV G versus inserting a gene downstream of VSV G. Those are the terms defined here. Where a term is a sequence feature, it is a subclass of the Sequence Ontology class with the same meaning:
+The Sequence Ontology has no term for an Indiana backbone, for replication competence, or for replacing the VSV glycoprotein versus inserting a gene downstream of the VSV glycoprotein. Those are the terms defined here. Where a term is a sequence feature, it is a subclass of the Sequence Ontology class with the same meaning:
 
 | This ontology | Sequence Ontology |
 |---|---|

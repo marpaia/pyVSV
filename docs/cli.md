@@ -2,7 +2,8 @@
 
 `vsv` with no subcommand prints help and exits 0. `vsv --version` prints the version. A usage error exits 2. A rejected input prints `vsv: error: …` and exits 1. A gene-naming warning prints `vsv: warning: …` and exits 0.
 
-On the command line the genes are `n`, `p`, `m`, `g`, and `l`.
+On the command line the genes are `n` (nucleoprotein), `p` (phosphoprotein), `m` (matrix protein),
+`g` (glycoprotein), and `l` (large polymerase).
 
 ## Read a genome
 
@@ -10,14 +11,15 @@ One or more FASTA, GenBank, or SBOL genome records. `vsv genes` and `vsv annotat
 `vsv extract` prints SBOL Turtle.
 
 ```sh
-# The n, p, m, g, and l genes and coding sequences. A naming problem is a warning.
+# Nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and large polymerase,
+# plus their coding sequences. A naming problem is a warning.
 vsv genes data/raw/NC_001560.fasta
 vsv genes data/raw/NC_001560.ttl
 
 # Leader, genes, signals, coding sequences, and trailer.
 vsv annotate data/raw/NC_001560.gb
 
-# SBOL for the named genes. Repeat -g; the default is all five. --kind is gene, cds, or protein (default cds).
+# Glycoprotein, as protein. Repeat -g; the default is all five. --kind is gene, cds, or protein (default cds).
 vsv extract -g g --kind protein data/raw/NC_001560.gb
 ```
 
@@ -60,7 +62,7 @@ vsv check rvsv_dg_bombali_gp
 ## Ask which published vaccines match an arrangement
 
 ```sh
-# Same arrangement: G replaced, one gene after G, or one gene after the leader.
+# Same arrangement: glycoprotein replaced, one gene after the glycoprotein, or one gene after the leader.
 # Omits the query vaccine. --antigen-class includes subclasses.
 vsv precedents data/designs/rvsv_dg_zebov_mayinga_gp \
   --antigen-class filovirus-glycoprotein \
@@ -71,7 +73,7 @@ vsv precedents data/designs/rvsv_dg_zebov_mayinga_gp \
 # A vaccine with no observations is omitted from the table. Bombali is one of those.
 vsv precedents data/designs/rvsv_dg_zebov_mayinga_gp
 
-# The soluble glycoprotein is the only curated insert after G, so this query returns no precedents.
+# The soluble glycoprotein is the only curated insert after the glycoprotein, so this query returns no precedents.
 vsv precedents data/designs/rvsv_gl_zebov_sgp
 
 # "no precedents": the Indiana chassis has no added gene, the transcription index matches nothing,
@@ -80,7 +82,7 @@ vsv precedents data/designs/vsv_indiana
 
 # --strain, --form, and --timing filter the same way as vsv designs.
 # --locus is the transcription index of the non-viral gene. Position 1 is 0.
-# A G replacement sits at 3. Locus 0 matches nothing on Kikwit.
+# A glycoprotein replacement sits at 3. Locus 0 matches nothing on Kikwit.
 vsv precedents data/designs/rvsv_dg_zebov_kikwit_gp --locus 3
 vsv precedents data/designs/rvsv_dg_zebov_kikwit_gp --locus 0
 vsv precedents data/designs/rvsv_gl_zebov_sgp --locus 4

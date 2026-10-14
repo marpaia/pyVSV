@@ -1,8 +1,9 @@
 """A VSV vaccine: ordered genes, one edit, and the papers that report it.
 
-The Indiana chassis is N, P, M, G, and L. A replacement puts an antigen where G was.
-An insert adds an antigen after the leader or after G. Leader and trailer are written
-into the design file and are not modules. Position is the index in ``modules``.
+The Indiana chassis is nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and
+large polymerase. A replacement puts an antigen where the glycoprotein was. An insert adds an
+antigen after the leader or after the glycoprotein. Leader and trailer are written into the
+design file and are not modules. Position is the index in ``modules``.
 """
 
 from __future__ import annotations
@@ -110,14 +111,14 @@ Module = Viral | Antigen
 
 @dataclass(frozen=True, slots=True)
 class Replace:
-    """The antigen ``module`` stands where VSV G stood."""
+    """The antigen ``module`` stands where the VSV glycoprotein stood."""
 
     module: str
 
 
 @dataclass(frozen=True, slots=True)
 class Insert:
-    """``module`` was added after the leader or after G."""
+    """``module`` was added after the leader or after the glycoprotein."""
 
     after: Literal["leader", "g"]
     module: str
@@ -196,7 +197,7 @@ class Vaccine:
         module: str = "Glycoprotein",
         antigen_name: str = "",
     ) -> Vaccine:
-        """Replace VSV G with an antigen and cite the 2004 method.
+        """Replace the VSV glycoprotein with an antigen and cite the 2004 method.
 
         Citations on the result are that method paper. ``module`` defaults to ``Glycoprotein``.
         ``antigen_name`` defaults to ``name``.
@@ -242,10 +243,10 @@ class Vaccine:
         form: GlycoproteinForm = GlycoproteinForm.UNSPECIFIED,
         antigen_name: str = "",
     ) -> Vaccine:
-        """Insert an antigen after the leader or after G.
+        """Insert an antigen after the leader or after the glycoprotein.
 
-        An insert after G cites the 1997 method. An insert after the leader cites the 2014
-        method. Replication stays the replication of this vaccine.
+        An insert after the glycoprotein cites the 1997 method. An insert after the leader
+        cites the 2014 method. Replication stays the replication of this vaccine.
         """
         if after not in {"leader", "g"}:
             raise InputError(f"{self.id}: a published insertion site is the leader or g.")
@@ -353,7 +354,10 @@ class Vaccine:
 
 
 def indiana() -> Vaccine:
-    """The Indiana chassis: N, P, M, G, and L, with no edit."""
+    """The Indiana chassis, with no edit.
+
+    Nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and large polymerase.
+    """
     return Vaccine(
         "vsv_indiana",
         "VSV Indiana",

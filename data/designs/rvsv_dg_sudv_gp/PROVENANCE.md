@@ -1,6 +1,6 @@
 # rVSV Sudan ebolavirus glycoprotein
 
-The glycoprotein module is a `sudan-ebolavirus-glycoprotein`. It replaces VSV G. The strain is Boniface and the form is full length.
+The glycoprotein module is a `sudan-ebolavirus-glycoprotein`. It replaces the VSV glycoprotein. The strain is Boniface and the form is full length.
 
 Geisbert and colleagues (Journal of Virology, 2009, https://doi.org/10.1128/jvi.00561-09) state that a recombinant VSV "expresses a single filovirus glycoprotein (GP) in place of the VSV glycoprotein (G)." The same paper names the Sudan vector: "The recombinant VSVs expressing the glycoprotein (GP) of ZEBOV (strain Mayinga) (VSVΔG/ZEBOVGP), the GP of SEBOV (strain Boniface) (VSVΔG/SEBOVGP), or the GP of MARV (strain Musoke) (VSVΔG/MARVGP) were generated using the infectious clone for the VSV Indiana serotype, as described recently (11, 15)."
 

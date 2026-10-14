@@ -35,7 +35,7 @@
 :VsvGene a owl:Class ;
     rdfs:label "VSV gene" ;
     rdfs:subClassOf so:0000704 ;
-    rdfs:comment "One of the five vesicular stomatitis virus genes, in transcription order N, P, M, G, L." .
+    rdfs:comment "One of the five vesicular stomatitis virus genes, in transcription order: nucleoprotein, phosphoprotein, matrix protein, glycoprotein, large polymerase." .
 
 :GenomicEdit a owl:Class ;
     rdfs:label "genomic edit" ;
@@ -113,12 +113,12 @@ gene:LargePolymerase a owl:Class ;
 activity:replace-module a owl:Class ;
     rdfs:label "replace module" ;
     rdfs:subClassOf :GenomicEdit ;
-    rdfs:comment "A module of the parent was replaced. Replacing VSV G with a pathogen glycoprotein is this edit." .
+    rdfs:comment "A module of the parent was replaced. Replacing the VSV glycoprotein with a pathogen glycoprotein is this edit." .
 
 activity:insert-module a owl:Class ;
     rdfs:label "insert module" ;
     rdfs:subClassOf :GenomicEdit ;
-    rdfs:comment "A module was added and the parent's modules remain. An extra gene downstream of a retained VSV G is this edit." .
+    rdfs:comment "A module was added and the parent's modules remain. An extra gene downstream of a retained VSV glycoprotein is this edit." .
 
 :editing-run a owl:DatatypeProperty ;
     rdfs:label "editing run" ;
@@ -274,7 +274,7 @@ antigen:yersinia-lcrv a owl:Class ;
 antigen:vesiculovirus-glycoprotein a owl:Class ;
     rdfs:label "vesiculovirus glycoprotein" ;
     rdfs:subClassOf :AntigenClass ;
-    rdfs:comment "A vesiculovirus G protein other than Indiana VSV G, encoded in the genome." .
+    rdfs:comment "A vesiculovirus glycoprotein other than the Indiana VSV glycoprotein, encoded in the genome." .
 
 antigen:henipavirus-nucleoprotein a owl:Class ;
     rdfs:label "henipavirus nucleoprotein" ;

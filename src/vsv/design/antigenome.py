@@ -1,10 +1,10 @@
 """Splice one coding sequence into the Indiana antigenome NC_001560.1.
 
-A G replacement leaves both flanking ``CT`` dinucleotides on the backbone. An insert
-between G and L places ``CT`` before the new gene-start. An insert after the leader places
-``CT`` after the new gene-end, so the gene-end is not joined to the N gene-start. The
-papers' infectious clones stay on ``Implementation.plasmid``. NC_001560.1 is the reference
-antigenome, not a rescue plasmid.
+A glycoprotein replacement leaves both flanking ``CT`` dinucleotides on the backbone. An insert
+between the glycoprotein and the large polymerase places ``CT`` before the new gene-start. An
+insert after the leader places ``CT`` after the new gene-end, so the gene-end is not joined to
+the nucleoprotein gene-start. The papers' infectious clones stay on ``Implementation.plasmid``.
+NC_001560.1 is the reference antigenome, not a rescue plasmid.
 """
 
 from __future__ import annotations
@@ -38,8 +38,9 @@ SLOT_CITATION = {
 def cassette(slot: str, coding: str) -> str:
     """Bases spliced into ``slot``.
 
-    ``g`` is the glycoprotein transcription unit. ``g-l`` inserts between G and L and prefixes
-    ``CT``. ``leader`` inserts before N and suffixes ``CT``.
+    ``g`` is the glycoprotein transcription unit. ``g-l`` inserts between the glycoprotein and
+    the large polymerase and prefixes ``CT``. ``leader`` inserts before the nucleoprotein and
+    suffixes ``CT``.
     """
     Nucleotides(coding)
     body = _GENE_START + coding + GENE_END_SIGNAL
@@ -61,7 +62,8 @@ def splice(
 ) -> Genome:
     """Place ``coding`` in ``slot`` of NC_001560.1 and identify the transcription units.
 
-    A replacement leaves five genes, so ``cds`` names N, P, M, G, and L. An insert leaves
+    A replacement leaves five genes, so ``cds`` names nucleoprotein, phosphoprotein, matrix
+    protein, glycoprotein, and large polymerase. An insert leaves
     six units, and those units keep the numbered names from the annotator.
     """
     bases = _indiana_sequence()

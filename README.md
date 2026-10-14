@@ -56,17 +56,17 @@ spans are one-based inclusive ranges.
 
 ## Placing the gene
 
-`replace` removes VSV G and puts the coding sequence in its place. The new vaccine cites the 2004
+`replace` removes the VSV glycoprotein and puts the coding sequence in its place. The new vaccine cites the 2004
 glycoprotein-replacement method. The antigen id defaults to `Glycoprotein`.
 
 `replication` is `Replication.COMPETENT` when the antigen supplies entry, and
 `Replication.SINGLE_CYCLE` when it does not.
 
-To keep VSV G, or to place the gene first, use `insert`. It keeps the parent's replication class,
+To keep the VSV glycoprotein, or to place the gene first, use `insert`. It keeps the parent's replication class,
 so it takes no `replication` argument. The published sites are `"g"` and `"leader"`.
 
 ```python
-# Keep VSV G and add the gene after it. Cites the 1997 method.
+# Keep the VSV glycoprotein and add the gene after it. Cites the 1997 method.
 vaccine = vsv.indiana().insert(
     coding,
     after="g",
@@ -91,7 +91,8 @@ vaccine = vsv.indiana().insert(
 )
 ```
 
-`vsv.indiana()` is N, P, M, G, and L, with realization `NC_001560`.
+`vsv.indiana()` is nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and large
+polymerase, with realization `NC_001560`.
 
 ## Checking a vaccine
 
@@ -104,8 +105,8 @@ When the edited antigen has a coding sequence, `check()` also rejects:
 - an unclosed reading frame
 - a gene-end inside the transcription unit
 - a gene-end joined directly to a gene-start
-- a soluble glycoprotein used as a replication-competent G replacement
-- a full-length or tail-chimera competent G replacement with no hydrophobic anchor in its last 60 residues
+- a soluble glycoprotein used as a replication-competent glycoprotein replacement
+- a full-length or tail-chimera competent glycoprotein replacement with no hydrophobic anchor in its last 60 residues
 - a Zaire glycoprotein whose editing site is not eight A's when full-length, or seven A's when soluble
 
 ```python
@@ -120,8 +121,8 @@ when one is set. The curated shelf cards have none.
 
 ## Finding precedents
 
-`precedents` returns published vaccines with the same arrangement: G replaced, one gene after G,
-or one gene after the leader. `vsv.library()` reads the curated shelf.
+`precedents` returns published vaccines with the same arrangement: the glycoprotein replaced,
+one gene after the glycoprotein, or one gene after the leader. `vsv.library()` reads the curated shelf.
 
 ```python
 for precedent in vaccine.precedents(vsv.library()):
@@ -164,13 +165,13 @@ shelf = vsv.library(Path("path/to/pyVSV/data/designs"))
 
 `vaccine.antigenome()` splices the coding sequence into NC_001560.1 and returns a `Genome`.
 The chassis sequence is the SBOL document `NC_001560.ttl`.
-A G replacement has five named genes, so `cds` returns the inserted glycoprotein. The backbone
-is `https://vsv.bio/backbone/VSV-Indiana`. The reference accession is NC_001560.1. The papers'
-infectious clones stay on `Implementation.plasmid`.
+A glycoprotein replacement has five named genes, so `cds` returns the inserted glycoprotein.
+The backbone is `https://vsv.bio/backbone/VSV-Indiana`. The reference accession is NC_001560.1.
+The papers' infectious clones stay on `Implementation.plasmid`.
 
-A G replacement keeps both flanking intergenic dinucleotides on the backbone. An insert between G
-and L prefixes `CT`. An insert after the leader suffixes `CT`, so a gene-end is not joined
-directly to the next gene-start.
+A glycoprotein replacement keeps both flanking intergenic dinucleotides on the backbone. An
+insert between the glycoprotein and the large polymerase prefixes `CT`. An insert after the
+leader suffixes `CT`, so a gene-end is not joined directly to the next gene-start.
 
 A shelf card has no coding sequence, so `antigenome()` raises for those files.
 
@@ -188,7 +189,8 @@ vsv precedents data/designs/rvsv_gl_zebov_sgp
 vsv antigenome kikwit.ttl
 ```
 
-On the command line the genes are `n`, `p`, `m`, `g`, and `l`. The full command reference (every
+On the command line the genes are `n` (nucleoprotein), `p` (phosphoprotein), `m` (matrix protein),
+`g` (glycoprotein), and `l` (large polymerase). The full command reference (every
 subcommand, its filters, and what an empty `precedents` answer means) is in
 [docs/cli.md](https://github.com/marpaia/pyVSV/blob/master/docs/cli.md).
 
@@ -202,7 +204,7 @@ the paper its arrangement came from.
 | Arrangement | Call | Method paper |
 |---|---|---|
 | Glycoprotein replacement | `replace(...)` | Garbutt et al., *Journal of Virology*, May 2004, [10.1128/jvi.78.10.5458-5465.2004](https://doi.org/10.1128/jvi.78.10.5458-5465.2004) |
-| Gene after G | `insert(..., after="g")` | [10.1128/jvi.71.8.5982-5989.1997](https://doi.org/10.1128/jvi.71.8.5982-5989.1997) |
+| Gene after the glycoprotein | `insert(..., after="g")` | [10.1128/jvi.71.8.5982-5989.1997](https://doi.org/10.1128/jvi.71.8.5982-5989.1997) |
 | Gene after the leader | `insert(..., after="leader")` | [10.1128/jvi.00019-14](https://doi.org/10.1128/jvi.00019-14) |
 
 Each curated design carries its own citations and quoted evidence in its `PROVENANCE.md`.

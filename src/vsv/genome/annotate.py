@@ -1,7 +1,7 @@
 """Find VSV transcription units in an antigenome string.
 
-VSV transcribes five genes, in order: Nucleoprotein, Phosphoprotein, MatrixProtein,
-Glycoprotein, LargePolymerase. Each unit begins with a gene-start (``AACAG``, two variable
+VSV transcribes five genes, in order: nucleoprotein, phosphoprotein, matrix protein,
+glycoprotein, and large polymerase. Each unit begins with a gene-start (``AACAG``, two variable
 bases, ``ATC``) and ends at ``TATG`` followed by seven adenines. Sequences are antigenome sense.
 """
 

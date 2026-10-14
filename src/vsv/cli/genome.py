@@ -19,7 +19,9 @@ from vsv.sbol import DNA_ENCODING, PROTEIN_ENCODING
 
 
 class GeneName(click.ParamType[Gene]):
-    """A VSV gene named ``n``, ``p``, ``m``, ``g``, or ``l``."""
+    """A VSV gene: ``n`` nucleoprotein, ``p`` phosphoprotein, ``m`` matrix protein,
+    ``g`` glycoprotein, or ``l`` large polymerase.
+    """
 
     name = "{n,p,m,g,l}"
 
@@ -149,7 +151,10 @@ def annotate(files: tuple[Path, ...]) -> None:
 @click.command()
 @click.argument("files", nargs=-1, required=True, type=click.Path(path_type=Path))
 def genes(files: tuple[Path, ...]) -> None:
-    """List the n, p, m, g, and l genes and coding sequences of VSV genomes."""
+    """List each VSV gene and its coding sequence.
+
+    Nucleoprotein, phosphoprotein, matrix protein, glycoprotein, and large polymerase.
+    """
     click.echo(_gene_table(_read(files, minimum=1, identify=True, command="genes")))
 
 
