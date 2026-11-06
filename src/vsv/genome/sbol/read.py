@@ -205,5 +205,3 @@ def _claim(
         claimed[id(piece)] = gene.name
         found.append(piece)
     return found
-
-
