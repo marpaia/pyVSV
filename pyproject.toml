@@ -10,11 +10,28 @@ readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 requires-python = ">=3.12"
+keywords = ["bioinformatics", "sbol", "vsv"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Typing :: Typed",
+]
 dependencies = [
     "click>=8.5.0",
     "rdflib>=6.1.1,<7",
     "sbol3>=1.2.0.post0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/marpaia/pyVSV"
+Documentation = "https://github.com/marpaia/pyVSV#readme"
+Repository = "https://github.com/marpaia/pyVSV"
+Issues = "https://github.com/marpaia/pyVSV/issues"
 
 [project.scripts]
 vsv = "vsv.cli:main"
@@ -24,9 +41,11 @@ dev = [
     "mypy>=1.15,<2",
     "pytest>=8.3,<10",
     "ruff>=0.11,<1",
+    "twine>=6.2,<7",
 ]
 
 [tool.hatch.build.targets.wheel]
+core-metadata-version = "2.4"
 packages = ["src/vsv"]
 
 [tool.hatch.build.targets.wheel.force-include]
@@ -38,13 +57,16 @@ packages = ["src/vsv"]
 dev-mode-dirs = ["src"]
 
 [tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
 include = [
     "/src",
-    "/ontology/synthetic-virology.ttl",
-    "/data/raw/NC_001560.fasta",
-    "/data/raw/NC_001560.ttl",
+    "/ontology",
+    "/data",
+    "/docs",
+    "/scripts",
     "/tests",
     "/README.md",
+    "/CHANGELOG.md",
     "/LICENSE",
     "/CONTRIBUTING.md",
     "/Makefile",
@@ -68,7 +90,7 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["src", "tests"]
+files = ["src", "tests", "scripts"]
 
 [[tool.mypy.overrides]]
 module = [

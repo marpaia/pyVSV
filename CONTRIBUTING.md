@@ -28,9 +28,12 @@ Review and include both `pyproject.toml` and `uv.lock` whenever changing depende
 make format       # Apply Ruff formatting
 make check        # Lint, formatting check, strict type checking, and tests
 make build        # Build a source distribution and wheel in dist/
+make check-dist   # Build and validate PyPI metadata and README
 ```
 
 Individual checks are available through `make lint`, `make format-check`, `make typecheck`, and `make test`. These targets run tools through uv, so activating the virtual environment is optional.
 
-CI runs these checks on Python 3.12, 3.13, and 3.14, then installs the built wheel into a separate environment to exercise its entry points. The distribution name is `pyVSV` and its version is defined in `pyproject.toml`. The Python API and CLI read that installed distribution metadata. The import package and the `vsv` command remain `vsv`.
+CI runs these checks on Python 3.12, 3.13, and 3.14, then builds and checks both distributions on Python 3.12. It installs each artifact into a fresh environment to verify metadata, packaged resources, and entry points, and runs the tests from the extracted source distribution. The distribution name is `pyVSV` and its version is defined in `pyproject.toml`. The Python API and CLI read that installed distribution metadata. The import package and the `vsv` command remain `vsv`.
+
+See [docs/releasing.md](docs/releasing.md) for PyPI setup, release validation, and publication.
 

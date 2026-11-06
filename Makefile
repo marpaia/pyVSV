@@ -1,4 +1,6 @@
-.PHONY: setup check lint format format-check typecheck test build
+.PHONY: setup check lint format format-check typecheck test build check-dist
+
+DIST_DIR ?= dist
 
 setup:
 	uv sync --locked
@@ -21,4 +23,7 @@ test:
 	uv run --locked pytest
 
 build:
-	uv build
+	uv build --no-sources --out-dir "$(DIST_DIR)"
+
+check-dist: build
+	uv run --locked twine check --strict "$(DIST_DIR)"/*.whl "$(DIST_DIR)"/*.tar.gz
